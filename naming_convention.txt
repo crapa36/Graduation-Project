@@ -7,7 +7,7 @@ bool is_true; // bool은 is나 can 붙히기
 class MyClass {
 	string name_; // 멤버 변수 뒤에 _ 붙히기 구조체 멤버엔 붙히지 않음
 }
-my_useful_class.cpp // 파일명
+MyClass.cpp // 파일명
 
 const int MAX_BUFFER_SIZE = 1024;
 #define PI 3.14159
