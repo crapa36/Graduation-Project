@@ -1,0 +1,17 @@
+class MyClass;
+struct MyStruct;
+void SampleFunction();
+
+int sample_variable;
+bool is_true; // bool은 is나 can 붙히기
+class MyClass {
+	string name_; // 멤버 변수 뒤에 _ 붙히기 구조체 멤버엔 붙히지 않음
+}
+my_useful_class.cpp // 파일명
+
+const int MAX_BUFFER_SIZE = 1024;
+#define PI 3.14159
+
+if ( is_true ) { //한줄이라도 중괄호 하기
+
+void SampleFunction( int width, int height ){ // 임시변수 지역함수 등은 최대한 짧고 간결하게
