@@ -7,6 +7,7 @@
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
+WindowInfo GwindowInfo;
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
@@ -18,9 +19,9 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-    _In_opt_ HINSTANCE hPrevInstance,
-    _In_ LPWSTR    lpCmdLine,
-    _In_ int       nCmdShow) {
+                      _In_opt_ HINSTANCE hPrevInstance,
+                      _In_ LPWSTR    lpCmdLine,
+                      _In_ int       nCmdShow) {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
@@ -39,9 +40,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CLIENT));
 
     MSG msg;
+    GwindowInfo.width = 800;
+    GwindowInfo.height = 600;
+    GwindowInfo.windowed = true;
 
     unique_ptr<Game> game = make_unique<Game>();
-    game->Init();
+    game->Init(GwindowInfo);
 
     // 기본 메시지 루프입니다:
     while (true) {
@@ -101,7 +105,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
     hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
     HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+                              CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
     if (!hWnd) {
         return FALSE;
@@ -109,7 +113,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
-
+    GwindowInfo.hwnd = hWnd;
     return TRUE;
 }
 
@@ -123,16 +127,14 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 //  WM_DESTROY  - 종료 메시지를 게시하고 반환합니다.
 //
 //
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
     case WM_COMMAND:
     {
         int wmId = LOWORD(wParam);
 
         // 메뉴 선택을 구문 분석합니다:
-        switch (wmId)
-        {
+        switch (wmId) {
         case IDM_ABOUT:
             DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
             break;
