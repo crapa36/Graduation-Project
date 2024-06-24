@@ -46,7 +46,6 @@ using Matrix = XMMATRIX;
 
 void HelloEngine();
 
-/*
 enum {
     SWAP_CHAIN_BUFFER_COUNT = 2
 };
@@ -59,4 +58,3 @@ struct WindowInfo {
 };
 
 extern unique_ptr<class Engine> GEngine;
-*/
