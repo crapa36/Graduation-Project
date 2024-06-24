@@ -1,8 +1,10 @@
 #pragma once
 
-#include <iostream>
+#pragma comment(lib, "Engine.lib")
+
+#include "EnginePch.h"
+
 #include <vector>
 #include <memory>
-#include <functional>	
-
 using namespace std;
+
