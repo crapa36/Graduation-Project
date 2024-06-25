@@ -1,8 +1,5 @@
 #include "pch.h"
 #include "Engine.h"
-#include "Device.h"
-#include "CommandQueue.h"
-#include "SwapChain.h"
 
 void Engine::Init(const WindowInfo& info)
 {
@@ -14,12 +11,14 @@ void Engine::Init(const WindowInfo& info)
 	_scissorRect = CD3DX12_RECT(0, 0, info.width, info.height);
 
 	_device = make_shared<Device>();
-	_commandQueue = make_shared<CommandQueue>();
+	_cmdQueue = make_shared<CommandQueue>();
 	_swapChain = make_shared<SwapChain>();
+	_rootSignature = make_shared<RootSignature>();
 
 	_device->Init();
-	_commandQueue->Init(_device->GetDevice(), _swapChain);
-	_swapChain->Init(info, _device->GetDevice(), _device->GetDXGI(), _commandQueue->GetCmdQueue());
+	_cmdQueue->Init(_device->GetDevice(), _swapChain);
+	_swapChain->Init(info, _device->GetDevice(), _device->GetDXGI(), _cmdQueue->GetCmdQueue());
+	_rootSignature->Init(_device->GetDevice());
 }
 
 void Engine::Render()
@@ -33,12 +32,12 @@ void Engine::Render()
 
 void Engine::RenderBegin()
 {
-	_commandQueue->RenderBegin(&_viewport, &_scissorRect);
+	_cmdQueue->RenderBegin(&_viewport, &_scissorRect);
 }
 
 void Engine::RenderEnd()
 {
-	_commandQueue->RenderEnd();
+	_cmdQueue->RenderEnd();
 }
 
 void Engine::ResizeWindow(int32 width, int32 height)

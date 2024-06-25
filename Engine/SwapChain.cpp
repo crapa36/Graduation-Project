@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "SwapChain.h"
+#include "Engine.h"
+#include "Device.h"
+
 
 void SwapChain::Init(const WindowInfo& info, ComPtr<ID3D12Device> device, ComPtr<IDXGIFactory> dxgi, ComPtr<ID3D12CommandQueue> cmdQueue)
 {
@@ -54,7 +57,7 @@ void SwapChain::CreateRTV(ComPtr<ID3D12Device> device)
 	// 같은 종류의 데이터끼리 배열로 관리
 	// RTV 목록 : [ ] [ ] [ ] 
 	// DSC 목록 : [ ] [ ] [ ]
-	device->CreateDescriptorHeap(&rtvDesc, IID_PPV_ARGS(&_rtvHeap));
+	DEVICE->CreateDescriptorHeap(&rtvDesc, IID_PPV_ARGS(&_rtvHeap));
 
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHeapBegin = _rtvHeap->GetCPUDescriptorHandleForHeapStart();
 

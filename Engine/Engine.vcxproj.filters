@@ -10,6 +10,9 @@
     <Filter Include="Resource">
       <UniqueIdentifier>{06574da4-b236-461d-a126-e9364a7393fb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Shader">
+      <UniqueIdentifier>{f0d7096f-2021-42a9-8f9c-a9f883fd37f4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -30,8 +33,17 @@
     <ClInclude Include="Device.h">
       <Filter>Engine</Filter>
     </ClInclude>
+    <ClInclude Include="RootSignature.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
     <ClInclude Include="SwapChain.h">
       <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Resource</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -53,5 +65,19 @@
     <ClCompile Include="SwapChain.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
+    <ClCompile Include="RootSignature.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Resources\Shader\default.hlsli">
+      <Filter>Engine\Shader</Filter>
+    </None>
   </ItemGroup>
 </Project>
