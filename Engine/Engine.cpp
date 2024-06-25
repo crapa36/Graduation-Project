@@ -20,7 +20,8 @@ void Engine::Init(const WindowInfo& window)
 	_descriptorHeap = make_shared<DescriptorHeap>();
 
 	_device->Init();
-	_commandQueue->Init(_device->GetDevice(), _swapChain, _descriptorHeap)
+	_commandQueue->Init(_device->GetDevice(), _swapChain, _descriptorHeap);
+	_swapChain->Init(window, _device->GetDXGI(), _commandQueue->GetCmdQueue());
 }
 
 void Engine::Render()
