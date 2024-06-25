@@ -3,7 +3,6 @@
 #include "Device.h"
 #include "CommandQueue.h"
 #include "SwapChain.h"
-#include "DescriptorHeap.h"
 
 void Engine::Init(const WindowInfo& info)
 {
@@ -17,12 +16,10 @@ void Engine::Init(const WindowInfo& info)
 	_device = make_shared<Device>();
 	_commandQueue = make_shared<CommandQueue>();
 	_swapChain = make_shared<SwapChain>();
-	_descriptorHeap = make_shared<DescriptorHeap>();
 
 	_device->Init();
-	_commandQueue->Init(_device->GetDevice(), _swapChain, _descriptorHeap);
-	_swapChain->Init(info, _device->GetDXGI(), _commandQueue->GetCmdQueue());
-	_descriptorHeap->Init(_device->GetDevice(), _swapChain);
+	_commandQueue->Init(_device->GetDevice(), _swapChain);
+	_swapChain->Init(info, _device->GetDevice(), _device->GetDXGI(), _commandQueue->GetCmdQueue());
 }
 
 void Engine::Render()
