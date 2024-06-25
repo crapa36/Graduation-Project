@@ -36,9 +36,18 @@ void Mesh::Render() {
 
     //  TODO
     // 1) 버퍼에 데이터를 세팅
-    // 2) 버퍼의 주소를 레지스터에다가 전송
-    GEngine->GetConstantBuffer()->PushData(0, &_transform, sizeof(Transform));
-    GEngine->GetConstantBuffer()->PushData(1, &_transform, sizeof(Transform));
+    // 2) TableDescriptorHeap에 CBV 전달
+    // 3) 세팅이 끝났으면 커밋
+    {
+        D3D12_CPU_DESCRIPTOR_HANDLE handle = GEngine->GetConstantBuffer()->PushData(0, &_transform, sizeof(_transform));
+        GEngine->GetTableDescriptorHeap()->SetCBV(handle, CBV_REGISTER::b0);
+    }
+    {
+        D3D12_CPU_DESCRIPTOR_HANDLE handle = GEngine->GetConstantBuffer()->PushData(0, &_transform, sizeof(_transform));
+        GEngine->GetTableDescriptorHeap()->SetCBV(handle, CBV_REGISTER::b1);
+    }
+
+    GEngine->GetTableDescriptorHeap()->CommitTable();
 
     CMD_LIST->DrawInstanced(_vertexCount, 1, 0, 0);
 }
