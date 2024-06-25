@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "CommandQueue.h"
-	
+#include "SwapChain.h"
+#include "DescriptorHeap.h"
+
 CommandQueue::~CommandQueue() {
 	::CloseHandle(_fenceEvent);
 }
@@ -53,4 +55,50 @@ void CommandQueue::WaitSync()
 		// Wait until the GPU hits current fence event is fired/
 		::WaitForSingleObject(_fenceEvent, INFINITE);
 	}
+}
+
+void CommandQueue::RenderBegin(const D3D12_VIEWPORT* vp, const D3D12_RECT* rect)
+{
+	_cmdAlloc->Reset();
+	_cmdList->Reset(_cmdAlloc.Get(), nullptr);
+
+	D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+		_swapChain->GetCurrentBackBufferResources().Get(),
+		D3D12_RESOURCE_STATE_PRESENT, //화면 출력
+		D3D12_RESOURCE_STATE_RENDER_TARGET); // 외주 결과물
+	
+	_cmdList->ResourceBarrier(1, &barrier);
+
+	// Set the viewport and scissor rect. This needs to be reset whenever the command list is reset.
+	_cmdList->RSSetViewports(1, vp);
+	_cmdList->RSSetScissorRects(1, rect);
+
+	// Specify the buffers we are going to render to.
+	D3D12_CPU_DESCRIPTOR_HANDLE backBufferView = _descHeap->GetBackBufferView();
+	_cmdList->ClearRenderTargetView(backBufferView, Colors::LightSteelBlue, 0, nullptr);
+	_cmdList->OMSetRenderTargets(1, &backBufferView, FALSE, nullptr);
+}
+
+void CommandQueue::RenderEnd()
+{
+	D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+		_swapChain->GetCurrentBackBufferResources().Get(),
+		D3D12_RESOURCE_STATE_RENDER_TARGET, // 외주 결과물
+		D3D12_RESOURCE_STATE_PRESENT); //화면 출력
+
+	_cmdList->ResourceBarrier(1, &barrier);
+	_cmdList->Close();
+
+	// 커맨드 리스트 수행
+	ID3D12CommandList* cmdListArr[] = { _cmdList.Get() };
+	_cmdQueue->ExecuteCommandLists(_countof(cmdListArr), cmdListArr);
+
+	_swapChain->Present();
+
+	// Wait until frame comands are complete. This waiting is inefficient and is
+	// done for simplicity. Later we will show how to organize our rendering code
+	// so we do not hasve to wait per frame
+	WaitSync();
+
+	_swapChain->SwapIndex();
 }

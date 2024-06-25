@@ -5,14 +5,14 @@
 #include "SwapChain.h"
 #include "DescriptorHeap.h"
 
-void Engine::Init(const WindowInfo& window)
+void Engine::Init(const WindowInfo& info)
 {
-	_window = window;
-	ResizeWindow(_window.width, -window.height);
+	_window = info;
+	ResizeWindow(info.width, info.height);
 
 	//그려질 화면의 크기 설정
-	_viewport = { 0, 0, static_cast<FLOAT>(_window.width), static_cast<FLOAT>(_window.height), 0.0f, 1.0f };
-	_scissorRect = CD3DX12_RECT(0, 0, _window.width, _window.height);
+	_viewport = { 0, 0, static_cast<FLOAT>(info.width), static_cast<FLOAT>(info.height), 0.0f, 1.0f };
+	_scissorRect = CD3DX12_RECT(0, 0, info.width, info.height);
 
 	_device = make_shared<Device>();
 	_commandQueue = make_shared<CommandQueue>();
@@ -21,12 +21,27 @@ void Engine::Init(const WindowInfo& window)
 
 	_device->Init();
 	_commandQueue->Init(_device->GetDevice(), _swapChain, _descriptorHeap);
-	_swapChain->Init(window, _device->GetDXGI(), _commandQueue->GetCmdQueue());
+	_swapChain->Init(info, _device->GetDXGI(), _commandQueue->GetCmdQueue());
 	_descriptorHeap->Init(_device->GetDevice(), _swapChain);
 }
 
 void Engine::Render()
 {
+	RenderBegin();
+
+	// TODO : 나머지 물체를 그려준다.
+
+	RenderEnd();
+}
+
+void Engine::RenderBegin()
+{
+	_commandQueue->RenderBegin(&_viewport, &_scissorRect);
+}
+
+void Engine::RenderEnd()
+{
+	_commandQueue->RenderEnd();
 }
 
 void Engine::ResizeWindow(int32 width, int32 height)
@@ -35,5 +50,5 @@ void Engine::ResizeWindow(int32 width, int32 height)
 	_window.height = height;
 	RECT rect = { 0, 0, width, height };
 	::AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
-	::SetWindowPos(_window.hwnd, 0, 100, 100, _window.width, _window.height, 0);
+	::SetWindowPos(_window.hwnd, 0, 100, 100, width, height, 0);
 }
