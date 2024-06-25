@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{988469d4-fcbb-4b07-8d04-d767aaf063cb}</ProjectGuid>
-    <RootNamespace>Serverpractice</RootNamespace>
+    <ProjectGuid>{59715428-af2f-4b50-b451-f99f12726ccd}</ProjectGuid>
+    <RootNamespace>Chatserverex</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -127,10 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="chat_cl.cpp" />
     <ClCompile Include="chat_SERVER.cpp" />
-    <ClCompile Include="cl.cpp" />
-    <ClCompile Include="SERVER.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
