@@ -33,5 +33,12 @@ void Mesh::Init(vector<Vertex>& vec) {
 void Mesh::Render() {
     CMD_LIST->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     CMD_LIST->IASetVertexBuffers(0, 1, &_vertexBufferView); // Slot: (0~15)
+
+    //  TODO
+    // 1) 버퍼에 데이터를 세팅
+    // 2) 버퍼의 주소를 레지스터에다가 전송
+    GEngine->GetConstantBuffer()->PushData(0, &_transform, sizeof(Transform));
+    GEngine->GetConstantBuffer()->PushData(1, &_transform, sizeof(Transform));
+
     CMD_LIST->DrawInstanced(_vertexCount, 1, 0, 0);
 }

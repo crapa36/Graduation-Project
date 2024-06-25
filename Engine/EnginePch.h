@@ -58,6 +58,10 @@ struct Vertex {
     Vec3 pos;
     Vec4 color;
 };
+
+struct Transform {
+    Vec4 offset;
+};
 #define DEVICE          GEngine->GetDevice()->GetDevice()
 #define CMD_LIST        GEngine->GetCmdQueue()->GetCmdList()
 #define ROOT_SIGNATURE  GEngine->GetRootSignature()->GetSignature()
