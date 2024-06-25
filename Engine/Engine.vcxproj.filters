@@ -10,7 +10,7 @@
     <Filter Include="Resource">
       <UniqueIdentifier>{06574da4-b236-461d-a126-e9364a7393fb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\Shader">
+    <Filter Include="Shader">
       <UniqueIdentifier>{f0d7096f-2021-42a9-8f9c-a9f883fd37f4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -45,6 +45,9 @@
     <ClInclude Include="Shader.h">
       <Filter>Resource</Filter>
     </ClInclude>
+    <ClInclude Include="ConstantBuffer.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -74,10 +77,13 @@
     <ClCompile Include="Shader.cpp">
       <Filter>Resource</Filter>
     </ClCompile>
+    <ClCompile Include="ConstantBuffer.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Resources\Shader\default.hlsli">
-      <Filter>Engine\Shader</Filter>
+      <Filter>Shader</Filter>
     </None>
   </ItemGroup>
 </Project>
