@@ -8,21 +8,16 @@ void Engine::Init(const WindowInfo& info) {
     _viewport = { 0.0f, 0.0f, static_cast<float>(info.width), static_cast<float>(info.height), 0.0f, 1.0f };
     _scissorRect = CD3DX12_RECT(0, 0, info.width, info.height);
 
-    _device = make_shared<Device>();
-    _cmdQueue = make_shared<CommandQueue>();
-    _swapChain = make_shared<SwapChain>();
-    _rootSignature = make_shared<RootSignature>();
-    _cb = make_shared<ConstantBuffer>();
-    _tableHeap = make_shared<TableDescriptorHeap>();
-    _depthStencilBuffer = make_shared<DepthStencilBuffer>();
-
     _device->Init();
     _cmdQueue->Init(_device->GetDevice(), _swapChain);
     _swapChain->Init(info, _device->GetDevice(), _device->GetDXGI(), _cmdQueue->GetCmdQueue());
     _rootSignature->Init();
     _cb->Init(sizeof(Transform), 256);
-    _tableHeap->Init(256);
+    _tableDescHeap->Init(256);
     _depthStencilBuffer->Init(_window);
+
+    _input->Init(info.hwnd);
+    _timer->Init();
 
     ResizeWindow(info.width, info.height);
 }
@@ -33,6 +28,13 @@ void Engine::Render() {
     // TODO : 나머지 물체 그리기
 
     RenderEnd();
+}
+
+void Engine::Update() {
+    _input->Update();
+    _timer->Update();
+
+    showFps();
 }
 
 void Engine::RenderBegin() {
@@ -51,4 +53,11 @@ void Engine::ResizeWindow(int32 width, int32 height) {
     ::SetWindowPos(_window.hwnd, HWND_TOP, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE);
 
     _depthStencilBuffer->Init(_window);
+}
+
+void Engine::showFps() {
+    uint32 fps = _timer->GetFps();
+    WCHAR text[100] = L"";
+    ::wsprintf(text, L"FPS : %d", fps);
+    ::SetWindowText(_window.hwnd, text);
 }
