@@ -10,6 +10,8 @@
 #include "TableDescriptorHeap.h"
 #include "Texture.h"
 #include "DepthStencilBuffer.h"
+#include "Input.h"
+#include "Timer.h"
 
 class Engine
 {
@@ -19,6 +21,10 @@ public:
 	void Render();
 
 public:
+
+	void Update();
+
+public:
 	shared_ptr<Device>	GetDevice() { return _device; };
 	shared_ptr<CommandQueue>	GetCmdQueue() { return _cmdQueue; };
 	shared_ptr<SwapChain>	GetSwapChain() { return	 _swapChain; };
@@ -26,6 +32,8 @@ public:
 	shared_ptr<ConstantBuffer>	GetCB() { return _cb; };
 	shared_ptr<TableDescriptorHeap>	GetTableDescHeap() { return _tableDescHeap; };
 	shared_ptr<DepthStencilBuffer>	GetDepthStencilBuffer() {return _depthStencilBuffer; }
+	
+	shared_ptr<Input> GetInput() { return _input; }
 
 public:
 	void RenderBegin();
@@ -44,5 +52,7 @@ private:
 	shared_ptr<ConstantBuffer>		 _cb;
 	shared_ptr<TableDescriptorHeap>		 _tableDescHeap;
 	shared_ptr<DepthStencilBuffer>	_depthStencilBuffer;
+
+	shared_ptr<Input> _input;
 };
 

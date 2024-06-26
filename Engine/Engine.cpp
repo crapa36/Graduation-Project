@@ -16,6 +16,7 @@ void Engine::Init(const WindowInfo& info)
 	_cb = make_shared<ConstantBuffer>();
 	_tableDescHeap = make_shared<TableDescriptorHeap>();
 	_depthStencilBuffer = make_shared<DepthStencilBuffer>();
+	_input = make_shared<Input>();
 
 	_device->Init();
 	_cmdQueue->Init(_device->GetDevice(), _swapChain);
@@ -24,6 +25,8 @@ void Engine::Init(const WindowInfo& info)
 	_cb->Init(sizeof(Transform), 256);
 	_tableDescHeap->Init(256);
 	_depthStencilBuffer->Init(_window);
+	
+	_input->Init(info.hwnd);
 
 	ResizeWindow(info.width, info.height);
 }
@@ -35,6 +38,11 @@ void Engine::Render()
 	// TODO : 나머지 물체를 그려준다.
 
 	RenderEnd();
+}
+
+void Engine::Update()
+{
+	_input->Update();
 }
 
 void Engine::RenderBegin()
