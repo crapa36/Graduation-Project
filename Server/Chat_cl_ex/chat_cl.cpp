@@ -6,7 +6,7 @@
 #pragma comment (lib, "WS2_32.LIB")
 
 constexpr short PORT = 4000;
-constexpr char SERVER_ADDR[] = "127.0.0.1";
+constexpr char SERVER_ADDR[] = "172.30.1.35";
 constexpr int BUFSIZE = 256;
 
 bool bshutdown = false;
