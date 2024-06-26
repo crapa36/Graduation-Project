@@ -34,12 +34,17 @@ public:
 	shared_ptr<DepthStencilBuffer>	GetDepthStencilBuffer() {return _depthStencilBuffer; }
 	
 	shared_ptr<Input> GetInput() { return _input; }
+	shared_ptr<Timer> GetTimer() { return _timer; }
 
 public:
 	void RenderBegin();
 	void RenderEnd();
 
 	void ResizeWindow(int32 width, int32 heigth);
+
+private:
+	void ShowFps();
+
 private:
 	WindowInfo		_window;
 	D3D12_VIEWPORT	_viewport = {};
@@ -54,5 +59,7 @@ private:
 	shared_ptr<DepthStencilBuffer>	_depthStencilBuffer;
 
 	shared_ptr<Input> _input;
+	shared_ptr<Timer> _timer;
+
 };
 

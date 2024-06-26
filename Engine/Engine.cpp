@@ -17,6 +17,7 @@ void Engine::Init(const WindowInfo& info)
 	_tableDescHeap = make_shared<TableDescriptorHeap>();
 	_depthStencilBuffer = make_shared<DepthStencilBuffer>();
 	_input = make_shared<Input>();
+	_timer = make_shared<Timer>();
 
 	_device->Init();
 	_cmdQueue->Init(_device->GetDevice(), _swapChain);
@@ -27,6 +28,7 @@ void Engine::Init(const WindowInfo& info)
 	_depthStencilBuffer->Init(_window);
 	
 	_input->Init(info.hwnd);
+	_timer->Init();
 
 	ResizeWindow(info.width, info.height);
 }
@@ -43,6 +45,9 @@ void Engine::Render()
 void Engine::Update()
 {
 	_input->Update();
+	_timer->Update();
+
+	ShowFps();
 }
 
 void Engine::RenderBegin()
@@ -64,4 +69,14 @@ void Engine::ResizeWindow(int32 width, int32 height)
 	::SetWindowPos(_window.hwnd, 0, 100, 100, width, height, 0);
 
 	_depthStencilBuffer->Init(_window);
+}
+
+void Engine::ShowFps()
+{
+	uint32 fps = _timer->GetFps();
+
+	WCHAR text[100] = L"";
+	::wsprintf(text, L"FPS : %d", fps);
+
+	::SetWindowText(_window.hwnd, text);
 }
