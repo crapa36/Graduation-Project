@@ -122,6 +122,7 @@ void CALLBACK recv_callback(DWORD err, DWORD recv_size,
 	}
 	int my_id = g_session_map[pover];
 	if (0 == recv_size) {
+		std::cout << "클라이언트 연결 종료: ID " << my_id << std::endl;
 		std::lock_guard<std::mutex> lock(g_players_mutex);
 		g_players.erase(my_id);
 		return;
@@ -145,11 +146,37 @@ int main()
 	server_a.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
 	bind(server_s, reinterpret_cast<sockaddr*>(&server_a), sizeof(server_a));
 	listen(server_s, SOMAXCONN);
+
+	char host_name[256];
+	if (gethostname(host_name, sizeof(host_name)) == 0) {
+		struct addrinfo hints, * res;
+		ZeroMemory(&hints, sizeof(hints));
+		hints.ai_family = AF_INET;
+		hints.ai_socktype = SOCK_STREAM;
+
+		if (getaddrinfo(host_name, NULL, &hints, &res) == 0) {
+			char ip_address[INET_ADDRSTRLEN];
+			inet_ntop(AF_INET, &((struct sockaddr_in*)res->ai_addr)->sin_addr, ip_address, INET_ADDRSTRLEN);
+			std::cout << "서버 IP 주소: " << ip_address << std::endl;
+			freeaddrinfo(res);
+		}
+	}
+	std::cout << "서버가 시작되었습니다. 포트: " << PORT << std::endl;
+
 	int addr_size = sizeof(server_a);
 	int id = 0;
 	while (false == b_shutdown) {
 		SOCKET client_s = WSAAccept(server_s, reinterpret_cast<sockaddr*>(&server_a), &addr_size, nullptr, 0);
-		g_players.try_emplace(id, client_s, id );
+		if (client_s == INVALID_SOCKET) {
+			std::cout << "클라이언트 연결 수락 실패. 에러 코드: " << WSAGetLastError() << std::endl;
+			continue;
+		}
+
+		char client_ip[INET_ADDRSTRLEN];
+		inet_ntop(AF_INET, &(server_a.sin_addr), client_ip, INET_ADDRSTRLEN);
+		std::cout << "새로운 클라이언트 접속: ID " << id << ", IP " << client_ip << ", 포트 " << ntohs(server_a.sin_port) << std::endl;
+
+		g_players.try_emplace(id, client_s, id);
 		g_players[id++].do_recv();
 	}
 	g_players.clear();
