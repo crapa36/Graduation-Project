@@ -1,6 +1,7 @@
 #include <iostream>
 #include <WS2tcpip.h>
 #include <unordered_map>
+#include <mutex>
 #pragma comment (lib, "WS2_32.LIB")
 
 constexpr short PORT = 4000;
@@ -12,6 +13,7 @@ class SESSION;
 
 std::unordered_map<LPWSAOVERLAPPED, int> g_session_map;
 std::unordered_map<int, SESSION> g_players;
+std::mutex g_players_mutex;
 
 void CALLBACK send_callback(DWORD, DWORD, LPWSAOVERLAPPED, DWORD);
 void CALLBACK recv_callback(DWORD, DWORD, LPWSAOVERLAPPED, DWORD);
@@ -96,7 +98,7 @@ void print_error(const char* msg, int err_no)
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 		reinterpret_cast<LPWSTR>(&msg_buf), 0, NULL);
 	std::cout << msg;
-	std::wcout << L" : 에러 : " << msg_buf;
+	std::wcout << L" : 에러 : " << msg_buf << std::endl;
 	while (true);
 	LocalFree(msg_buf);
 }
@@ -116,9 +118,11 @@ void CALLBACK recv_callback(DWORD err, DWORD recv_size,
 {
 	if (0 != err) {
 		print_error("WSARecv", WSAGetLastError());
+		return;
 	}
 	int my_id = g_session_map[pover];
 	if (0 == recv_size) {
+		std::lock_guard<std::mutex> lock(g_players_mutex);
 		g_players.erase(my_id);
 		return;
 	}
