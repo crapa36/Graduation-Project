@@ -30,6 +30,7 @@ enum
 
 class Input
 {
+	DECLARE_SINGLE(Input);
 public:
 	void Init(HWND hwnd);
 	void Update();
