@@ -26,6 +26,7 @@ enum {
 };
 
 class Input {
+    DECLARE_SINGLETON(Input);
 public:
     void Init(HWND hwnd);
     void Update();
