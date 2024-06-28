@@ -20,7 +20,7 @@ void Engine::Init(const WindowInfo& info) {
     _tableDescHeap->Init(256);
     _depthStencilBuffer->Init(_window);
 
-    CreateConstantBuffer(CBV_REGISTER::b0, sizeof(TransformMatrix), 256);
+    CreateConstantBuffer(CBV_REGISTER::b0, sizeof(TransformParams), 256);
     CreateConstantBuffer(CBV_REGISTER::b1, sizeof(MaterialParams), 256);
 
     ResizeWindow(info.width, info.height);
@@ -32,7 +32,7 @@ void Engine::Init(const WindowInfo& info) {
 void Engine::Update() {
     GET_SINGLETONE(Input)->Update();
     GET_SINGLETONE(Timer)->Update();
-
+    GET_SINGLETONE(SceneManager)->Update();
     Render();
 
     showFps();
@@ -42,7 +42,7 @@ void Engine::Render() {
     RenderBegin();
 
     // TODO : 나머지 물체 그리기
-    GET_SINGLETONE(SceneManager)->Update();
+    GET_SINGLETONE(SceneManager)->Render();
 
     RenderEnd();
 }

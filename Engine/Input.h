@@ -10,6 +10,8 @@ enum class KEY_TYPE {
     A = 'A',
     S = 'S',
     D = 'D',
+    Q = 'Q',
+    E = 'E',
 };
 
 enum class KEY_STATE {
