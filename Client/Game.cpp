@@ -6,7 +6,7 @@
 void Game::Init(const WindowInfo& info) {
     GEngine->Init(info);
 
-    GET_SINGLETONE(SceneManager)->LoadScene(L"TestScene");
+    GET_SINGLETON(SceneManager)->LoadScene(L"TestScene");
 }
 
 void Game::Update() {

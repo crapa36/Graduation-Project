@@ -94,9 +94,14 @@ struct WindowInfo {
 };
 
 struct Vertex {
+    Vertex() {}
+    Vertex(Vec3 pos, Vec2 uv, Vec3 normal, Vec3 tangent)
+        : pos(pos), uv(uv), normal(normal), tangent(tangent) {
+    }
     Vec3 pos;
-    Vec4 color;
     Vec2 uv;
+    Vec3 normal;
+    Vec3 tangent;
 };
 
 #define DECLARE_SINGLETON(type)         \
@@ -109,15 +114,15 @@ public:                                 \
         return &instance;               \
     }                                   \
 
-#define GET_SINGLETONE(type)    type::GetInstance()
+#define GET_SINGLETON(type)    type::GetInstance()
 
 #define DEVICE				GEngine->GetDevice()->GetDevice()
 #define CMD_LIST			GEngine->GetCmdQueue()->GetCmdList()
 #define RESOURCE_CMD_LIST	GEngine->GetCmdQueue()->GetResourceCmdList()
 #define ROOT_SIGNATURE		GEngine->GetRootSignature()->GetSignature()
 
-#define INPUT				GET_SINGLETONE(Input)
-#define DELTA_TIME			GET_SINGLETONE(Timer)->GetDeltaTime()
+#define INPUT				GET_SINGLETON(Input)
+#define DELTA_TIME			GET_SINGLETON(Timer)->GetDeltaTime()
 
 #define CONST_BUFFER(type)	GEngine->GetConstantBuffer(type)
 

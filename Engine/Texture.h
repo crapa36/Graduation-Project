@@ -1,7 +1,10 @@
 #pragma once
+#include "Object.h"
 
-class Texture {
+class Texture : public Object {
 public:
+    Texture();
+    virtual ~Texture();
     void Init(const wstring& path);
 
     D3D12_CPU_DESCRIPTOR_HANDLE GetCpuHandle() { return _srvHandle; }
@@ -15,5 +18,5 @@ private:
     ComPtr<ID3D12Resource>			_tex2D;
 
     ComPtr<ID3D12DescriptorHeap>	_srvHeap;
-    D3D12_CPU_DESCRIPTOR_HANDLE		_srvHandle;
+    D3D12_CPU_DESCRIPTOR_HANDLE		_srvHandle = {};
 };

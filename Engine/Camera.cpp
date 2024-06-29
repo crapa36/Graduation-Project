@@ -32,7 +32,7 @@ void Camera::FinalUpdate() {
 }
 
 void Camera::Render() {
-    shared_ptr<Scene> scene = GET_SINGLETONE(SceneManager)->GetActiveScene();
+    shared_ptr<Scene> scene = GET_SINGLETON(SceneManager)->GetActiveScene();
 
     // TODO : Layer ±¸ºÐ
     const vector<shared_ptr<GameObject>>& gameObjects = scene->GetGameObjects();

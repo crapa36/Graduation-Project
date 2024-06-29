@@ -25,14 +25,14 @@ void Engine::Init(const WindowInfo& info) {
 
     ResizeWindow(info.width, info.height);
 
-    GET_SINGLETONE(Input)->Init(info.hwnd);
-    GET_SINGLETONE(Timer)->Init();
+    GET_SINGLETON(Input)->Init(info.hwnd);
+    GET_SINGLETON(Timer)->Init();
 }
 
 void Engine::Update() {
-    GET_SINGLETONE(Input)->Update();
-    GET_SINGLETONE(Timer)->Update();
-    GET_SINGLETONE(SceneManager)->Update();
+    GET_SINGLETON(Input)->Update();
+    GET_SINGLETON(Timer)->Update();
+    GET_SINGLETON(SceneManager)->Update();
     Render();
 
     showFps();
@@ -42,7 +42,7 @@ void Engine::Render() {
     RenderBegin();
 
     // TODO : 나머지 물체 그리기
-    GET_SINGLETONE(SceneManager)->Render();
+    GET_SINGLETON(SceneManager)->Render();
 
     RenderEnd();
 }
@@ -71,7 +71,7 @@ void Engine::ResizeWindow(int32 width, int32 height) {
 }
 
 void Engine::showFps() {
-    uint32 fps = GET_SINGLETONE(Timer)->GetFps();
+    uint32 fps = GET_SINGLETON(Timer)->GetFps();
     WCHAR text[100] = L"";
     ::wsprintf(text, L"FPS : %d", fps);
     ::SetWindowText(_window.hwnd, text);
