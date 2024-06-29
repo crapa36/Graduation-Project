@@ -127,6 +127,10 @@ public:                                 \
 #define CONST_BUFFER(type)	GEngine->GetConstantBuffer(type)
 
 struct TransformParams {
+    Matrix matWorld;
+    Matrix matView;
+    Matrix matProjection;
+    Matrix matWV;
     Matrix matWVP;
 };
 
