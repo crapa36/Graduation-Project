@@ -8,26 +8,25 @@ enum class LIGHT_TYPE : uint8 {
 };
 
 struct LightColor {
-    Vec4    diffuse;
-    Vec4    ambient;
-    Vec4    specular;
+    Vec4	diffuse;
+    Vec4	ambient;
+    Vec4	specular;
 };
 
 struct LightInfo {
-    LightColor  color;
-    Vec3        position;
-    Vec3        direction;
-    int32       lightType;
-    float       range;
-    float       angle;
-    int32       padding;
+    LightColor	color;
+    Vec4		position;
+    Vec4		direction;
+    int32		lightType;
+    float		range;
+    float		angle;
+    int32		padding;
 };
 
-#define MAX_LIGHT_COUNT 50
 struct LightParams {
-    uint32 lightCount;
-    Vec3        padding;
-    LightInfo   lights[MAX_LIGHT_COUNT];
+    uint32		lightCount;
+    Vec3		padding;
+    LightInfo	lights[50];
 };
 
 class Light : public Component {

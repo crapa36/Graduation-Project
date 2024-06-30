@@ -39,7 +39,7 @@ void TableDescriptorHeap::SetSRV(D3D12_CPU_DESCRIPTOR_HANDLE srcHandle, SRV_REGI
 void TableDescriptorHeap::CommitTable() {
     D3D12_GPU_DESCRIPTOR_HANDLE handle = _descHeap->GetGPUDescriptorHandleForHeapStart();
     handle.ptr += _currentGroupIndex * _groupSize;
-    CMD_LIST->SetGraphicsRootDescriptorTable(0, handle);
+    CMD_LIST->SetGraphicsRootDescriptorTable(1, handle);
 
     _currentGroupIndex++;
 }

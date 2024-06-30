@@ -1,6 +1,8 @@
 #ifndef _UTILS_HLSLI_
 #define _UTILS_HLSLI_
 
+
+
 LightColor CalculateLightColor(int lightIndex, float3 viewNormal, float3 viewPos)
 {
     LightColor color = (LightColor) 0.f;
