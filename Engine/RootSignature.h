@@ -5,20 +5,16 @@
 // CPU [        ]    GPU [        ]
 // 한국 [        ]   베트남 [       ]
 
-class RootSignature
-{
+class RootSignature {
 public:
-	void Init();
+    void Init();
 
-	ComPtr<ID3D12RootSignature>	GetSignature() { return _signature; }
-
-private:
-	void CreateSamplerDesc();
-	void CreateRootSignature();
-
+    ComPtr<ID3D12RootSignature>	GetSignature() { return _signature; }
 
 private:
-	ComPtr<ID3D12RootSignature>	_signature;
-	D3D12_STATIC_SAMPLER_DESC _samplerDesc;
+    void CreateSamplerDesc();
+    void CreateRootSignature();
+
+    ComPtr<ID3D12RootSignature>     _signature;
+    D3D12_STATIC_SAMPLER_DESC       _samplerDesc;
 };
-

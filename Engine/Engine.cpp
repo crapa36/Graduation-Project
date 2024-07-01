@@ -5,97 +5,85 @@
 #include "Input.h"
 #include "Timer.h"
 #include "SceneManager.h"
+#include "Light.h"
 
-void Engine::Init(const WindowInfo& info)
-{
-	_window = info;
+void Engine::Init(const WindowInfo& info) {
+    _window = info;
 
-	//그려질 화면의 크기 설정
-	_viewport = { 0, 0, static_cast<FLOAT>(info.width), static_cast<FLOAT>(info.height), 0.0f, 1.0f };
-	_scissorRect = CD3DX12_RECT(0, 0, info.width, info.height);
+    // 그려질 화면 크기를 설정
+    _viewport = { 0.0f, 0.0f, static_cast<float>(info.width), static_cast<float>(info.height), 0.0f, 1.0f };
+    _scissorRect = CD3DX12_RECT(0, 0, info.width, info.height);
 
-	_device = make_shared<Device>();
-	_cmdQueue = make_shared<CommandQueue>();
-	_swapChain = make_shared<SwapChain>();
-	_rootSignature = make_shared<RootSignature>();
-	_tableDescHeap = make_shared<TableDescriptorHeap>();
-	_depthStencilBuffer = make_shared<DepthStencilBuffer>();
+    _device->Init();
+    _cmdQueue->Init(_device->GetDevice(), _swapChain);
+    _swapChain->Init(info, _device->GetDevice(), _device->GetDXGI(), _cmdQueue->GetCmdQueue());
+    _rootSignature->Init();
+    _tableDescHeap->Init(256);
+    _depthStencilBuffer->Init(_window);
 
-	_device->Init();
-	_cmdQueue->Init(_device->GetDevice(), _swapChain);
-	_swapChain->Init(info, _device->GetDevice(), _device->GetDXGI(), _cmdQueue->GetCmdQueue());
-	_rootSignature->Init();
-	_tableDescHeap->Init(256);
-	_depthStencilBuffer->Init(_window);
+    CreateConstantBuffer(CBV_REGISTER::b0, sizeof(LightParams), 256);
+    CreateConstantBuffer(CBV_REGISTER::b1, sizeof(TransformParams), 256);
+    CreateConstantBuffer(CBV_REGISTER::b2, sizeof(MaterialParams), 256);
 
-	CreateConstantBuffer(CBV_REGISTER::b0, sizeof(TransformParams), 256);
-	CreateConstantBuffer(CBV_REGISTER::b1, sizeof(MaterialParams), 256);
+    ResizeWindow(info.width, info.height);
 
-	ResizeWindow(info.width, info.height);
-
-	GET_SINGLE(Input)->Init(info.hwnd);
-	GET_SINGLE(Timer)->Init();
-
+    GET_SINGLETON(Input)->Init(info.hwnd);
+    GET_SINGLETON(Timer)->Init();
 }
 
-void Engine::Update()
-{
+void Engine::Update() {
+    GET_SINGLETON(Input)->Update();
+    GET_SINGLETON(Timer)->Update();
+    GET_SINGLETON(SceneManager)->Update();
+    Render();
 
-	GET_SINGLE(Input)->Update();
-	GET_SINGLE(Timer)->Update();
-	GET_SINGLE(SceneManager)->Update();
-
-	Render();
-
-	ShowFps();
+    showFps();
 }
 
-void Engine::Render()
-{
-	RenderBegin();
+void Engine::Render() {
+    RenderBegin();
 
-	GET_SINGLE(SceneManager)->Render();
+    // TODO : 나머지 물체 그리기
+    GET_SINGLETON(SceneManager)->Render();
 
-	RenderEnd();
+    RenderEnd();
 }
 
-void Engine::RenderBegin()
-{
-	_cmdQueue->RenderBegin(&_viewport, &_scissorRect);
+void Engine::LateUpdate() {
+
+    // TODO
 }
 
-void Engine::RenderEnd()
-{
-	_cmdQueue->RenderEnd();
+void Engine::RenderBegin() {
+    _cmdQueue->RenderBegin(&_viewport, &_scissorRect);
 }
 
-void Engine::ResizeWindow(int32 width, int32 height)
-{
-	_window.width = width;
-	_window.height = height;
-	RECT rect = { 0, 0, width, height };
-	::AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
-	::SetWindowPos(_window.hwnd, 0, 100, 100, width, height, 0);
-
-	_depthStencilBuffer->Init(_window);
+void Engine::RenderEnd() {
+    _cmdQueue->RenderEnd();
 }
 
-void Engine::ShowFps()
-{
-	uint32 fps = GET_SINGLE(Timer)->GetFps();
+void Engine::ResizeWindow(int32 width, int32 height) {
+    _window.width = width;
+    _window.height = height;
+    RECT rect = { 0,0,width,height };
+    ::AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
+    ::SetWindowPos(_window.hwnd, HWND_TOP, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE);
 
-	WCHAR text[100] = L"";
-	::wsprintf(text, L"FPS : %d", fps);
-
-	::SetWindowText(_window.hwnd, text);
+    _depthStencilBuffer->Init(_window);
 }
 
-void Engine::CreateConstantBuffer(CBV_REGISTER reg, uint32 bufferSize, uint32 count)
-{
-	uint8 typeInt = static_cast<uint8>(reg);
-	assert(_constantBuffers.size() == typeInt);
+void Engine::showFps() {
+    uint32 fps = GET_SINGLETON(Timer)->GetFps();
+    WCHAR text[100] = L"";
+    ::wsprintf(text, L"FPS : %d", fps);
+    ::SetWindowText(_window.hwnd, text);
+}
 
-	shared_ptr<ConstantBuffer> buffer = make_shared<ConstantBuffer>();
-	buffer->Init(reg, bufferSize, count);
-	_constantBuffers.push_back(buffer);
+void Engine::CreateConstantBuffer(CBV_REGISTER reg, uint32 bufferSize, uint32 count) {
+    uint8 typeInt = static_cast<uint8>(reg);
+    assert(_constantBuffers.size() == typeInt);
+
+    shared_ptr<ConstantBuffer> buffer = make_shared<ConstantBuffer>();
+    buffer->Init(reg, bufferSize, count);
+    _constantBuffers.push_back(buffer);
 }

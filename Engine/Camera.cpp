@@ -10,42 +10,37 @@
 Matrix Camera::S_MatView;
 Matrix Camera::S_MatProjection;
 
-Camera::Camera() : Component(COMPONENT_TYPE::CAMERA)
-{
+Camera::Camera() : Component(COMPONENT_TYPE::CAMERA) {
 }
 
-Camera::~Camera()
-{
+Camera::~Camera() {
 }
 
-void Camera::FinalUpdate()
-{
-	_matView = GetTransform()->GetLocalToWorldMatrix().Invert();
+void Camera::FinalUpdate() {
+    _matView = GetTransform()->GetLocalToWorldMatrix().Invert();
 
-	float width = static_cast<float>(GEngine->GetWindow().width);
-	float height = static_cast<float>(GEngine->GetWindow().height);
+    float width = static_cast<float>(GEngine->GetWindow().width);
+    float height = static_cast<float>(GEngine->GetWindow().height);
 
-	if (_type == PROJECTION_TYPE::PERSPECTIVE)
-		_matProjection = ::XMMatrixPerspectiveFovLH(_fov, width / height, _near, _far);
-	else
-		_matProjection = ::XMMatrixOrthographicLH(width * _scale, height * _scale, _near, _far);
+    if (_projectionType == PROJECTION_TYPE::PERSPECTIVE)
+        _matProjection = ::XMMatrixPerspectiveFovLH(_fov, width / height, _near, _far);
+    else
+        _matProjection = ::XMMatrixOrthographicLH(width * _scale, height * _scale, _near, _far);
 
-	S_MatView = _matView;
-	S_MatProjection = _matProjection;
+    S_MatView = _matView;
+    S_MatProjection = _matProjection;
 }
 
-void Camera::Render()
-{
-	shared_ptr<Scene> scene = GET_SINGLE(SceneManager)->GetActiveScene();
+void Camera::Render() {
+    shared_ptr<Scene> scene = GET_SINGLETON(SceneManager)->GetActiveScene();
 
-	// TODO : Layer 구분
-	const vector<shared_ptr<GameObject>>& gameObjects = scene->GetGameObjects();
+    // TODO : Layer 구분
+    const vector<shared_ptr<GameObject>>& gameObjects = scene->GetGameObjects();
 
-	for (auto& gameObject : gameObjects)
-	{
-		if (gameObject->GetMeshRenderer() == nullptr)
-			continue;
+    for (auto& gameObject : gameObjects) {
+        if (gameObject->GetMeshRenderer() == nullptr)
+            continue;
 
-		gameObject->GetMeshRenderer()->Render();
-	}
+        gameObject->GetMeshRenderer()->Render();
+    }
 }

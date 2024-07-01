@@ -1,9 +1,6 @@
 #pragma once
-
-class Game
-{
+class Game {
 public:
-	void Init(const WindowInfo& info);
-	void Update();
+    void Init(const WindowInfo& info);
+    void Update();
 };
-

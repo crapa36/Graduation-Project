@@ -1,6 +1,5 @@
 #pragma once
 
-// std::byte 사용하지 않음
 #define _HAS_STD_BYTE 0
 
 // 각종 include
@@ -26,6 +25,7 @@ namespace fs = std::filesystem;
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 #include <DirectXColors.h>
+
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 using namespace Microsoft::WRL;
@@ -39,10 +39,10 @@ using namespace Microsoft::WRL;
 #pragma comment(lib, "dxguid")
 #pragma comment(lib, "d3dcompiler")
 
-#ifdef _DEBUG
-#pragma comment(lib, "DirectXTex\\DirectXTex_debug.lib")
+#ifdef _DEBUG //수정 필요
+#pragma comment(lib, "DirectXTex_Debug")
 #else
-#pragma comment(lib, "DirectXTex\\DirectXTex.lib")
+#pragma comment(lib, "DirectXTex")
 #endif
 
 // 각종 typedef
@@ -59,76 +59,79 @@ using Vec3 = DirectX::SimpleMath::Vector3;
 using Vec4 = DirectX::SimpleMath::Vector4;
 using Matrix = DirectX::SimpleMath::Matrix;
 
-enum class CBV_REGISTER : uint8
-{
-	b0,
-	b1,
-	b2,
-	b3,
-	b4,
+enum class CBV_REGISTER : uint8 {
+    b0,
+    b1,
+    b2,
+    b3,
+    b4,
 
-	END
+    END
 };
 
-enum class SRV_REGISTER : uint8
-{
-	t0 = static_cast<uint8>(CBV_REGISTER::END),
-	t1,
-	t2,
-	t3,
-	t4,
+enum class SRV_REGISTER : uint8 {
+    t0 = static_cast<uint8>(CBV_REGISTER::END),
+    t1,
+    t2,
+    t3,
+    t4,
 
-	END
+    END
 };
 
-enum : uint8
-{
-	SWAP_CHAIN_BUFFER_COUNT = 2,
-	CBV_REGISTER_COUNT = CBV_REGISTER::END,
-	SRV_REGISTER_COUNT = static_cast<uint8>(SRV_REGISTER::END) - static_cast<uint8>(CBV_REGISTER_COUNT),
-	REGISTER_COUNT = CBV_REGISTER_COUNT + SRV_REGISTER_COUNT,
+enum {
+    SWAP_CHAIN_BUFFER_COUNT = 2,
+    CBV_REGISTER_COUNT = CBV_REGISTER::END,
+    SRV_REGISTER_COUNT = static_cast<uint8>(SRV_REGISTER::END) - CBV_REGISTER_COUNT,
+    REGISTER_COUNT = CBV_REGISTER_COUNT + SRV_REGISTER_COUNT,
 };
 
-struct WindowInfo
-{
-	HWND	hwnd; // 출력 윈도우
-	int32	width; // 너비
-	int32	height; // 높이
-	bool	windowed; // 창모드 or 전체화면
+struct WindowInfo {
+    HWND	hwnd; // 출력 윈도우
+    int32	width; // 너비
+    int32	height; // 높이
+    bool	windowed; // 창모드 or 전체화면
 };
 
-struct Vertex
-{
-	Vec3 pos;
-	Vec4 color;
-	Vec2 uv;
+struct Vertex {
+    Vertex() {}
+    Vertex(Vec3 pos, Vec2 uv, Vec3 normal, Vec3 tangent)
+        : pos(pos), uv(uv), normal(normal), tangent(tangent) {
+    }
+    Vec3 pos;
+    Vec2 uv;
+    Vec3 normal;
+    Vec3 tangent;
 };
 
-#define DECLARE_SINGLE(type)			\
-private:								\
-	type() {}							\
-	~type() {}							\
-	public:								\
-		static type* GetInstance() {	\
-			static type instance;		\
-			return &instance;			\
-		}								\
+#define DECLARE_SINGLETON(type)         \
+private:                                \
+    type() {}                           \
+    ~type() {}                          \
+public:                                 \
+    static type* GetInstance() {        \
+        static type instance;           \
+        return &instance;               \
+    }                                   \
 
-#define GET_SINGLE(type) type::GetInstance()
+#define GET_SINGLETON(type)    type::GetInstance()
 
 #define DEVICE				GEngine->GetDevice()->GetDevice()
 #define CMD_LIST			GEngine->GetCmdQueue()->GetCmdList()
 #define RESOURCE_CMD_LIST	GEngine->GetCmdQueue()->GetResourceCmdList()
 #define ROOT_SIGNATURE		GEngine->GetRootSignature()->GetSignature()
 
-#define INPUT				GET_SINGLE(Input)
-#define DELTA_TIME			GET_SINGLE(Timer)->GetDeltaTime()
+#define INPUT				GET_SINGLETON(Input)
+#define DELTA_TIME			GET_SINGLETON(Timer)->GetDeltaTime()
 
 #define CONST_BUFFER(type)	GEngine->GetConstantBuffer(type)
 
-struct TransformParams
-{
-	Matrix matWVP;
+struct TransformParams {
+    Matrix matWorld;
+    Matrix matView;
+    Matrix matProjection;
+    Matrix matWV;
+    Matrix matWVP;
 };
 
 extern unique_ptr<class Engine> GEngine;
