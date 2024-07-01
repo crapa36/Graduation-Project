@@ -5,7 +5,9 @@ enum class KEY_TYPE {
     DOWN = VK_DOWN,
     LEFT = VK_LEFT,
     RIGHT = VK_RIGHT,
-
+    SHIFT = VK_SHIFT,
+    SPACE = VK_SPACE,
+    CTRL = VK_CONTROL,
     W = 'W',
     A = 'A',
     S = 'S',
