@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Engine">
-      <UniqueIdentifier>{03195ab8-0856-4d38-87c3-f6d4e9b1212e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Utils">
       <UniqueIdentifier>{854f1723-bd0d-4279-8c0f-67faf9d13b9b}</UniqueIdentifier>
     </Filter>
@@ -25,6 +22,9 @@
     <Filter Include="Object\Resource">
       <UniqueIdentifier>{07fe09cd-7db5-4bc2-9573-f2854417128a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Object\Component\Engine">
+      <UniqueIdentifier>{03195ab8-0856-4d38-87c3-f6d4e9b1212e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -34,19 +34,19 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="Engine.cpp">
-      <Filter>Engine</Filter>
+      <Filter>Object\Component\Engine</Filter>
     </ClCompile>
     <ClCompile Include="CommandQueue.cpp">
-      <Filter>Engine</Filter>
+      <Filter>Object\Component\Engine</Filter>
     </ClCompile>
     <ClCompile Include="Device.cpp">
-      <Filter>Engine</Filter>
+      <Filter>Object\Component\Engine</Filter>
     </ClCompile>
     <ClCompile Include="SwapChain.cpp">
-      <Filter>Engine</Filter>
+      <Filter>Object\Component\Engine</Filter>
     </ClCompile>
     <ClCompile Include="RootSignature.cpp">
-      <Filter>Engine</Filter>
+      <Filter>Object\Component\Engine</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>Object\Resource</Filter>
@@ -55,16 +55,16 @@
       <Filter>Object\Resource</Filter>
     </ClCompile>
     <ClCompile Include="ConstantBuffer.cpp">
-      <Filter>Engine</Filter>
+      <Filter>Object\Component\Engine</Filter>
     </ClCompile>
     <ClCompile Include="TableDescriptorHeap.cpp">
-      <Filter>Engine</Filter>
+      <Filter>Object\Component\Engine</Filter>
     </ClCompile>
     <ClCompile Include="Texture.cpp">
       <Filter>Object\Resource</Filter>
     </ClCompile>
     <ClCompile Include="DepthStencilBuffer.cpp">
-      <Filter>Engine</Filter>
+      <Filter>Object\Component\Engine</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
       <Filter>Object\Resource</Filter>
@@ -114,6 +114,9 @@
     <ClCompile Include="Light.cpp">
       <Filter>Object\Component</Filter>
     </ClCompile>
+    <ClCompile Include="Frustum.cpp">
+      <Filter>Object\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -126,19 +129,19 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="Engine.h">
-      <Filter>Engine</Filter>
+      <Filter>Object\Component\Engine</Filter>
     </ClInclude>
     <ClInclude Include="CommandQueue.h">
-      <Filter>Engine</Filter>
+      <Filter>Object\Component\Engine</Filter>
     </ClInclude>
     <ClInclude Include="Device.h">
-      <Filter>Engine</Filter>
+      <Filter>Object\Component\Engine</Filter>
     </ClInclude>
     <ClInclude Include="SwapChain.h">
-      <Filter>Engine</Filter>
+      <Filter>Object\Component\Engine</Filter>
     </ClInclude>
     <ClInclude Include="RootSignature.h">
-      <Filter>Engine</Filter>
+      <Filter>Object\Component\Engine</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
       <Filter>Object\Resource</Filter>
@@ -147,16 +150,16 @@
       <Filter>Object\Resource</Filter>
     </ClInclude>
     <ClInclude Include="ConstantBuffer.h">
-      <Filter>Engine</Filter>
+      <Filter>Object\Component\Engine</Filter>
     </ClInclude>
     <ClInclude Include="TableDescriptorHeap.h">
-      <Filter>Engine</Filter>
+      <Filter>Object\Component\Engine</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h">
       <Filter>Object\Resource</Filter>
     </ClInclude>
     <ClInclude Include="DepthStencilBuffer.h">
-      <Filter>Engine</Filter>
+      <Filter>Object\Component\Engine</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>Object\Resource</Filter>
@@ -206,6 +209,9 @@
     <ClInclude Include="Light.h">
       <Filter>Object\Component</Filter>
     </ClInclude>
+    <ClInclude Include="Frustum.h">
+      <Filter>Object\Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Resources\Shader\default.hlsli">
@@ -219,6 +225,9 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="..\Resources\Shader\utils.hlsli">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="..\Resources\Shader\skybox.hlsli">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
