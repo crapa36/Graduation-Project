@@ -6,6 +6,7 @@
 #include "Timer.h"
 #include "SceneManager.h"
 #include "Light.h"
+#include "Resources.h"
 
 void Engine::Init(const WindowInfo& info) {
     _window = info;
@@ -29,6 +30,7 @@ void Engine::Init(const WindowInfo& info) {
 
     GET_SINGLETON(Input)->Init(info.hwnd);
     GET_SINGLETON(Timer)->Init();
+    GET_SINGLETON(Resources)->Init();
 }
 
 void Engine::Update() {
