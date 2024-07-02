@@ -1,9 +1,9 @@
-#include <SFML/Graphics.hpp>
-#include <SFML/Network.hpp>
+#include "SFML\include\SFML\Graphics.hpp"
+#include "SFML\include\SFML\Network.hpp"
 #include <iostream>
 using namespace std;
 
-#include "..\..\GAME_SERVER\GAME_SERVER\protocol.h"
+#include "C:\Graduation_Project\Graduation-Project\Server\Overlapped_server\protocol.h"
 
 sf::TcpSocket socket;
 
