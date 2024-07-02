@@ -1,5 +1,5 @@
-#include "SFML\include\SFML\Graphics.hpp"
-#include "SFML\include\SFML\Network.hpp"
+#include <C:\sfml_files\SFML-2.6.1\include\SFML\Graphics.hpp>
+#include <C:\sfml_files\SFML-2.6.1\include\SFML\Network.hpp>
 #include <iostream>
 using namespace std;
 
