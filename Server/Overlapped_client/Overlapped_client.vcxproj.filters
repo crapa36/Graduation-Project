@@ -15,8 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cl.cpp">
+    <ClCompile Include="game_client.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="chess2.png">
+      <Filter>리소스 파일</Filter>
+    </Image>
+    <Image Include="chessmap.bmp">
+      <Filter>리소스 파일</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="cour.ttf">
+      <Filter>리소스 파일</Filter>
+    </Font>
   </ItemGroup>
 </Project>
