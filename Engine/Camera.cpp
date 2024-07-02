@@ -22,19 +22,20 @@ void Camera::FinalUpdate() {
     float width = static_cast<float>(GEngine->GetWindow().width);
     float height = static_cast<float>(GEngine->GetWindow().height);
 
-    if (_projectionType == PROJECTION_TYPE::PERSPECTIVE)
+    if (_type == PROJECTION_TYPE::PERSPECTIVE)
         _matProjection = ::XMMatrixPerspectiveFovLH(_fov, width / height, _near, _far);
     else
         _matProjection = ::XMMatrixOrthographicLH(width * _scale, height * _scale, _near, _far);
-
-    S_MatView = _matView;
-    S_MatProjection = _matProjection;
 
     _frustum.FinalUpdate();
 }
 
 void Camera::Render() {
-    shared_ptr<Scene> scene = GET_SINGLETON(SceneManager)->GetActiveScene();
+
+    S_MatView = _matView;
+    S_MatProjection = _matProjection;
+
+    shared_ptr<Scene> scene = GET_SINGLE(SceneManager)->GetActiveScene();
 
     // TODO : Layer ±¸ºÐ
     const vector<shared_ptr<GameObject>>& gameObjects = scene->GetGameObjects();
@@ -43,6 +44,9 @@ void Camera::Render() {
         if (gameObject->GetMeshRenderer() == nullptr)
             continue;
 
+        if (IsCulled(gameObject->GetLayerIndex()))
+            continue;
+        
         if (gameObject->GetCheckFrustum()) {
             if (_frustum.ContainsSphere(
                 gameObject->GetTransform()->GetWorldPosition(),

@@ -22,7 +22,7 @@
     <Filter Include="Object\Resource">
       <UniqueIdentifier>{07fe09cd-7db5-4bc2-9573-f2854417128a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Object\Component\Engine">
+    <Filter Include="Engine">
       <UniqueIdentifier>{03195ab8-0856-4d38-87c3-f6d4e9b1212e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -34,19 +34,19 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="Engine.cpp">
-      <Filter>Object\Component\Engine</Filter>
+      <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="CommandQueue.cpp">
-      <Filter>Object\Component\Engine</Filter>
+      <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="Device.cpp">
-      <Filter>Object\Component\Engine</Filter>
+      <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="SwapChain.cpp">
-      <Filter>Object\Component\Engine</Filter>
+      <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="RootSignature.cpp">
-      <Filter>Object\Component\Engine</Filter>
+      <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>Object\Resource</Filter>
@@ -55,16 +55,16 @@
       <Filter>Object\Resource</Filter>
     </ClCompile>
     <ClCompile Include="ConstantBuffer.cpp">
-      <Filter>Object\Component\Engine</Filter>
+      <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="TableDescriptorHeap.cpp">
-      <Filter>Object\Component\Engine</Filter>
+      <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="Texture.cpp">
       <Filter>Object\Resource</Filter>
     </ClCompile>
     <ClCompile Include="DepthStencilBuffer.cpp">
-      <Filter>Object\Component\Engine</Filter>
+      <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
       <Filter>Object\Resource</Filter>
@@ -129,19 +129,19 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="Engine.h">
-      <Filter>Object\Component\Engine</Filter>
+      <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="CommandQueue.h">
-      <Filter>Object\Component\Engine</Filter>
+      <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Device.h">
-      <Filter>Object\Component\Engine</Filter>
+      <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="SwapChain.h">
-      <Filter>Object\Component\Engine</Filter>
+      <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="RootSignature.h">
-      <Filter>Object\Component\Engine</Filter>
+      <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
       <Filter>Object\Resource</Filter>
@@ -150,16 +150,16 @@
       <Filter>Object\Resource</Filter>
     </ClInclude>
     <ClInclude Include="ConstantBuffer.h">
-      <Filter>Object\Component\Engine</Filter>
+      <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="TableDescriptorHeap.h">
-      <Filter>Object\Component\Engine</Filter>
+      <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h">
       <Filter>Object\Resource</Filter>
     </ClInclude>
     <ClInclude Include="DepthStencilBuffer.h">
-      <Filter>Object\Component\Engine</Filter>
+      <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>Object\Resource</Filter>
@@ -214,21 +214,23 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Resources\Shader\default.hlsli">
-      <Filter>Shader</Filter>
-    </None>
     <None Include="cpp.hint" />
     <None Include="SimpleMath.inl">
       <Filter>Utils</Filter>
     </None>
-    <None Include="..\Resources\Shader\params.hlsli">
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Resources\Shader\forward.fx">
       <Filter>Shader</Filter>
-    </None>
-    <None Include="..\Resources\Shader\utils.hlsli">
+    </FxCompile>
+    <FxCompile Include="..\Resources\Shader\params.fx">
       <Filter>Shader</Filter>
-    </None>
-    <None Include="..\Resources\Shader\skybox.hlsli">
+    </FxCompile>
+    <FxCompile Include="..\Resources\Shader\skybox.fx">
       <Filter>Shader</Filter>
-    </None>
+    </FxCompile>
+    <FxCompile Include="..\Resources\Shader\utils.fx">
+      <Filter>Shader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

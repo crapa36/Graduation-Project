@@ -6,6 +6,7 @@
 #include "Timer.h"
 #include "SceneManager.h"
 #include "Light.h"
+#include "Resources.h"
 
 void Engine::Init(const WindowInfo& info) {
     _window = info;
@@ -27,14 +28,15 @@ void Engine::Init(const WindowInfo& info) {
 
     ResizeWindow(info.width, info.height);
 
-    GET_SINGLETON(Input)->Init(info.hwnd);
-    GET_SINGLETON(Timer)->Init();
+    GET_SINGLE(Input)->Init(info.hwnd);
+    GET_SINGLE(Timer)->Init();
+    GET_SINGLE(Resources)->Init();
 }
 
 void Engine::Update() {
-    GET_SINGLETON(Input)->Update();
-    GET_SINGLETON(Timer)->Update();
-    GET_SINGLETON(SceneManager)->Update();
+    GET_SINGLE(Input)->Update();
+    GET_SINGLE(Timer)->Update();
+    GET_SINGLE(SceneManager)->Update();
     Render();
 
     showFps();
@@ -44,7 +46,7 @@ void Engine::Render() {
     RenderBegin();
 
     // TODO : 나머지 물체 그리기
-    GET_SINGLETON(SceneManager)->Render();
+    GET_SINGLE(SceneManager)->Render();
 
     RenderEnd();
 }
@@ -73,7 +75,7 @@ void Engine::ResizeWindow(int32 width, int32 height) {
 }
 
 void Engine::showFps() {
-    uint32 fps = GET_SINGLETON(Timer)->GetFps();
+    uint32 fps = GET_SINGLE(Timer)->GetFps();
     WCHAR text[100] = L"";
     ::wsprintf(text, L"FPS : %d", fps);
     ::SetWindowText(_window.hwnd, text);
