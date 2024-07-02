@@ -128,7 +128,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
             meshRenderer->SetMesh(sphereMesh);
         }
         {
-            shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Forward");
+            shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Deferred");
             shared_ptr<Texture> texture = GET_SINGLETON(Resources)->Load<Texture>(L"Stone_Floor", L"..\\Resources\\Texture\\Stone_Floor.jpg");
             shared_ptr<Texture> texture2 = GET_SINGLETON(Resources)->Load<Texture>(L"Stone_Floor_Normal", L"..\\Resources\\Texture\\Stone_Floor_Normal.jpg");
             shared_ptr<Material> material = make_shared<Material>();
@@ -143,12 +143,12 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 #pragma endregion
 
 #pragma region UI_Test
-    {
+    for (int32 i = 0; i < 3; i++) {
         shared_ptr<GameObject> sphere = make_shared<GameObject>();
         sphere->SetLayerIndex(GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI")); // UI
         sphere->AddComponent(make_shared<Transform>());
         sphere->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
-        sphere->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 500.f));
+        sphere->GetTransform()->SetLocalPosition(Vec3(-700.f + (i * 160), 350.f, 500.f));
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
             shared_ptr<Mesh> mesh = GET_SINGLETON(Resources)->LoadRectangleMesh();
@@ -156,7 +156,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         }
         {
             shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Forward");
-            shared_ptr<Texture> texture = GET_SINGLETON(Resources)->Load<Texture>(L"Lee", L"..\\Resources\\Texture\\Lee.jpg");
+            shared_ptr<Texture> texture = GEngine->GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE::G_BUFFER)->GetRTTexture(i);
             shared_ptr<Material> material = make_shared<Material>();
             material->SetShader(shader);
             material->SetTexture(0, texture);

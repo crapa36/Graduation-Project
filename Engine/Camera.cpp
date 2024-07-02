@@ -6,6 +6,8 @@
 #include "GameObject.h"
 #include "MeshRenderer.h"
 #include "Engine.h"
+#include "Material.h"
+#include "shader.h"
 
 Matrix Camera::S_MatView;
 Matrix Camera::S_MatProjection;
@@ -30,14 +32,12 @@ void Camera::FinalUpdate() {
     _frustum.FinalUpdate();
 }
 
-void Camera::Render() {
-    S_MatView = _matView;
-    S_MatProjection = _matProjection;
-
+void Camera::SortGameObject() {
     shared_ptr<Scene> scene = GET_SINGLETON(SceneManager)->GetActiveScene();
-
-    // TODO : Layer ±¸ºÐ
     const vector<shared_ptr<GameObject>>& gameObjects = scene->GetGameObjects();
+
+    _vecForward.clear();
+    _vecDeferred.clear();
 
     for (auto& gameObject : gameObjects) {
         if (gameObject->GetMeshRenderer() == nullptr)
@@ -54,6 +54,32 @@ void Camera::Render() {
             }
         }
 
+        SHADER_TYPE shaderType = gameObject->GetMeshRenderer()->GetMaterial()->GetShader()->GetShaderType();
+        switch (shaderType) {
+        case SHADER_TYPE::DEFERRED:
+            _vecDeferred.push_back(gameObject);
+            break;
+        case SHADER_TYPE::FORWARD:
+            _vecForward.push_back(gameObject);
+            break;
+        }
+    }
+}
+
+void Camera::Render_Deferred() {
+    S_MatView = _matView;
+    S_MatProjection = _matProjection;
+
+    for (auto& gameObject : _vecDeferred) {
+        gameObject->GetMeshRenderer()->Render();
+    }
+}
+
+void Camera::Render_Forward() {
+    S_MatView = _matView;
+    S_MatProjection = _matProjection;
+
+    for (auto& gameObject : _vecForward) {
         gameObject->GetMeshRenderer()->Render();
     }
 }
