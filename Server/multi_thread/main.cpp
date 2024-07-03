@@ -3,22 +3,21 @@
 #include <vector>
 #include <chrono>
 #include <mutex>
+#include <atomic>
 using namespace std;
 
 mutex sum_lock;
 const auto  MAX_THREADS = 64;
 
-volatile int sum{};
+atomic <int>  sum{};
 
 void ThreadFunc(int num_of_thread)
 {
-	volatile int local_sum{};
-	for (auto i = 0; i < 50000000 / num_of_thread; ++i) {
-		local_sum += 2;
+	
+	for (auto i = 0; i < 100000000 / num_of_thread; ++i) {
+		sum += 1;
 	}
-	sum_lock.lock();
-	sum += local_sum;
-	sum_lock.unlock();
+	
 }
 
 int main()
