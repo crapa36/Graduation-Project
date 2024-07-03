@@ -12,11 +12,13 @@ volatile int sum{};
 
 void ThreadFunc(int num_of_thread)
 {
-	sum_lock.lock();
+	
 	for (auto i = 0; i < 50000000 / num_of_thread; ++i) {
+		sum_lock.lock();
 		sum = sum + 2;
+		sum_lock.unlock();
 	}
-	sum_lock.unlock();
+	
 }
 
 int main()
