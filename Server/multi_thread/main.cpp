@@ -2,16 +2,21 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <mutex>
 using namespace std;
+
+mutex sum_lock;
 const auto  MAX_THREADS = 64;
 
 volatile int sum{};
 
 void ThreadFunc(int num_of_thread)
 {
+	sum_lock.lock();
 	for (auto i = 0; i < 50000000 / num_of_thread; ++i) {
 		sum = sum + 2;
 	}
+	sum_lock.unlock();
 }
 
 int main()
