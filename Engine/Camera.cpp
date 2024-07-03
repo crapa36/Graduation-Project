@@ -7,7 +7,7 @@
 #include "MeshRenderer.h"
 #include "Engine.h"
 #include "Material.h"
-#include "shader.h"
+#include "Shader.h"
 
 Matrix Camera::S_MatView;
 Matrix Camera::S_MatProjection;

@@ -3,8 +3,8 @@
 #include "Frustum.h"
 
 enum class PROJECTION_TYPE {
-    PERSPECTIVE,
-    ORTHOGRAPHIC
+    PERSPECTIVE, // 원근 투영
+    ORTHOGRAPHIC, // 직교 투영
 };
 
 class Camera : public Component {
@@ -14,19 +14,20 @@ public:
 
     virtual void FinalUpdate() override;
 
-    void SetprojectionType(PROJECTION_TYPE projectionType) { _projectionType = projectionType; }
+    void SetProjectionType(PROJECTION_TYPE type) { _projectionType = type; }
     PROJECTION_TYPE GetProjectionType() { return _projectionType; }
 
     void SortGameObject();
     void Render_Deferred();
     void Render_Forward();
 
-    void SetCullingMaskLayerOnOff(uint8 layer, bool isOn) {
-        if (isOn)
-            _cullingMask |= 1 << layer;
+    void SetCullingMaskLayerOnOff(uint8 layer, bool on) {
+        if (on)
+            _cullingMask |= (1 << layer);
         else
             _cullingMask &= ~(1 << layer);
     }
+
     void SetCullingMaskAll() { SetCullingMask(UINT32_MAX); }
     void SetCullingMask(uint32 mask) { _cullingMask = mask; }
     bool IsCulled(uint8 layer) { return (_cullingMask & (1 << layer)) != 0; }
@@ -46,11 +47,12 @@ private:
     uint32 _cullingMask = 0;
 
 private:
-    vector<shared_ptr<GameObject>> _vecDeferred;
-    vector<shared_ptr<GameObject>> _vecForward;
+    vector<shared_ptr<GameObject>>	_vecDeferred;
+    vector<shared_ptr<GameObject>>	_vecForward;
+
 public:
 
-    //TEMP
+    // TEMP
     static Matrix S_MatView;
     static Matrix S_MatProjection;
 };

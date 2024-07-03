@@ -12,7 +12,7 @@ void Engine::Init(const WindowInfo& info) {
     _window = info;
 
     // 그려질 화면 크기를 설정
-    _viewport = { 0.0f, 0.0f, static_cast<float>(info.width), static_cast<float>(info.height), 0.0f, 1.0f };
+    _viewport = { 0, 0, static_cast<FLOAT>(info.width), static_cast<FLOAT>(info.height), 0.0f, 1.0f };
     _scissorRect = CD3DX12_RECT(0, 0, info.width, info.height);
 
     _device->Init();
@@ -21,7 +21,7 @@ void Engine::Init(const WindowInfo& info) {
     _rootSignature->Init();
     _tableDescHeap->Init(256);
 
-    CreateConstantBuffer(CBV_REGISTER::b0, sizeof(LightParams), 256);
+    CreateConstantBuffer(CBV_REGISTER::b0, sizeof(LightParams), 1);
     CreateConstantBuffer(CBV_REGISTER::b1, sizeof(TransformParams), 256);
     CreateConstantBuffer(CBV_REGISTER::b2, sizeof(MaterialParams), 256);
 
@@ -38,23 +38,18 @@ void Engine::Update() {
     GET_SINGLETON(Input)->Update();
     GET_SINGLETON(Timer)->Update();
     GET_SINGLETON(SceneManager)->Update();
+
     Render();
 
-    showFps();
+    ShowFps();
 }
 
 void Engine::Render() {
     RenderBegin();
 
-    // TODO : 나머지 물체 그리기
     GET_SINGLETON(SceneManager)->Render();
 
     RenderEnd();
-}
-
-void Engine::LateUpdate() {
-
-    // TODO
 }
 
 void Engine::RenderBegin() {
@@ -68,15 +63,18 @@ void Engine::RenderEnd() {
 void Engine::ResizeWindow(int32 width, int32 height) {
     _window.width = width;
     _window.height = height;
-    RECT rect = { 0,0,width,height };
-    ::AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, FALSE);
-    ::SetWindowPos(_window.hwnd, HWND_TOP, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE);
+
+    RECT rect = { 0, 0, width, height };
+    ::AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
+    ::SetWindowPos(_window.hwnd, 0, 100, 100, width, height, 0);
 }
 
-void Engine::showFps() {
+void Engine::ShowFps() {
     uint32 fps = GET_SINGLETON(Timer)->GetFps();
+
     WCHAR text[100] = L"";
     ::wsprintf(text, L"FPS : %d", fps);
+
     ::SetWindowText(_window.hwnd, text);
 }
 
@@ -92,11 +90,10 @@ void Engine::CreateConstantBuffer(CBV_REGISTER reg, uint32 bufferSize, uint32 co
 void Engine::CreateRenderTargetGroups() {
 
     // DepthStencil
-    shared_ptr<Texture> dsTexture =
-        GET_SINGLETON(Resources)->CreateTexture(L"DepthStencil",
-                                                DXGI_FORMAT_D32_FLOAT, _window.width, _window.height,
-                                                CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-                                                D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+    shared_ptr<Texture> dsTexture = GET_SINGLETON(Resources)->CreateTexture(L"DepthStencil",
+                                                                            DXGI_FORMAT_D32_FLOAT, _window.width, _window.height,
+                                                                            CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+                                                                            D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
 
     // SwapChain Group
     {
@@ -135,5 +132,23 @@ void Engine::CreateRenderTargetGroups() {
 
         _renderTargetGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::G_BUFFER)] = make_shared<RenderTargetGroup>();
         _renderTargetGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::G_BUFFER)]->Create(RENDER_TARGET_GROUP_TYPE::G_BUFFER, rtVec, dsTexture);
+    }
+
+    // Lighting Group
+    {
+        vector<RenderTarget> rtVec(RENDER_TARGET_LIGHTING_GROUP_MEMBER_COUNT);
+
+        rtVec[0].target = GET_SINGLETON(Resources)->CreateTexture(L"DiffuseLightTarget",
+                                                                  DXGI_FORMAT_R8G8B8A8_UNORM, _window.width, _window.height,
+                                                                  CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+                                                                  D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+
+        rtVec[1].target = GET_SINGLETON(Resources)->CreateTexture(L"SpecularLightTarget",
+                                                                  DXGI_FORMAT_R8G8B8A8_UNORM, _window.width, _window.height,
+                                                                  CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+                                                                  D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+
+        _renderTargetGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::LIGHTING)] = make_shared<RenderTargetGroup>();
+        _renderTargetGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::LIGHTING)]->Create(RENDER_TARGET_GROUP_TYPE::LIGHTING, rtVec, dsTexture);
     }
 }

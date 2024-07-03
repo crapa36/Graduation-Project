@@ -23,7 +23,7 @@ struct VS_OUT
 
 VS_OUT VS_Main(VS_IN input)
 {
-    VS_OUT output = (VS_OUT) 0;
+    VS_OUT output = (VS_OUT)0;
 
     output.pos = mul(float4(input.pos, 1.f), g_matWVP);
     output.uv = input.uv;
@@ -45,7 +45,7 @@ struct PS_OUT
 
 PS_OUT PS_Main(VS_OUT input)
 {
-    PS_OUT output = (PS_OUT) 0;
+    PS_OUT output = (PS_OUT)0;
 
     float4 color = float4(1.f, 1.f, 1.f, 1.f);
     if (g_tex_on_0)
