@@ -3,11 +3,20 @@
 
 #include "params.fx"
 
+// Blinn-Phong 모델을 사용한 스펙터 반사 계산
+float CalculateSpecular(float3 lightDir, float3 viewNormal, float3 viewPos, float3 lightColor, float shininess)
+{
+    float3 viewDir = normalize(viewPos);
+    float3 halfDir = normalize(lightDir + viewDir);
+    float specAngle = saturate(dot(viewNormal, halfDir));
+    return pow(specAngle, shininess);
+}
+
 LightColor CalculateLightColor(int lightIndex, float3 viewNormal, float3 viewPos)
 {
-    LightColor color = (LightColor)0.f;
+    LightColor color = (LightColor) 0.f;
 
-    float3 viewLightDir = (float3)0.f;
+    float3 viewLightDir = (float3) 0.f;
 
     float diffuseRatio = 0.f;
     float specularRatio = 0.f;
@@ -62,10 +71,8 @@ LightColor CalculateLightColor(int lightIndex, float3 viewNormal, float3 viewPos
         }
     }
 
-    float3 reflectionDir = normalize(viewLightDir + 2 * (saturate(dot(-viewLightDir, viewNormal)) * viewNormal));
-    float3 eyeDir = normalize(viewPos);
-    specularRatio = saturate(dot(-eyeDir, reflectionDir));
-    specularRatio = pow(specularRatio, 2);
+    // Blinn-Phong 스펙터 반사 계산
+    specularRatio = CalculateSpecular(viewLightDir, viewNormal, viewPos, g_light[lightIndex].color.specular, 32.0); // shininess는 32로 설정
 
     color.diffuse = g_light[lightIndex].color.diffuse * diffuseRatio * distanceRatio;
     color.ambient = g_light[lightIndex].color.ambient * distanceRatio;
@@ -73,6 +80,5 @@ LightColor CalculateLightColor(int lightIndex, float3 viewNormal, float3 viewPos
 
     return color;
 }
-
 
 #endif

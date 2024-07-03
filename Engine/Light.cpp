@@ -20,7 +20,7 @@ void Light::Render() {
     GetTransform()->PushData();
 
     _lightMaterial->SetInt(0, _lightIndex);
-    _lightMaterial->PushData();
+    _lightMaterial->PushGraphicsData();
 
     switch (static_cast<LIGHT_TYPE>(_lightInfo.lightType)) {
     case LIGHT_TYPE::POINT:

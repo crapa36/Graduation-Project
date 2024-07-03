@@ -1,5 +1,6 @@
 #pragma once
 #include "Object.h"
+
 class Material;
 
 // [유니티짱]과 같이 정점으로 이루어진 물체
@@ -7,7 +8,8 @@ class Mesh : public Object {
 public:
     Mesh();
     virtual ~Mesh();
-    void Init(const vector<Vertex>& vertexBuffer, const vector<uint32>& indexBuffer);
+
+    void Init(const vector<Vertex>& vertexBuffer, const vector<uint32>& indexbuffer);
     void Render();
 
 private:
@@ -20,6 +22,6 @@ private:
     uint32 _vertexCount = 0;
 
     ComPtr<ID3D12Resource>		_indexBuffer;
-    D3D12_INDEX_BUFFER_VIEW	_indexBufferView = {};
+    D3D12_INDEX_BUFFER_VIEW		_indexBufferView;
     uint32 _indexCount = 0;
 };

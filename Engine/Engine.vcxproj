@@ -245,7 +245,6 @@
     <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="cpp.hint" />
     <None Include="SimpleMath.inl" />
   </ItemGroup>
   <ItemGroup>
