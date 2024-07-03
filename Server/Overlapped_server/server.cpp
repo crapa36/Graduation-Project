@@ -138,6 +138,7 @@ void process_packet(int c_id, char* packet)
 			add_packet.y = pl.y;
 			clients[c_id].do_send(&add_packet);
 		}
+		cout << c_id << "Login" << endl;
 		break;
 	}
 	case CS_MOVE: {
