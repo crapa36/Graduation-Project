@@ -6,12 +6,18 @@
 #include <vector>
 #include <mutex>
 #include <unordered_set>
+#include <random>
 #include "protocol.h"
 
 
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
 using namespace std;
+
+std::random_device rd;
+std::default_random_engine dre(rd());
+std::uniform_int_distribution<> uid(1, 399);
+
 
 enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND };
 class OVER_EXP {
@@ -232,8 +238,8 @@ void worker_thread(HANDLE h_iocp)
 					lock_guard<mutex> ll(clients[client_id]._s_lock);
 					clients[client_id]._state = ST_ALLOC;
 				}
-				clients[client_id].x = 0;
-				clients[client_id].y = 0;
+				clients[client_id].x = static_cast<short>(uid(dre));
+				clients[client_id].y = static_cast<short>(uid(dre));
 				clients[client_id]._id = client_id;
 				clients[client_id]._name[0] = 0;
 				clients[client_id]._prev_remain = 0;
