@@ -4,6 +4,7 @@
 #include "Material.h"
 #include "Transform.h"
 #include "InstancingBuffer.h"
+#include "Resources.h"
 
 MeshRenderer::MeshRenderer() : Component(COMPONENT_TYPE::MESH_RENDERER) {
 }
@@ -21,6 +22,12 @@ void MeshRenderer::Render(shared_ptr<class InstancingBuffer>& buffer) {
     buffer->PushData();
     _material->PushGraphicsData();
     _mesh->Render(buffer);
+}
+
+void MeshRenderer::RenderShadow() {
+    GetTransform()->PushData();
+    GET_SINGLETON(Resources)->Get<Material>(L"Shadow")->PushGraphicsData();
+    _mesh->Render();
 }
 
 uint64 MeshRenderer::GetInstanceID() {

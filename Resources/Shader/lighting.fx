@@ -26,11 +26,13 @@ struct PS_OUT
 // g_int_0 : Light index
 // g_tex_0 : Position RT
 // g_tex_1 : Normal RT
+// g_tex_2 : Shadow RT
+// g_mat_0 : ShadowCamera VP
 // Mesh : Rectangle
 
 VS_OUT VS_DirLight(VS_IN input)
 {
-    VS_OUT output = (VS_OUT)0;
+    VS_OUT output = (VS_OUT) 0;
 
     output.pos = float4(input.pos * 2.f, 1.f);
     output.uv = input.uv;
@@ -40,7 +42,7 @@ VS_OUT VS_DirLight(VS_IN input)
 
 PS_OUT PS_DirLight(VS_OUT input)
 {
-    PS_OUT output = (PS_OUT)0;
+    PS_OUT output = (PS_OUT) 0;
 
     float3 viewPos = g_tex_0.Sample(g_sam_0, input.uv).xyz;
     if (viewPos.z <= 0.f)
@@ -49,6 +51,33 @@ PS_OUT PS_DirLight(VS_OUT input)
     float3 viewNormal = g_tex_1.Sample(g_sam_0, input.uv).xyz;
 
     LightColor color = CalculateLightColor(g_int_0, viewNormal, viewPos);
+
+    // ±×¸²ÀÚ
+    if (length(color.diffuse) != 0)
+    {
+        matrix shadowCameraVP = g_mat_0;
+
+        float4 worldPos = mul(float4(viewPos.xyz, 1.f), g_matViewInv);
+        float4 shadowClipPos = mul(worldPos, shadowCameraVP);
+        float depth = shadowClipPos.z / shadowClipPos.w;
+
+        // x [-1 ~ 1] -> u [0 ~ 1]
+        // y [1 ~ -1] -> v [0 ~ 1]
+        float2 uv = shadowClipPos.xy / shadowClipPos.w;
+        uv.y = -uv.y;
+        uv = uv * 0.5 + 0.5;
+
+        if (0 < uv.x && uv.x < 1 && 0 < uv.y && uv.y < 1)
+        {
+            float shadowDepth = g_tex_2.Sample(g_sam_0, uv).x;
+            if (shadowDepth > 0 && depth > shadowDepth + 0.00001f)
+            {
+                color.diffuse *= 0.5f;
+                color.specular = (float4) 0.f;
+            }
+        }
+    }
+
     output.diffuse = color.diffuse + color.ambient;
     output.specular = color.specular;
 
@@ -64,7 +93,7 @@ PS_OUT PS_DirLight(VS_OUT input)
 
 VS_OUT VS_PointLight(VS_IN input)
 {
-    VS_OUT output = (VS_OUT)0;
+    VS_OUT output = (VS_OUT) 0;
 
     output.pos = mul(float4(input.pos, 1.f), g_matWVP);
     output.uv = input.uv;
@@ -74,7 +103,7 @@ VS_OUT VS_PointLight(VS_IN input)
 
 PS_OUT PS_PointLight(VS_OUT input)
 {
-    PS_OUT output = (PS_OUT)0;
+    PS_OUT output = (PS_OUT) 0;
 
     // input.pos = SV_Position = Screen ÁÂÇ¥
     float2 uv = float2(input.pos.x / g_vec2_0.x, input.pos.y / g_vec2_0.y);
@@ -106,7 +135,7 @@ PS_OUT PS_PointLight(VS_OUT input)
 
 VS_OUT VS_Final(VS_IN input)
 {
-    VS_OUT output = (VS_OUT)0;
+    VS_OUT output = (VS_OUT) 0;
 
     output.pos = float4(input.pos * 2.f, 1.f);
     output.uv = input.uv;
@@ -116,7 +145,7 @@ VS_OUT VS_Final(VS_IN input)
 
 float4 PS_Final(VS_OUT input) : SV_Target
 {
-    float4 output = (float4)0;
+    float4 output = (float4) 0;
 
     float4 lightPower = g_tex_1.Sample(g_sam_0, input.uv);
     if (lightPower.x == 0.f && lightPower.y == 0.f && lightPower.z == 0.f)

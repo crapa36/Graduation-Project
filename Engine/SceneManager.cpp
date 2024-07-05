@@ -91,6 +91,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         camera->SetName(L"Main_Camera");
         camera->AddComponent(make_shared<Transform>());
         camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, FOV=45µµ
+        camera->GetCamera()->SetFar(5000.f); // Far 5000 À¸·Î
         camera->AddComponent(make_shared<TestCameraScript>());
         camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 0.f));
         uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
@@ -138,23 +139,42 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 #pragma endregion
 
 #pragma region Object
-    for (int32 i = 0; i < 50; i++) {
+    {
         shared_ptr<GameObject> obj = make_shared<GameObject>();
         obj->AddComponent(make_shared<Transform>());
-        obj->GetTransform()->SetLocalScale(Vec3(25.f, 25.f, 25.f));
-        obj->GetTransform()->SetLocalPosition(Vec3(-300.f + i * 10.f, 0.f, 500.f));
+        obj->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(0, 0.f, 500.f));
+        obj->SetStatic(false);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
             shared_ptr<Mesh> sphereMesh = GET_SINGLETON(Resources)->LoadSphereMesh();
             meshRenderer->SetMesh(sphereMesh);
         }
         {
-            shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"GameObject");
-            material->SetInt(0, 1);
-            meshRenderer->SetMaterial(material);
+            shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Leather");
+            meshRenderer->SetMaterial(material->Clone());
+        }
+        obj->AddComponent(meshRenderer);
+        scene->AddGameObject(obj);
+    }
+#pragma endregion
 
-            //material->SetInt(0, 0);
-            //meshRenderer->SetMaterial(material->Clone());
+#pragma region Plane
+    {
+        shared_ptr<GameObject> obj = make_shared<GameObject>();
+        obj->AddComponent(make_shared<Transform>());
+        obj->GetTransform()->SetLocalScale(Vec3(1000.f, 1.f, 1000.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(0.f, -100.f, 500.f));
+        obj->SetStatic(true);
+        shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+        {
+            shared_ptr<Mesh> mesh = GET_SINGLETON(Resources)->LoadCubeMesh();
+            meshRenderer->SetMesh(mesh);
+        }
+        {
+            shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Pebbles");
+            material->SetInt(0, 0);
+            meshRenderer->SetMaterial(material);
         }
         obj->AddComponent(meshRenderer);
         scene->AddGameObject(obj);
@@ -182,7 +202,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
             else if (i < 5)
                 texture = GEngine->GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE::LIGHTING)->GetRTTexture(i - 3);
             else
-                texture = GET_SINGLETON(Resources)->Get<Texture>(L"UAVTexture");
+                texture = GEngine->GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE::SHADOW)->GetRTTexture(0);
 
             shared_ptr<Material> material = make_shared<Material>();
             material->SetShader(shader);
@@ -199,7 +219,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         shared_ptr<GameObject> light = make_shared<GameObject>();
         light->AddComponent(make_shared<Transform>());
 
-        //light->GetTransform()->SetLocalPosition(Vec3(0.f, 150.f, 150.f));
+        light->GetTransform()->SetLocalPosition(Vec3(0.f, 1000.f, 500.f));
         light->AddComponent(make_shared<Light>());
         light->GetLight()->SetLightDirection(Vec3(0.f, -1.f, 0.f));
         light->GetLight()->SetLightType(LIGHT_TYPE::DIRECTIONAL);

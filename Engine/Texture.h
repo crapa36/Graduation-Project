@@ -25,8 +25,12 @@ public:
     D3D12_CPU_DESCRIPTOR_HANDLE GetSRVHandle() { return _srvHeapBegin; }
     D3D12_CPU_DESCRIPTOR_HANDLE GetUAVHandle() { return _uavHeapBegin; }
 
+    FLOAT GetWidth() { return static_cast<FLOAT>(_desc.Width); }
+    FLOAT GetHeight() { return static_cast<FLOAT>(_desc.Height); }
+
 private:
     ScratchImage			 		_image;
+    D3D12_RESOURCE_DESC             _desc;
     ComPtr<ID3D12Resource>			_tex2D;
 
     ComPtr<ID3D12DescriptorHeap>	_srvHeap;
