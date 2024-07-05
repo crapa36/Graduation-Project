@@ -9,10 +9,10 @@
 #include <random>
 #include "protocol.h"
 
-
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
 using namespace std;
+
 
 std::random_device rd;
 std::default_random_engine dre(rd());
@@ -20,6 +20,9 @@ std::uniform_int_distribution<> uid(1, 399);
 
 
 enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND };
+
+constexpr int VIEW_RANGE = 5;		// 실제 클라이언트 시야보다 약간 작게
+
 class OVER_EXP {
 public:
 	WSAOVERLAPPED _over;
@@ -54,6 +57,9 @@ public:
 	SOCKET _socket;
 	short	x, y;
 	char	_name[NAME_SIZE];
+	unordered_set<int> view_list;
+	mutex	_vl_l;
+
 	int		_prev_remain;
 	int		_last_move_time;
 public:
@@ -98,6 +104,9 @@ public:
 	void send_add_player_packet(int c_id);
 	void send_remove_player_packet(int c_id)
 	{
+		_vl_l.lock();
+		view_list.erase(c_id);
+		_vl_l.unlock();
 		SC_REMOVE_PLAYER_PACKET p;
 		p.id = c_id;
 		p.size = sizeof(p);
@@ -110,6 +119,15 @@ array<SESSION, MAX_USER> clients;
 
 SOCKET g_s_socket, g_c_socket;
 OVER_EXP g_a_over;
+
+bool can_see(int a, int b)
+{
+	int dist = (clients[a].x - clients[b].x) * (clients[a].x - clients[b].x) +
+		(clients[a].y - clients[b].y) * (clients[a].y - clients[b].y);
+	return dist <= VIEW_RANGE * VIEW_RANGE;
+	//if (abs(clients[a].x - clients[b].x) > VIEW_RANGE) return false;
+	//return (abs(clients[a].y - clients[b].y) <= VIEW_RANGE);
+}
 
 void SESSION::send_move_packet(int c_id)
 {
@@ -125,6 +143,10 @@ void SESSION::send_move_packet(int c_id)
 
 void SESSION::send_add_player_packet(int c_id)
 {
+	_vl_l.lock();
+	view_list.insert(c_id);
+	_vl_l.unlock();
+
 	SC_ADD_PLAYER_PACKET add_packet;
 	add_packet.id = c_id;
 	strcpy_s(add_packet.name, clients[c_id]._name);
@@ -151,6 +173,8 @@ void process_packet(int c_id, char* packet)
 	case CS_LOGIN: {
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
 		strcpy_s(clients[c_id]._name, p->name);
+		clients[c_id].x = rand() % W_WIDTH;
+		clients[c_id].y = rand() % W_HEIGHT;
 		clients[c_id].send_login_info_packet();
 		{
 			lock_guard<mutex> ll{ clients[c_id]._s_lock };
@@ -181,10 +205,34 @@ void process_packet(int c_id, char* packet)
 		clients[c_id].x = x;
 		clients[c_id].y = y;
 
-		for (auto& cl : clients) {
-			if (cl._state != ST_INGAME) continue;
-			cl.send_move_packet(c_id);
+		clients[c_id]._vl_l.lock();
+		unordered_set<int> old_viewlist = clients[c_id].view_list;
+		clients[c_id]._vl_l.unlock();
+		unordered_set<int> new_viewlist;
 
+		for (auto& pl : clients) {
+			if (pl._state != ST_INGAME) continue;
+			if (false == can_see(c_id, pl._id)) continue;
+			if (pl._id == c_id) continue;
+			new_viewlist.insert(pl._id);
+		}
+		clients[c_id].send_move_packet(c_id);
+
+		for (int p_id : new_viewlist) {
+			if (0 == old_viewlist.count(p_id)) {
+				clients[c_id].send_add_player_packet(p_id);
+				clients[p_id].send_add_player_packet(c_id);
+			}
+			else {
+				clients[p_id].send_move_packet(c_id);
+			}
+		}
+
+		for (int p_id : old_viewlist) {
+			if (0 == new_viewlist.count(p_id)) {
+				clients[c_id].send_remove_player_packet(p_id);
+				clients[p_id].send_remove_player_packet(c_id);
+			}
 		}
 	}
 	}
@@ -312,7 +360,5 @@ int main()
 	for (auto& th : worker_threads)
 		th.join();
 	closesocket(g_s_socket);
-
 	WSACleanup();
 }
-//check run
