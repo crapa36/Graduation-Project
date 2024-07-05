@@ -16,7 +16,7 @@ using namespace std;
 
 std::random_device rd;
 std::default_random_engine dre(rd());
-std::uniform_int_distribution<> uid(1, 399);
+std::uniform_int_distribution<> uid(1, W_HEIGHT);
 
 
 enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND };
