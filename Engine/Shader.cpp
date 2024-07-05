@@ -8,14 +8,19 @@ Shader::Shader() : Object(OBJECT_TYPE::SHADER) {
 Shader::~Shader() {
 }
 
-void Shader::CreateGraphicsShader(const wstring& path, ShaderInfo info, const string& vs, const string& ps, const string& gs) {
+void Shader::CreateGraphicsShader(const wstring& path, ShaderInfo info, ShaderArg arg) {
     _info = info;
 
-    CreateVertexShader(path, vs, "vs_5_0");
-    CreatePixelShader(path, ps, "ps_5_0");
+    CreateVertexShader(path, arg.vs, "vs_5_0");
+    CreatePixelShader(path, arg.ps, "ps_5_0");
 
-    if (gs.empty() == false)
-        CreateGeometryShader(path, gs, "gs_5_0");
+    if (arg.hs.empty() == false)
+        CreateHullShader(path, arg.hs, "hs_5_0");
+    if (arg.ds.empty() == false)
+        CreateDomainShader(path, arg.ds, "ds_5_0");
+
+    if (arg.gs.empty() == false)
+        CreateGeometryShader(path, arg.gs, "gs_5_0");
     D3D12_INPUT_ELEMENT_DESC desc[] =
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
@@ -196,12 +201,20 @@ void Shader::CreateVertexShader(const wstring& path, const string& name, const s
     CreateShader(path, name, version, _vsBlob, _graphicsPipelineDesc.VS);
 }
 
-void Shader::CreatePixelShader(const wstring& path, const string& name, const string& version) {
-    CreateShader(path, name, version, _psBlob, _graphicsPipelineDesc.PS);
+void Shader::CreateHullShader(const wstring& path, const string& name, const string& version) {
+    CreateShader(path, name, version, _hsBlob, _graphicsPipelineDesc.HS);
+}
+
+void Shader::CreateDomainShader(const wstring& path, const string& name, const string& version) {
+    CreateShader(path, name, version, _dsBlob, _graphicsPipelineDesc.DS);
 }
 
 void Shader::CreateGeometryShader(const wstring& path, const string& name, const string& version) {
     CreateShader(path, name, version, _gsBlob, _graphicsPipelineDesc.GS);
+}
+
+void Shader::CreatePixelShader(const wstring& path, const string& name, const string& version) {
+    CreateShader(path, name, version, _psBlob, _graphicsPipelineDesc.PS);
 }
 
 D3D12_PRIMITIVE_TOPOLOGY_TYPE Shader::GetTopologyType(D3D_PRIMITIVE_TOPOLOGY topology) {

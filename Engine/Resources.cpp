@@ -316,8 +316,15 @@ void Resources::CreateDefaultShader() {
             DEPTH_STENCIL_TYPE::NO_DEPTH_TEST_NO_WRITE
         };
 
+        ShaderArg arg = {
+            "VS_Tex",
+            "",
+            "",
+            "",
+            "PS_Tex"
+        };
         shared_ptr<Shader> shader = make_shared<Shader>();
-        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\forward.fx", info, "VS_Tex", "PS_Tex");
+        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\forward.fx", info, arg);
         Add<Shader>(L"Texture", shader);
     }
 
@@ -331,8 +338,16 @@ void Resources::CreateDefaultShader() {
             BLEND_TYPE::ONE_TO_ONE_BLEND
         };
 
+        ShaderArg arg = {
+            "VS_DirLight",
+            "",
+            "",
+            "",
+            "PS_DirLight"
+        };
+
         shared_ptr<Shader> shader = make_shared<Shader>();
-        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\lighting.fx", info, "VS_DirLight", "PS_DirLight");
+        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\lighting.fx", info, arg);
         Add<Shader>(L"DirLight", shader);
     }
 
@@ -346,8 +361,16 @@ void Resources::CreateDefaultShader() {
             BLEND_TYPE::ONE_TO_ONE_BLEND
         };
 
+        ShaderArg arg = {
+            "VS_PointLight",
+            "",
+            "",
+            "",
+            "PS_PointLight"
+        };
+
         shared_ptr<Shader> shader = make_shared<Shader>();
-        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\lighting.fx", info, "VS_PointLight", "PS_PointLight");
+        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\lighting.fx", info, arg);
         Add<Shader>(L"PointLight", shader);
     }
 
@@ -360,8 +383,16 @@ void Resources::CreateDefaultShader() {
             DEPTH_STENCIL_TYPE::NO_DEPTH_TEST_NO_WRITE,
         };
 
+        ShaderArg arg = {
+            "VS_Final",
+            "",
+            "",
+            "",
+            "PS_Final"
+        };
+
         shared_ptr<Shader> shader = make_shared<Shader>();
-        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\lighting.fx", info, "VS_Final", "PS_Final");
+        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\lighting.fx", info, arg);
         Add<Shader>(L"Final", shader);
     }
 
@@ -383,8 +414,16 @@ void Resources::CreateDefaultShader() {
             D3D_PRIMITIVE_TOPOLOGY_POINTLIST
         };
 
+        ShaderArg arg = {
+            "VS_Main",
+            "",
+            "",
+            "GS_Main",
+            "PS_Main"
+        };
+
         shared_ptr<Shader> shader = make_shared<Shader>();
-        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\particle.fx", info, "VS_Main", "PS_Main", "GS_Main");
+        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\particle.fx", info, arg);
         Add<Shader>(L"Particle", shader);
     }
 
@@ -407,6 +446,31 @@ void Resources::CreateDefaultShader() {
         shared_ptr<Shader> shader = make_shared<Shader>();
         shader->CreateGraphicsShader(L"..\\Resources\\Shader\\shadow.fx", info);
         Add<Shader>(L"Shadow", shader);
+    }
+
+    // Tessellation
+    {
+        ShaderInfo info =
+        {
+            SHADER_TYPE::FORWARD,
+            RASTERIZER_TYPE::WIREFRAME,
+            DEPTH_STENCIL_TYPE::LESS,
+            BLEND_TYPE::DEFAULT,
+            D3D_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST
+        };
+
+        ShaderArg arg =
+        {
+            "VS_Main",
+            "HS_Main",
+            "DS_Main",
+            "",
+            "PS_Main",
+        };
+
+        shared_ptr<Shader> shader = make_shared<Shader>();
+        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\tessellation.fx", info, arg);
+        Add<Shader>(L"Tessellation", shader);
     }
 }
 
@@ -534,5 +598,13 @@ void Resources::CreateDefaultMaterial() {
         shared_ptr<Material> material = make_shared<Material>();
         material->SetShader(shader);
         Add<Material>(L"Shadow", material);
+    }
+
+    // Tessellation
+    {
+        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Tessellation");
+        shared_ptr<Material> material = make_shared<Material>();
+        material->SetShader(shader);
+        Add<Material>(L"Tessellation", material);
     }
 }
