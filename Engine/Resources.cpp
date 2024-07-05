@@ -36,6 +36,24 @@ shared_ptr<Mesh> Resources::LoadRectangleMesh() {
     return mesh;
 }
 
+shared_ptr<Mesh> Resources::LoadPointMesh() {
+    shared_ptr<Mesh> findMesh = Get<Mesh>(L"Point");
+    if (findMesh)
+        return findMesh;
+
+    vector<Vertex> vec(1);
+    vec[0] = Vertex(Vec3(0, 0, 0), Vec2(0.5, 0.5), Vec3(0, 0, -1.f), Vec3(1.f, 0, 0));
+
+    vector<uint32> idx(1);
+    idx[0] = 0;
+
+    shared_ptr<Mesh> mesh = make_shared<Mesh>();
+    mesh->Init(vec, idx);
+    Add(L"Point", mesh);
+
+    return mesh;
+}
+
 shared_ptr<Mesh> Resources::LoadCubeMesh() {
     shared_ptr<Mesh> findMesh = Get<Mesh>(L"Cube");
     if (findMesh)
@@ -406,5 +424,49 @@ void Resources::CreateDefaultMaterial() {
         shared_ptr<Material> material = make_shared<Material>();
         material->SetShader(shader);
         Add<Material>(L"ComputeShader", material);
+    }
+
+    // Particle
+    {
+        ShaderInfo info =
+        {
+            SHADER_TYPE::PARTICLE,
+            RASTERIZER_TYPE::CULL_BACK,
+            DEPTH_STENCIL_TYPE::LESS_NO_WRITE,
+            BLEND_TYPE::ALPHA_BLEND,
+            D3D_PRIMITIVE_TOPOLOGY_POINTLIST
+        };
+        shared_ptr<Shader> shader = make_shared<Shader>();
+        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\particle.fx", info, "VS_Main", "PS_Main", "GS_Main");
+        Add<Shader>(L"Particle", shader);
+
+        shared_ptr<Material> material = make_shared<Material>();
+        material->SetShader(shader);
+        Add<Material>(L"Particle", material);
+    }
+
+    // ComputeParticle
+    {
+        shared_ptr<Shader> shader = make_shared<Shader>();
+        shader->CreateComputeShader(L"..\\Resources\\Shader\\particle.fx", "CS_Main", "cs_5_0");
+        Add<Shader>(L"ComputeParticle", shader);
+
+        shared_ptr<Material> material = make_shared<Material>();
+        material->SetShader(shader);
+
+        Add<Material>(L"ComputeParticle", material);
+    }
+
+    // GameObject
+    {
+        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Deferred");
+        const std::wstring TexName = L"Wood";
+        shared_ptr<Texture> texture = GET_SINGLETON(Resources)->Load<Texture>(TexName, L"..\\Resources\\Texture\\" + TexName + L".jpg");
+        shared_ptr<Texture> texture2 = GET_SINGLETON(Resources)->Load<Texture>(TexName + L"_Normal", L"..\\Resources\\Texture\\" + TexName + L"_Normal.jpg");
+        shared_ptr<Material> material = make_shared<Material>();
+        material->SetShader(shader);
+        material->SetTexture(0, texture);
+        material->SetTexture(1, texture2);
+        Add<Material>(L"GameObject", material);
     }
 }

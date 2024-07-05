@@ -7,6 +7,7 @@
 #include "SceneManager.h"
 #include "Light.h"
 #include "Resources.h"
+#include "InstancingManager.h"
 
 void Engine::Init(const WindowInfo& info) {
     _window = info;
@@ -41,6 +42,7 @@ void Engine::Update() {
     GET_SINGLETON(Input)->Update();
     GET_SINGLETON(Timer)->Update();
     GET_SINGLETON(SceneManager)->Update();
+    GET_SINGLETON(InstancingManager)->ClearBuffer();
 
     Render();
 

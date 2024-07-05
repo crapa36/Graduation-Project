@@ -8,18 +8,33 @@ Shader::Shader() : Object(OBJECT_TYPE::SHADER) {
 Shader::~Shader() {
 }
 
-void Shader::CreateGraphicsShader(const wstring& path, ShaderInfo info, const string& vs, const string& ps) {
+void Shader::CreateGraphicsShader(const wstring& path, ShaderInfo info, const string& vs, const string& ps, const string& gs) {
     _info = info;
 
     CreateVertexShader(path, vs, "vs_5_0");
     CreatePixelShader(path, ps, "ps_5_0");
 
+    if (gs.empty() == false)
+        CreateGeometryShader(path, gs, "gs_5_0");
     D3D12_INPUT_ELEMENT_DESC desc[] =
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
         { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
         { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
         { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+
+        { "W", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0,  D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1},
+        { "W", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 16, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1},
+        { "W", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 32, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1},
+        { "W", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 48, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1},
+        { "WV", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 64, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1},
+        { "WV", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 80, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1},
+        { "WV", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 96, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1},
+        { "WV", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 112, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1},
+        { "WVP", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 128, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1},
+        { "WVP", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 144, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1},
+        { "WVP", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 160, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1},
+        { "WVP", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 176, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1},
     };
 
     _graphicsPipelineDesc.InputLayout = { desc, _countof(desc) };
@@ -29,7 +44,7 @@ void Shader::CreateGraphicsShader(const wstring& path, ShaderInfo info, const st
     _graphicsPipelineDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
     _graphicsPipelineDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
     _graphicsPipelineDesc.SampleMask = UINT_MAX;
-    _graphicsPipelineDesc.PrimitiveTopologyType = info.topologyType;
+    _graphicsPipelineDesc.PrimitiveTopologyType = GetTopologyType(info.primitiveTopology);
     _graphicsPipelineDesc.NumRenderTargets = 1;
     _graphicsPipelineDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
     _graphicsPipelineDesc.SampleDesc.Count = 1;
@@ -50,6 +65,11 @@ void Shader::CreateGraphicsShader(const wstring& path, ShaderInfo info, const st
         _graphicsPipelineDesc.NumRenderTargets = 2;
         _graphicsPipelineDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
         _graphicsPipelineDesc.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM;
+        break;
+
+    case SHADER_TYPE::PARTICLE:
+        _graphicsPipelineDesc.NumRenderTargets = 1;
+        _graphicsPipelineDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
         break;
     }
 
@@ -145,8 +165,10 @@ void Shader::CreateComputeShader(const wstring& path, const string& name, const 
 void Shader::Update() {
     if (GetShaderType() == SHADER_TYPE::COMPUTE)
         COMPUTE_CMD_LIST->SetPipelineState(_pipelineState.Get());
-    else
+    else {
+        GRAPHICS_CMD_LIST->IASetPrimitiveTopology(_info.primitiveTopology);
         GRAPHICS_CMD_LIST->SetPipelineState(_pipelineState.Get());
+    }
 }
 
 void Shader::CreateShader(const wstring& path, const string& name, const string& version, ComPtr<ID3DBlob>& blob, D3D12_SHADER_BYTECODE& shaderByteCode) {
@@ -169,4 +191,60 @@ void Shader::CreateVertexShader(const wstring& path, const string& name, const s
 
 void Shader::CreatePixelShader(const wstring& path, const string& name, const string& version) {
     CreateShader(path, name, version, _psBlob, _graphicsPipelineDesc.PS);
+}
+
+void Shader::CreateGeometryShader(const wstring& path, const string& name, const string& version) {
+    CreateShader(path, name, version, _gsBlob, _graphicsPipelineDesc.GS);
+}
+
+D3D12_PRIMITIVE_TOPOLOGY_TYPE Shader::GetTopologyType(D3D_PRIMITIVE_TOPOLOGY topology) {
+    switch (topology) {
+    case D3D_PRIMITIVE_TOPOLOGY_POINTLIST:
+        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+    case D3D_PRIMITIVE_TOPOLOGY_LINELIST:
+    case D3D_PRIMITIVE_TOPOLOGY_LINESTRIP:
+    case D3D_PRIMITIVE_TOPOLOGY_LINELIST_ADJ:
+    case D3D_PRIMITIVE_TOPOLOGY_LINESTRIP_ADJ:
+    case D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ:
+    case D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ:
+        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+    case D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST:
+    case D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP:
+        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    case D3D_PRIMITIVE_TOPOLOGY_1_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_2_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_5_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_6_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_7_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_8_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_9_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_10_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_11_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_12_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_13_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_14_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_15_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_16_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_17_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_18_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_19_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_20_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_21_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_22_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_23_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_24_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_25_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_26_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_27_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_28_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_29_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_30_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_31_CONTROL_POINT_PATCHLIST:
+    case D3D_PRIMITIVE_TOPOLOGY_32_CONTROL_POINT_PATCHLIST:
+        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
+    default:
+        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
+    }
 }

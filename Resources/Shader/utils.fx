@@ -79,6 +79,13 @@ LightColor CalculateLightColor(int lightIndex, float3 viewNormal, float3 viewPos
     color.specular = g_light[lightIndex].color.specular * specularRatio * distanceRatio;
 
     return color;
+ }
+
+
+
+float Rand(float2 co) // [0.0~1.0]
+{
+    return frac(sin(dot(co.xy, float2(12.9898, 78.233))) * 43758.5453);
 }
 
 #endif

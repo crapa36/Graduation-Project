@@ -10,7 +10,8 @@ public:
     virtual ~Mesh();
 
     void Init(const vector<Vertex>& vertexBuffer, const vector<uint32>& indexbuffer);
-    void Render();
+    void Render(uint32 instanceCount = 1);
+    void Render(shared_ptr<class InstancingBuffer>& buffer);
 
 private:
     void CreateVertexBuffer(const vector<Vertex>& buffer);
