@@ -21,6 +21,8 @@ public:
 
     void RenderForward();
 
+    shared_ptr<class Camera> GetMainCamera();
+
 private:
     void PushLightData();
 

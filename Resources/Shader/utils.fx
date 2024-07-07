@@ -88,4 +88,16 @@ float Rand(float2 co) // [0.0~1.0]
     return frac(sin(dot(co.xy, float2(12.9898, 78.233))) * 43758.5453);
 }
 
+float CalculateTesslationLevel(float3 cameraWorldPos, float3 patchPos, float min, float max, float maxLv)
+{
+    float dist = distance(cameraWorldPos, patchPos);
+    if (dist< min)
+        return maxLv;
+    if (dist > max)
+        return 1.0f;
+    float level = (maxLv - 1.f) * (1.f - (dist - min) / (max - min));
+    //float level = lerp(maxLv, 1.f, saturate((dist - min) / (max - min)));
+    return level;
+}
+
 #endif

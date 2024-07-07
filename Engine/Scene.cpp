@@ -133,6 +133,13 @@ void Scene::RenderForward() {
     }
 }
 
+shared_ptr<Camera> Scene::GetMainCamera() {
+    if (_cameras.empty())
+        return nullptr;
+
+    return _cameras[0];
+}
+
 void Scene::PushLightData() {
     LightParams lightParams = {};
 
