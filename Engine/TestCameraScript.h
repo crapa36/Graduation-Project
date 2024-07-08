@@ -10,4 +10,5 @@ public:
 
 private:
     float		_speed = 100.f;
+    POINT       _prevMousePos;
 };

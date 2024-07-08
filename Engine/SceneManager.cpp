@@ -14,6 +14,7 @@
 #include "TestCameraScript.h"
 #include "Resources.h"
 #include "Terrain.h"
+#include "SphereCollider.h"
 
 void SceneManager::Update() {
     if (_activeScene == nullptr)
@@ -143,8 +144,9 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
     {
         shared_ptr<GameObject> obj = make_shared<GameObject>();
         obj->AddComponent(make_shared<Transform>());
+        obj->AddComponent(make_shared<SphereCollider>());
         obj->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
-        obj->GetTransform()->SetLocalPosition(Vec3(0, 50.f, 500.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(500, 50.f, 500.f));
 
         obj->SetStatic(false);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
@@ -156,6 +158,8 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
             shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Pebbles");
             meshRenderer->SetMaterial(material->Clone());
         }
+        dynamic_pointer_cast<SphereCollider>(obj->GetCollider())->SetRadius(0.5f);
+
         obj->AddComponent(meshRenderer);
         scene->AddGameObject(obj);
     }
