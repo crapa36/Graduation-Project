@@ -15,6 +15,10 @@ enum class KEY_TYPE {
     Q = 'Q',
     E = 'E',
 
+    KEY_1 = '1',
+    KEY_2 = '2',
+    KEY_3 = '3',
+    KEY_4 = '4',
     LBUTTON = VK_LBUTTON,
     RBUTTON = VK_RBUTTON,
 };

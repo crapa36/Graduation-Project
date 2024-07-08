@@ -4,6 +4,7 @@
 class Mesh;
 class Material;
 
+// [32][32]
 union InstanceID {
     struct {
         uint32 meshID;
@@ -17,19 +18,19 @@ public:
     MeshRenderer();
     virtual ~MeshRenderer();
 
-    shared_ptr<Material> GetMaterial() { return _material; }
+    shared_ptr<Mesh> GetMesh() { return _mesh; }
+    shared_ptr<Material> GetMaterial(uint32 idx = 0) { return _materials[idx]; }
 
     void SetMesh(shared_ptr<Mesh> mesh) { _mesh = mesh; }
-    void SetMaterial(shared_ptr<Material> material) { _material = material; }
+    void SetMaterial(shared_ptr<Material> material, uint32 idx = 0);
 
     void Render();
     void Render(shared_ptr<class InstancingBuffer>& buffer);
-
     void RenderShadow();
 
     uint64 GetInstanceID();
 
 private:
     shared_ptr<Mesh> _mesh;
-    shared_ptr<Material> _material;
+    vector<shared_ptr<Material>> _materials;
 };

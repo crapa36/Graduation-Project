@@ -12,9 +12,12 @@
 #include "ParticleSystem.h"
 
 #include "TestCameraScript.h"
+#include "TestDragonScript.h"
+
 #include "Resources.h"
 #include "Terrain.h"
 #include "SphereCollider.h"
+#include "MeshData.h"
 
 void SceneManager::Update() {
     if (_activeScene == nullptr)
@@ -220,7 +223,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         shared_ptr<GameObject> light = make_shared<GameObject>();
         light->AddComponent(make_shared<Transform>());
 
-        light->GetTransform()->SetLocalPosition(Vec3(100.f, 300.f, 100.f));
+        light->GetTransform()->SetLocalPosition(Vec3(0.f, 100.f, 200.f));
         light->AddComponent(make_shared<Light>());
         light->GetLight()->SetLightDirection(Vec3(0.f, -1.f, 1.f));
         light->GetLight()->SetLightType(LIGHT_TYPE::DIRECTIONAL);
@@ -278,6 +281,24 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
     //        scene->AddGameObject(particle);
     //    }
     //#pragma endregion
+
+#pragma region FBX
+    {
+        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadFBX(L"..\\Resources\\FBX\\Dragon.fbx");
+
+        vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
+
+        for (auto& gameObject : gameObjects) {
+            gameObject->SetName(L"Dragon");
+            gameObject->SetCheckFrustum(false);
+            gameObject->GetTransform()->SetLocalPosition(Vec3(0.f, -100.f, 300.f));
+            gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
+            scene->AddGameObject(gameObject);
+            gameObject->SetStatic(false);
+            gameObject->AddComponent(make_shared<TestDragonScript>());
+        }
+    }
+#pragma endregion
 
     return scene;
 }
