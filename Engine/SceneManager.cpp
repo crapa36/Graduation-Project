@@ -149,7 +149,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         obj->AddComponent(make_shared<Transform>());
         obj->AddComponent(make_shared<SphereCollider>());
         obj->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
-        obj->GetTransform()->SetLocalPosition(Vec3(500, 50.f, 500.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(200, 50.f, 50.f));
 
         obj->SetStatic(false);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
@@ -176,7 +176,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         obj->AddComponent(make_shared<MeshRenderer>());
 
         obj->GetTransform()->SetLocalScale(Vec3(50.f, 400.f, 50.f));
-        obj->GetTransform()->SetLocalPosition(Vec3(-500.f, -200.f, -500.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(-1600.f, -400.f, -1600.f));
         obj->SetStatic(true);
         obj->GetTerrain()->Init(64, 64);
         obj->SetCheckFrustum(false);
@@ -223,7 +223,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         shared_ptr<GameObject> light = make_shared<GameObject>();
         light->AddComponent(make_shared<Transform>());
 
-        light->GetTransform()->SetLocalPosition(Vec3(0.f, 100.f, 200.f));
+        light->GetTransform()->SetLocalPosition(Vec3(0.f, 100.f, 00.f));
         light->AddComponent(make_shared<Light>());
         light->GetLight()->SetLightDirection(Vec3(0.f, -1.f, 1.f));
         light->GetLight()->SetLightType(LIGHT_TYPE::DIRECTIONAL);
@@ -239,7 +239,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
     {
         shared_ptr<GameObject> light = make_shared<GameObject>();
         light->AddComponent(make_shared<Transform>());
-        light->GetTransform()->SetLocalPosition(Vec3(0.f, 50.f, 0.f));
+        light->GetTransform()->SetLocalPosition(Vec3(100.f, 50.f, 0.f));
         light->AddComponent(make_shared<Light>());
 
         //light->GetLight()->SetLightDirection(Vec3(-1.f, -1.f, 0));
@@ -291,7 +291,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         for (auto& gameObject : gameObjects) {
             gameObject->SetName(L"Dragon");
             gameObject->SetCheckFrustum(false);
-            gameObject->GetTransform()->SetLocalPosition(Vec3(0.f, -100.f, 300.f));
+            gameObject->GetTransform()->SetLocalPosition(Vec3(0.f, -100.f, 100.f));
             gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
             scene->AddGameObject(gameObject);
             gameObject->SetStatic(false);

@@ -73,8 +73,14 @@ void Light::SetLightType(LIGHT_TYPE type) {
         _volumeMesh = GET_SINGLETON(Resources)->Get<Mesh>(L"Rectangle");
         _lightMaterial = GET_SINGLETON(Resources)->Get<Material>(L"DirLight");
 
-        _shadowCamera->GetCamera()->SetScale(1.f);
-        _shadowCamera->GetCamera()->SetFar(10000.f);
+        _shadowCamera->GetCamera()->SetProjectionType(PROJECTION_TYPE::ORTHOGRAPHIC);
+
+        // 직교 투영을 위한 설정
+
+        _shadowCamera->GetCamera()->SetFar(10000.f); // 뷰 프러스텀의 먼 거리 설정
+        _shadowCamera->GetCamera()->SetNear(1.f); // 뷰 프러스텀의 가까운 거리 설정
+
+        _shadowCamera->GetCamera()->SetScale(0.2f);
         _shadowCamera->GetCamera()->SetWidth(4096);
         _shadowCamera->GetCamera()->SetHeight(4096);
 

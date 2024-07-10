@@ -49,3 +49,6 @@ Temporary Items
 .vs/
 Debug/
 Release/
+Output/Engine.lib
+Output/Client.exe
+/Output
