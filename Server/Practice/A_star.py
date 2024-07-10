@@ -1,4 +1,8 @@
 import heapq
+import random
+
+def create_grid(size=10, obstacle_prob=0.3):
+    return [[1 if random.random() < obstacle_prob else 0 for _ in range(size)] for _ in range(size)]
 
 
 def heuristic(a, b):
@@ -45,16 +49,19 @@ def a_star(grid, start, goal):
 
 
 # 예시 사용
-grid = [
-    [0, 0, 0, 0, 1],
-    [1, 1, 0, 1, 0],
-    [0, 0, 0, 0, 0],
-    [0, 1, 1, 1, 0],
-    [0, 0, 0, 1, 0]
-]
+grid = create_grid(10)
 
 start = (0, 0)
-goal = (4, 4)
+goal = (9, 9)
+grid[start[0]][start[1]] = 0
+grid[goal[0]][goal[1]] = 0
+
+# 그리드 출력
+for row in grid:
+    print(' '.join(map(str, row)))
 
 path = a_star(grid, start, goal)
-print(path)
+if path:
+    print("\n찾은 경로:", path)
+else:
+    print("\n경로를 찾을 수 없습니다.")
