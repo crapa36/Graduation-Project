@@ -52,3 +52,6 @@ Release/
 Output/Engine.lib
 Output/Client.exe
 /Output
+*.exe
+*.pdb
+*.idb

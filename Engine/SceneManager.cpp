@@ -99,6 +99,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         camera->GetCamera()->SetFar(10000.f); // Far 10000 으로
         camera->AddComponent(make_shared<TestCameraScript>());
         camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 0.f));
+
         uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
         camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UI는 안 찍음
         scene->AddGameObject(camera);
@@ -223,7 +224,6 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         shared_ptr<GameObject> light = make_shared<GameObject>();
         light->AddComponent(make_shared<Transform>());
 
-        light->GetTransform()->SetLocalPosition(Vec3(0.f, 100.f, 00.f));
         light->AddComponent(make_shared<Light>());
         light->GetLight()->SetLightDirection(Vec3(0.f, -1.f, 1.f));
         light->GetLight()->SetLightType(LIGHT_TYPE::DIRECTIONAL);
