@@ -1,9 +1,15 @@
 #include <iostream>
+#include <unordered_map>
 #include <WS2tcpip.h>
 
 #pragma comment (lib, "WS2_32.LIB")
 
 constexpr short PORT = 4000;
+bool b_shutdwn = false;
+
+class SESSION;
+
+std::unordered_map<int, SESSION> g_players;
 
 int main() {
 	std::wcout.imbue(std::locale("korean"));
@@ -40,5 +46,26 @@ int main() {
 	}
 	std::cout << "서버가 시작되었습니다. 포트: " << PORT << std::endl;
 
+	int addr_size = sizeof(server_addr);
+	int id = 0;
+
+	while (false == b_shutdwn)
+	{
+		SOCKET client_socket = WSAAccept(server_socket, reinterpret_cast<sockaddr*>(&server_addr), &addr_size, nullptr, 0);
+		if (client_socket == INVALID_SOCKET) {
+			std::cout << "클라이언트 연결 수락 실패. 에러 코드: " << WSAGetLastError() << std::endl;
+			continue;
+		}
+
+		char client_ip[INET_ADDRSTRLEN];
+		inet_ntop(AF_INET, &(server_addr.sin_addr), client_ip, INET_ADDRSTRLEN);
+		std::cout << "새로운 클라이언트 접속: ID " << id << ", IP " << client_ip << ", 포트 " << ntohs(server_a.sin_port) << std::endl;
+
+		g_players.try_emplace(id, client_socket, id);
+		g_players[id++].do_recv();
+	}
+
+	g_players.clear();
+	closesocket(server_socket);	//소켓닫기		
 	WSACleanup();				//종료시 호출
 }
