@@ -23,5 +23,22 @@ int main() {
 	bind(server_socket, reinterpret_cast<sockaddr*>(&server_addr), sizeof(server_addr));
 	listen(server_socket, SOMAXCONN);
 
+	//호스트 설정
+	char hostname[256];
+	if (gethostname(hostname, sizeof(hostname)) == 0) {
+		struct addrinfo hints, * res;
+		ZeroMemory(&hints, sizeof(hints));
+		hints.ai_family = AF_INET;
+		hints.ai_socktype = SOCK_STREAM;
+
+		if (getaddrinfo(hostname, NULL, &hints, &res) == 0) {
+			char ip_address[INET_ADDRSTRLEN];
+			inet_ntop(AF_INET, &((struct sockaddr_in*)res->ai_addr)->sin_addr, ip_address, INET_ADDRSTRLEN);
+			std::cout << "서버 IP 주소: " << ip_address << std::endl;
+			freeaddrinfo(res);
+		}
+	}
+	std::cout << "서버가 시작되었습니다. 포트: " << PORT << std::endl;
+
 	WSACleanup();				//종료시 호출
 }
