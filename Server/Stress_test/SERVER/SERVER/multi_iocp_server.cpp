@@ -21,7 +21,7 @@ std::uniform_int_distribution<> uid(1, W_HEIGHT);
 
 enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND };
 
-constexpr int VIEW_RANGE = 5;		// 실제 클라이언트 시야보다 약간 작게
+constexpr int VIEW_RANGE = 20;		// 실제 클라이언트 시야보다 약간 작게
 
 class OVER_EXP {
 public:
