@@ -14,6 +14,10 @@ class SESSION;
 std::unordered_map<int, SESSION> g_players;
 std::unordered_map<LPWSAOVERLAPPED, int> g_session_map;
 
+void CALLBACK send_callback(DWORD, DWORD, LPWSAOVERLAPPED, DWORD);
+void CALLBACK recv_callback(DWORD, DWORD, LPWSAOVERLAPPED, DWORD);
+void print_error(const char* msg, int err_no);
+
 class SESSION {
 	char buf[BUFSIZE];
 	WSABUF wsabuf[1];
