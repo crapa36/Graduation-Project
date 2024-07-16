@@ -5,11 +5,45 @@
 #pragma comment (lib, "WS2_32.LIB")
 
 constexpr short PORT = 4000;
+constexpr int BUFSIZE = 256;
+
 bool b_shutdwn = false;
 
 class SESSION;
 
 std::unordered_map<int, SESSION> g_players;
+std::unordered_map<LPWSAOVERLAPPED, int> g_session_map;
+
+class SESSION {
+	char buf[BUFSIZE];
+	WSABUF wsabuf[1];
+	SOCKET client_s;
+	WSAOVERLAPPED over;
+public:
+	SESSION(SOCKET s, int my_id) : client_s(s) {
+		g_session_map[&over] = my_id;
+		wsabuf[0].buf = buf;
+		wsabuf[0].len = BUFSIZE;
+	}
+	SESSION() {
+		std::cout << "ERROR";
+		exit(-1);
+	}
+	~SESSION() { 
+		closesocket(client_s); 
+	}
+	void do_recv()
+	{
+		DWORD recv_flag = 0;
+		ZeroMemory(&over, sizeof(over));
+		int res = WSARecv(client_s, wsabuf, 1, nullptr, &recv_flag, &over, recv_callback);
+		if (0 != res) {
+			int err_no = WSAGetLastError();
+			if (WSA_IO_PENDING != err_no)
+				print_error("WSARecv", WSAGetLastError());
+		}
+	}
+};
 
 int main() {
 	std::wcout.imbue(std::locale("korean"));
@@ -59,7 +93,7 @@ int main() {
 
 		char client_ip[INET_ADDRSTRLEN];
 		inet_ntop(AF_INET, &(server_addr.sin_addr), client_ip, INET_ADDRSTRLEN);
-		std::cout << "새로운 클라이언트 접속: ID " << id << ", IP " << client_ip << ", 포트 " << ntohs(server_a.sin_port) << std::endl;
+		std::cout << "새로운 클라이언트 접속: ID " << id << ", IP " << client_ip << ", 포트 " << ntohs(server_addr.sin_port) << std::endl;
 
 		g_players.try_emplace(id, client_socket, id);
 		g_players[id++].do_recv();
