@@ -41,6 +41,7 @@ public:
     void SetScale(float value) { _scale = value; }
     void SetWidth(float value) { _width = value; }
     void SetHeight(float value) { _height = value; }
+    void SetViewMatrix(const Matrix& matView) { _matView = matView; }
 
     Matrix& GetViewMatrix() { return _matView; }
     Matrix& GetProjectionMatrix() { return _matProjection; }

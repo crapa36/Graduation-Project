@@ -57,7 +57,26 @@ void Transform::LookAt(const Vec3& dir) {
 
     _localRotation = DecomposeRotationMatrix(matrix);
 }
+void Transform::SetLocalRotationQuaternion(const DirectX::SimpleMath::Quaternion& quaternion) {
 
+    // 쿼터니언을 저장합니다.
+    auto _rotation = quaternion;
+
+    // 쿼터니언을 회전 행렬로 변환합니다.
+    XMMATRIX rotationMatrix = XMMatrixRotationQuaternion(XMLoadFloat4(&_rotation));
+
+    // 로컬 회전 행렬을 설정합니다.
+    _matLocal = rotationMatrix;
+
+    // 부모 행렬이 있으면, 로컬 행렬을 부모의 역 행렬로 변환하여 월드 행렬을 계산합니다.
+    if (_parent.expired()) {
+        _matWorld = _matLocal;
+    }
+    else {
+        Matrix parentWorld = _parent.lock()->GetLocalToWorldMatrix();
+        _matWorld = _matLocal * parentWorld;
+    }
+}
 bool Transform::CloseEnough(const float& a, const float& b, const float& epsilon) {
     return (epsilon > std::abs(a - b));
 }

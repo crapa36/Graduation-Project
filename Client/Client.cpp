@@ -40,8 +40,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CLIENT));
 
     MSG msg;
-    GwindowInfo.width = 1600;
-    GwindowInfo.height = 900;
+    GwindowInfo.width = 1920;
+    GwindowInfo.height = 1080;
     GwindowInfo.windowed = true;
 
     unique_ptr<Game> game = make_unique<Game>();
