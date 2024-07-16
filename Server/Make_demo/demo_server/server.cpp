@@ -20,11 +20,12 @@ void CALLBACK send_callback(DWORD, DWORD, LPWSAOVERLAPPED, DWORD);
 void CALLBACK recv_callback(DWORD, DWORD, LPWSAOVERLAPPED, DWORD);
 void print_error(const char* msg, int err_no);
 
+//세션 클래스
 class SESSION {
-	char buf[BUFSIZE];
-	WSABUF wsabuf[1];
-	SOCKET client_s;
-	WSAOVERLAPPED over;
+	char buf[BUFSIZE];	//데이터 저장
+	WSABUF wsabuf[1];	//WSA버퍼 구조체
+	SOCKET client_s;	//클라 소켓
+	WSAOVERLAPPED over;	//비동기 I/O작업을 위한 OVERLAPPED구조체
 public:
 	SESSION(SOCKET s, int my_id) : client_s(s) {
 		g_session_map[&over] = my_id;
@@ -48,6 +49,10 @@ public:
 			if (WSA_IO_PENDING != err_no)
 				print_error("WSARecv", WSAGetLastError());
 		}
+	}
+
+	void do_send(int s_id, char* mess, int recv_size) {
+
 	}
 
 	void print_message(DWORD recv_size)
