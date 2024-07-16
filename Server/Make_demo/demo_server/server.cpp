@@ -14,6 +14,7 @@ class SESSION;
 
 std::unordered_map<int, SESSION> g_players;
 std::unordered_map<LPWSAOVERLAPPED, int> g_session_map;
+std::mutex g_players_mutex;
 
 void CALLBACK send_callback(DWORD, DWORD, LPWSAOVERLAPPED, DWORD);
 void CALLBACK recv_callback(DWORD, DWORD, LPWSAOVERLAPPED, DWORD);
@@ -47,6 +48,21 @@ public:
 			if (WSA_IO_PENDING != err_no)
 				print_error("WSARecv", WSAGetLastError());
 		}
+	}
+
+	void print_message(DWORD recv_size)
+	{
+		int my_id = g_session_map[&over];
+		std::cout << "Client[" << my_id << "] Sent : ";
+		for (DWORD i = 0; i < recv_size; ++i)
+			std::cout << buf[i];
+		std::cout << std::endl;
+	}
+
+	void broadcast(int m_size)
+	{
+		for (auto& p : g_players)
+			p.second.do_send(g_session_map[&over], buf, m_size);
 	}
 };
 
