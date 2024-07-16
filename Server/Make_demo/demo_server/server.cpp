@@ -1,5 +1,6 @@
 #include <iostream>
 #include <unordered_map>
+#include <mutex>
 #include <WS2tcpip.h>
 
 #pragma comment (lib, "WS2_32.LIB")
@@ -48,6 +49,25 @@ public:
 		}
 	}
 };
+
+void CALLBACK recv_callback(DWORD err, DWORD recv_size,	LPWSAOVERLAPPED pover, DWORD recv_flag)
+{
+	if (0 != err) {
+		print_error("WSARecv", WSAGetLastError());
+		return;
+	}
+	int my_id = g_session_map[pover];
+	if (0 == recv_size) {
+		std::cout << "클라이언트 연결 종료: ID " << my_id << std::endl;
+		std::lock_guard<std::mutex> lock(g_players_mutex);
+		g_players.erase(my_id);
+		return;
+	}
+	g_players[my_id].print_message(recv_size);
+	g_players[my_id].broadcast(recv_size);
+	g_players[my_id].do_recv();
+}
+
 
 int main() {
 	std::wcout.imbue(std::locale("korean"));
