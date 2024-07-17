@@ -1,7 +1,7 @@
 #include <iostream>
+#include <WS2tcpip.h>
 #include <unordered_map>
 #include <mutex>
-#include <WS2tcpip.h>
 
 #pragma comment (lib, "WS2_32.LIB")
 
@@ -11,6 +11,7 @@ constexpr int BUFSIZE = 256;
 bool b_shutdwn = false;
 
 class SESSION;
+class EXP_OVER;
 
 std::unordered_map<int, SESSION> g_players;
 std::unordered_map<LPWSAOVERLAPPED, int> g_session_map;
@@ -19,6 +20,23 @@ std::mutex g_players_mutex;
 void CALLBACK send_callback(DWORD, DWORD, LPWSAOVERLAPPED, DWORD);
 void CALLBACK recv_callback(DWORD, DWORD, LPWSAOVERLAPPED, DWORD);
 void print_error(const char* msg, int err_no);
+
+class EXP_OVER {
+public:
+	WSAOVERLAPPED over;	
+	WSABUF wsabuf[1];
+	char buf[BUFSIZE];
+	EXP_OVER(int s_id, char* mess, int m_size)
+	{
+		ZeroMemory(&over, sizeof(over));
+		wsabuf[0].buf = buf;
+		wsabuf[0].len = m_size + 2;
+
+		buf[0] = m_size + 2;
+		buf[1] = s_id;
+		memcpy(buf + 2, mess, m_size);
+	}
+};
 
 //세션 클래스
 class SESSION {
@@ -52,7 +70,11 @@ public:
 	}
 
 	void do_send(int s_id, char* mess, int recv_size) {
-
+		auto b = new EXP_OVER(s_id, mess, recv_size);
+		int res = WSASend(client_s, b->wsabuf, 1, nullptr, 0, &b->over, send_callback);
+		if (0 != res) {
+			print_error("WSARecv", WSAGetLastError());
+		}
 	}
 
 	void print_message(DWORD recv_size)
@@ -82,6 +104,14 @@ void print_error(const char* msg, int err_no)
 	std::wcout << L" : 에러 : " << msg_buf << std::endl;
 	while (true);
 	LocalFree(msg_buf);
+}
+
+void CALLBACK send_callback(DWORD err, DWORD sent_size, 	LPWSAOVERLAPPED pover, DWORD recv_flag) {
+	if (0 != err) {
+		print_error("WSASend", WSAGetLastError());
+	}
+	auto b = reinterpret_cast<EXP_OVER*>(pover);
+	delete b;
 }
 
 void CALLBACK recv_callback(DWORD err, DWORD recv_size,	LPWSAOVERLAPPED pover, DWORD recv_flag)
