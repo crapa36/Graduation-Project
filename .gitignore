@@ -49,16 +49,8 @@ Temporary Items
 .vs/
 Debug/
 Release/
-Output/Engine.lib
-Output/Client.exe
-Output/
+
 *.exe
 *.pdb
 *.idb
-/Output
-Output/Client.exe
-Output/Client.pdb
-Output/Engine.idb
-Output/Engine.lib
-Output/Engine.pdb
 /Output
