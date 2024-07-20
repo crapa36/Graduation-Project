@@ -2,6 +2,8 @@
 #include "Resources.h"
 #include "Engine.h"
 #include "MeshData.h"
+#include "Camera.h"
+#include "Frustum.h"
 
 void Resources::Init() {
     CreateDefaultShader();
@@ -26,6 +28,44 @@ shared_ptr<Mesh> Resources::LoadPointMesh() {
     return mesh;
 }
 
+shared_ptr<Mesh> Resources::LoadCameraFrustumMesh(shared_ptr<Camera> camera) {
+
+    // 프러스텀 꼭지점을 가져옵니다.
+    vector<Vec3> worldPos = camera->GetFrustum().GetWorldPos();
+
+    // 꼭지점을 이용해 메시의 정점 데이터 생성
+    vector<Vertex> vertices;
+    for (const auto& corner : worldPos) {
+        vertices.push_back(Vertex(corner, Vec2(0.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(1.0f, 0.0f, 0.0f)));
+    }
+
+    // 프러스텀의 각 면을 나타내는 인덱스
+    vector<uint32> indices = {
+
+        // near plane
+        0, 1, 2, 2, 3, 0,
+
+        // far plane
+        4, 5, 6, 6, 7, 4,
+
+        // left plane
+        0, 4, 7, 7, 3, 0,
+
+        // right plane
+        1, 5, 6, 6, 2, 1,
+
+        // top plane
+        1, 0, 3, 3, 2, 1,
+
+        // bottom plane
+        4, 5, 6, 6, 7, 4
+    };
+
+    // 메시 생성 및 반환
+    shared_ptr<Mesh> mesh = make_shared<Mesh>();
+    mesh->Create(vertices, indices);
+    return mesh;
+}
 shared_ptr<Mesh> Resources::LoadRectangleMesh() {
     shared_ptr<Mesh> findMesh = Get<Mesh>(L"Rectangle");
     if (findMesh)
@@ -565,6 +605,22 @@ void Resources::CreateDefaultShader() {
         shader->CreateComputeShader(L"..\\Resources\\Shader\\animation.fx", "CS_Main", "cs_5_0");
         Add<Shader>(L"ComputeAnimation", shader);
     }
+
+    // Frustum
+    {
+        ShaderInfo info =
+        {
+            SHADER_TYPE::FORWARD,
+            RASTERIZER_TYPE::WIREFRAME,
+            DEPTH_STENCIL_TYPE::LESS,
+            BLEND_TYPE::DEFAULT,
+            D3D_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST
+        };
+
+        shared_ptr<Shader> shader = make_shared<Shader>();
+        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\forward.fx", info);
+        Add<Shader>(L"Frustum", shader);
+    }
 }
 
 void Resources::CreateDefaultMaterial() {
@@ -717,5 +773,13 @@ void Resources::CreateDefaultMaterial() {
         shared_ptr<Material> material = make_shared<Material>();
         material->SetShader(shader);
         Add<Material>(L"ComputeAnimation", material);
+    }
+
+    // Frustum
+    {
+        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Frustum");
+        shared_ptr<Material> material = make_shared<Material>();
+        material->SetShader(shader);
+        Add<Material>(L"Frustum", material);
     }
 }

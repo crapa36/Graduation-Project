@@ -8,13 +8,26 @@
 #include "Texture.h"
 #include "SceneManager.h"
 #include "Scene.h"
+#include "MeshRenderer.h"
 
 Light::Light() : Component(COMPONENT_TYPE::LIGHT) {
     _shadowCamera = make_shared<GameObject>();
     _shadowCamera->AddComponent(make_shared<Transform>());
     _shadowCamera->AddComponent(make_shared<Camera>());
+
     uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
     _shadowCamera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UI는 안 찍음
+
+    shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+    {
+        shared_ptr<Mesh> frustumMesh = GET_SINGLETON(Resources)->LoadCameraFrustumMesh(_shadowCamera->GetCamera());
+        meshRenderer->SetMesh(frustumMesh);
+    }
+    {
+        shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Frustum");
+        meshRenderer->SetMaterial(material->Clone());
+    }
+    _shadowCamera->AddComponent(meshRenderer);
 }
 
 Light::~Light() {
@@ -22,27 +35,23 @@ Light::~Light() {
 
 void Light::FinalUpdate() {
 
-    // 라이트의 위치를 업데이트함.
+    // 라이트의 위치를 업데이트
     _lightInfo.position = GetTransform()->GetWorldPosition();
 
-    // 그림자 카메라의 위치와 회전, 크기를 라이트와 동기화함.
+    // 그림자 카메라의 위치, 회전, 크기를 라이트와 동기화
     if (static_cast<LIGHT_TYPE>(_lightInfo.lightType) == LIGHT_TYPE::DIRECTIONAL) {
-        shared_ptr<Camera> mainCamera = GET_SINGLETON(SceneManager)->GetActiveScene()->GetMainCamera();
+        auto mainCamera = GET_SINGLETON(SceneManager)->GetActiveScene()->GetMainCamera();
         if (mainCamera != nullptr) {
 
             // 메인 카메라의 위치와 방향 가져오기
             Vec3 mainCameraPosition = mainCamera->GetTransform()->GetWorldPosition();
             Vec3 mainCameraDirection = mainCamera->GetTransform()->GetLook();
 
-            // 그림자 카메라의 위치 설정 (메인 카메라 방향의 반대쪽에 배치)
-            Vec3 shadowCameraPosition = mainCameraPosition + mainCameraDirection * 1.0f; // someDistance는 적절한 거리입니다.
+            // 그림자 카메라를 메인 카메라의 방향 반대쪽에 배치
+            Vec3 shadowCameraPosition = mainCameraPosition + mainCameraDirection * 50.0f;
 
-            // 뷰 매트릭스 설정
-            Matrix lightViewMatrix = XMMatrixLookToLH(shadowCameraPosition, mainCameraDirection, Vec3(0, 1, 0));
-
-            // 그림자 카메라 설정
-            _shadowCamera->GetCamera()->SetViewMatrix(lightViewMatrix);
-            _shadowCamera->GetCamera()->SetProjectionType(PROJECTION_TYPE::ORTHOGRAPHIC); // Orthographic Projection 설정
+            // 그림자 카메라를 직교 투영으로 설정
+            _shadowCamera->GetCamera()->SetProjectionType(PROJECTION_TYPE::ORTHOGRAPHIC);
             _shadowCamera->GetTransform()->SetLocalPosition(shadowCameraPosition);
             _shadowCamera->GetTransform()->SetLocalRotation(GetTransform()->GetLocalRotation());
             _shadowCamera->GetTransform()->SetLocalScale(Vec3(1, 1, 1));
@@ -50,13 +59,13 @@ void Light::FinalUpdate() {
     }
     else {
 
-        // 비방향성 라이트의 경우, 위치, 회전, 크기를 라이트와 동기화합니다.
+        // 비방향성 라이트와 그림자 카메라를 동기화
         _shadowCamera->GetTransform()->SetLocalPosition(GetTransform()->GetLocalPosition());
         _shadowCamera->GetTransform()->SetLocalRotation(GetTransform()->GetLocalRotation());
         _shadowCamera->GetTransform()->SetLocalScale(GetTransform()->GetLocalScale());
     }
 
-    // 그림자 카메라의 최종 업데이트를 호출합니다.
+    // 그림자 카메라의 최종 업데이트 호출
     _shadowCamera->FinalUpdate();
 }
 

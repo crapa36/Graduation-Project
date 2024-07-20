@@ -40,3 +40,19 @@ bool Frustum::ContainsSphere(const Vec3& pos, float radius) {
 
     return true;
 }
+
+vector<Vec3> Frustum::GetWorldPos() {
+    Matrix matViewInv = Camera::S_MatView.Invert();
+    Matrix matProjectionInv = Camera::S_MatProjection.Invert();
+    Matrix matInv = matProjectionInv * matViewInv;
+    return {
+        ::XMVector3TransformCoord(Vec3(-1.f, 1.f, 0.f), matInv),
+        ::XMVector3TransformCoord(Vec3(1.f, 1.f, 0.f), matInv),
+        ::XMVector3TransformCoord(Vec3(1.f, -1.f, 0.f), matInv),
+        ::XMVector3TransformCoord(Vec3(-1.f, -1.f, 0.f), matInv),
+        ::XMVector3TransformCoord(Vec3(-1.f, 1.f, 1.f), matInv),
+        ::XMVector3TransformCoord(Vec3(1.f, 1.f, 1.f), matInv),
+        ::XMVector3TransformCoord(Vec3(1.f, -1.f, 1.f), matInv),
+        ::XMVector3TransformCoord(Vec3(-1.f, -1.f, 1.f), matInv)
+    };
+}
