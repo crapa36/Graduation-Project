@@ -17,17 +17,6 @@ Light::Light() : Component(COMPONENT_TYPE::LIGHT) {
 
     uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
     _shadowCamera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UI는 안 찍음
-
-    shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
-    {
-        shared_ptr<Mesh> frustumMesh = GET_SINGLETON(Resources)->LoadCameraFrustumMesh(_shadowCamera->GetCamera());
-        meshRenderer->SetMesh(frustumMesh);
-    }
-    {
-        shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Frustum");
-        meshRenderer->SetMaterial(material->Clone());
-    }
-    _shadowCamera->AddComponent(meshRenderer);
 }
 
 Light::~Light() {
@@ -48,7 +37,7 @@ void Light::FinalUpdate() {
             Vec3 mainCameraDirection = mainCamera->GetTransform()->GetLook();
 
             // 그림자 카메라를 메인 카메라의 방향 반대쪽에 배치
-            Vec3 shadowCameraPosition = mainCameraPosition + mainCameraDirection * 50.0f;
+            Vec3 shadowCameraPosition = mainCameraPosition + mainCameraDirection * 500.0f - _lightInfo.direction * 500.0f;
 
             // 그림자 카메라를 직교 투영으로 설정
             _shadowCamera->GetCamera()->SetProjectionType(PROJECTION_TYPE::ORTHOGRAPHIC);

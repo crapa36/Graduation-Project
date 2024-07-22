@@ -4,6 +4,7 @@
 #include "MeshData.h"
 #include "Camera.h"
 #include "Frustum.h"
+#include "Mesh.h"
 
 void Resources::Init() {
     CreateDefaultShader();
@@ -33,39 +34,77 @@ shared_ptr<Mesh> Resources::LoadCameraFrustumMesh(shared_ptr<Camera> camera) {
     // 프러스텀 꼭지점을 가져옵니다.
     vector<Vec3> worldPos = camera->GetFrustum().GetWorldPos();
 
-    // 꼭지점을 이용해 메시의 정점 데이터 생성
-    vector<Vertex> vertices;
-    for (const auto& corner : worldPos) {
-        vertices.push_back(Vertex(corner, Vec2(0.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(1.0f, 0.0f, 0.0f)));
-    }
+    vector<Vertex> vec(24);
 
-    // 프러스텀의 각 면을 나타내는 인덱스
-    vector<uint32> indices = {
+    //앞면
+    vec[0] = Vertex(worldPos[0], Vec2(0.0f, 1.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(1.0f, 0.0f, 0.0f));
+    vec[1] = Vertex(worldPos[1], Vec2(0.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(1.0f, 0.0f, 0.0f));
+    vec[2] = Vertex(worldPos[2], Vec2(1.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(1.0f, 0.0f, 0.0f));
+    vec[3] = Vertex(worldPos[3], Vec2(1.0f, 1.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(1.0f, 0.0f, 0.0f));
 
-        // near plane
-        0, 1, 2, 2, 3, 0,
+    // 뒷면
+    vec[4] = Vertex(worldPos[4], Vec2(1.0f, 1.0f), Vec3(0.0f, 0.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f));
+    vec[5] = Vertex(worldPos[5], Vec2(0.0f, 1.0f), Vec3(0.0f, 0.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f));
+    vec[6] = Vertex(worldPos[6], Vec2(0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f));
+    vec[7] = Vertex(worldPos[7], Vec2(1.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f));
 
-        // far plane
-        4, 5, 6, 6, 7, 4,
+    // 윗면
+    vec[8] = Vertex(worldPos[1], Vec2(0.0f, 1.0f), Vec3(0.0f, 1.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f));
+    vec[9] = Vertex(worldPos[5], Vec2(0.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f));
+    vec[10] = Vertex(worldPos[6], Vec2(1.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f));
+    vec[11] = Vertex(worldPos[2], Vec2(1.0f, 1.0f), Vec3(0.0f, 1.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f));
 
-        // left plane
-        0, 4, 7, 7, 3, 0,
+    // 아랫면
+    vec[12] = Vertex(worldPos[0], Vec2(1.0f, 1.0f), Vec3(0.0f, -1.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f));
+    vec[13] = Vertex(worldPos[3], Vec2(0.0f, 1.0f), Vec3(0.0f, -1.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f));
+    vec[14] = Vertex(worldPos[7], Vec2(0.0f, 0.0f), Vec3(0.0f, -1.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f));
+    vec[15] = Vertex(worldPos[4], Vec2(1.0f, 0.0f), Vec3(0.0f, -1.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f));
 
-        // right plane
-        1, 5, 6, 6, 2, 1,
+    // 왼쪽면
+    vec[16] = Vertex(worldPos[4], Vec2(0.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f));
+    vec[17] = Vertex(worldPos[7], Vec2(0.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f));
+    vec[18] = Vertex(worldPos[3], Vec2(1.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f));
+    vec[19] = Vertex(worldPos[0], Vec2(1.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f));
 
-        // top plane
-        1, 0, 3, 3, 2, 1,
+    // 오른쪽면
+    vec[20] = Vertex(worldPos[2], Vec2(0.0f, 1.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
+    vec[21] = Vertex(worldPos[6], Vec2(0.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
+    vec[22] = Vertex(worldPos[5], Vec2(1.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
+    vec[23] = Vertex(worldPos[1], Vec2(1.0f, 1.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
+    vector<uint32> idx(36);
 
-        // bottom plane
-        4, 5, 6, 6, 7, 4
-    };
+    // 면에 대한 인덱스 설정
+    // 앞면
+    idx[0] = 0; idx[1] = 1; idx[2] = 2;
+    idx[3] = 0; idx[4] = 2; idx[5] = 3;
+
+    // 뒷면
+    idx[6] = 4; idx[7] = 5; idx[8] = 6;
+    idx[9] = 4; idx[10] = 6; idx[11] = 7;
+
+    // 윗면
+    idx[12] = 8; idx[13] = 9; idx[14] = 10;
+    idx[15] = 8; idx[16] = 10; idx[17] = 11;
+
+    // 아랫면
+    idx[18] = 12; idx[19] = 13; idx[20] = 14;
+    idx[21] = 12; idx[22] = 14; idx[23] = 15;
+
+    // 왼쪽면
+    idx[24] = 16; idx[25] = 17; idx[26] = 18;
+    idx[27] = 16; idx[28] = 18; idx[29] = 19;
+
+    // 오른쪽면
+    idx[30] = 20; idx[31] = 21; idx[32] = 22;
+    idx[33] = 20; idx[34] = 22; idx[35] = 23;
 
     // 메시 생성 및 반환
     shared_ptr<Mesh> mesh = make_shared<Mesh>();
-    mesh->Create(vertices, indices);
+    mesh->Create(vec, idx);
+    Add(L"Frustum", mesh);
     return mesh;
 }
+
 shared_ptr<Mesh> Resources::LoadRectangleMesh() {
     shared_ptr<Mesh> findMesh = Get<Mesh>(L"Rectangle");
     if (findMesh)
