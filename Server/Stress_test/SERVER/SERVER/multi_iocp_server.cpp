@@ -180,6 +180,7 @@ void process_packet(int c_id, char* packet)
 			lock_guard<mutex> ll{ clients[c_id]._s_lock };
 			clients[c_id]._state = ST_INGAME;
 		}
+		cout << c_id << "번 유저가 로그인 하였습니다." << endl;
 		for (auto& pl : clients) {
 			{
 				lock_guard<mutex> ll(pl._s_lock);
