@@ -17,6 +17,8 @@ public:
     void FinalUpdate();
     bool ContainsSphere(const Vec3& pos, float radius);
 
+    vector<Vec3> GetWorldPos();
+
 private:
     array<Vec4, PLANE_END> _planes;
 };

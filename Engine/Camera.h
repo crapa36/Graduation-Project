@@ -45,6 +45,7 @@ public:
 
     Matrix& GetViewMatrix() { return _matView; }
     Matrix& GetProjectionMatrix() { return _matProjection; }
+    Frustum& GetFrustum() { return _frustum; }
 
 private:
     PROJECTION_TYPE _projectionType = PROJECTION_TYPE::PERSPECTIVE;

@@ -57,6 +57,7 @@ void Transform::LookAt(const Vec3& dir) {
 
     _localRotation = DecomposeRotationMatrix(matrix);
 }
+
 void Transform::SetLocalRotationQuaternion(const DirectX::SimpleMath::Quaternion& quaternion) {
 
     // 쿼터니언을 저장합니다.

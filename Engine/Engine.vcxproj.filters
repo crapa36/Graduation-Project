@@ -269,9 +269,6 @@
     <ClInclude Include="BaseCollider.h">
       <Filter>Object\Component\Collider</Filter>
     </ClInclude>
-    <ClInclude Include="SphereCollider.h">
-      <Filter>Object\Component\Collider</Filter>
-    </ClInclude>
     <ClInclude Include="PhysicsManager.h">
       <Filter>Manager</Filter>
     </ClInclude>
@@ -286,6 +283,9 @@
     </ClInclude>
     <ClInclude Include="TestDragonScript.h">
       <Filter>Object\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereCollider.h">
+      <Filter>Object\Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

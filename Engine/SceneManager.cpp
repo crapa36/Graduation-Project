@@ -191,8 +191,8 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         shared_ptr<GameObject> obj = make_shared<GameObject>();
         obj->SetLayerIndex(GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI")); // UI
         obj->AddComponent(make_shared<Transform>());
-        obj->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
-        obj->GetTransform()->SetLocalPosition(Vec3(-700.f + (i * 160), 350.f, 500.f));
+        obj->GetTransform()->SetLocalScale(Vec3(200.f, 200.f, 200.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(-700.f + (i * 260), 350.f, 500.f));
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
             shared_ptr<Mesh> mesh = GET_SINGLETON(Resources)->LoadRectangleMesh();
@@ -230,7 +230,16 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         light->GetLight()->SetDiffuse(Vec3(1.f, 1.f, 1.f));
         light->GetLight()->SetAmbient(Vec3(0.1f, 0.1f, 0.1f));
         light->GetLight()->SetSpecular(Vec3(0.2f, 0.2f, 0.2f));
-
+        shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+        {
+            shared_ptr<Mesh> frustumMesh = GET_SINGLETON(Resources)->LoadCameraFrustumMesh(light->GetLight()->GetShadowCamera()->GetCamera());
+            meshRenderer->SetMesh(frustumMesh);
+        }
+        {
+            shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Frustum");
+            meshRenderer->SetMaterial(material->Clone());
+        }
+        light->AddComponent(meshRenderer);
         scene->AddGameObject(light);
     }
 #pragma endregion
