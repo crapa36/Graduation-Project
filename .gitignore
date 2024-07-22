@@ -50,7 +50,5 @@ Temporary Items
 Debug/
 Release/
 
-*.exe
-*.pdb
-*.idb
+
 /Output
