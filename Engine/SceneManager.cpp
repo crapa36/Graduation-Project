@@ -230,7 +230,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         light->GetLight()->SetDiffuse(Vec3(1.f, 1.f, 1.f));
         light->GetLight()->SetAmbient(Vec3(0.1f, 0.1f, 0.1f));
         light->GetLight()->SetSpecular(Vec3(0.2f, 0.2f, 0.2f));
-        shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+        /*shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
             shared_ptr<Mesh> frustumMesh = GET_SINGLETON(Resources)->LoadCameraFrustumMesh(light->GetLight()->GetShadowCamera()->GetCamera());
             meshRenderer->SetMesh(frustumMesh);
@@ -239,7 +239,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
             shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Frustum");
             meshRenderer->SetMaterial(material->Clone());
         }
-        light->AddComponent(meshRenderer);
+        light->AddComponent(meshRenderer);*/
         scene->AddGameObject(light);
     }
 #pragma endregion
