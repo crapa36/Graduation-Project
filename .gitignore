@@ -47,10 +47,6 @@ Temporary Items
 .apdisk
 
 .vs/
-/x64
 /Output
 /Client/x64
 /Engine/x64
-/Library/Lib/FBX
-/Library/Include/FBX
-/Library/Include/FBX
