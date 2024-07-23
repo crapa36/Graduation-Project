@@ -6,7 +6,7 @@
 #pragma comment (lib, "WS2_32.LIB")
 
 constexpr short PORT = 4000;
-constexpr char SERVER_ADDR[] = "172.30.1.82";
+constexpr char SERVER_ADDR[] = "172.30.1.21";
 constexpr int BUFSIZE = 256;
 
 bool bshutdown = false;
@@ -19,14 +19,21 @@ std::mutex cout_mutex;
 void CALLBACK send_callback(DWORD, DWORD, LPWSAOVERLAPPED, DWORD);
 void CALLBACK recv_callback(DWORD, DWORD, LPWSAOVERLAPPED, DWORD);
 
-void print_message(const char* message, int size) {
-    std::lock_guard<std::mutex> lock(cout_mutex);
-    std::cout << "\r";  // 현재 줄의 시작으로 이동
-    std::cout << "Received: ";
-    std::cout.write(message, size);
-    std::cout << std::endl;
-    std::cout << "Enter Message: " << std::flush;
+void clearLine() {
+    std::cout << '\r';                      // 커서를 줄의 시작으로 이동
+    std::cout << std::string(80, ' ');      // 80개의 공백으로 덮어쓰기 (또는 화면 폭에 맞게 조정)
+    std::cout << '\r';                      // 다시 줄의 시작으로 이동
+    std::cout.flush();                      // 출력 버퍼를 즉시 비움
 }
+
+//void print_message(const char* message, int size) {
+//    std::lock_guard<std::mutex> lock(cout_mutex);
+//    std::cout << "\r";  // 현재 줄의 시작으로 이동
+//    std::cout << "Received: ";
+//    std::cout.write(message, size);
+//    std::cout << std::endl;
+//    std::cout << "Enter Message: " << std::flush;
+//}
 
 void send_message(const std::string& message) {
     strcpy_s(buf, message.c_str());
@@ -85,6 +92,7 @@ void CALLBACK send_callback(DWORD err, DWORD sent_size,
         std::lock_guard<std::mutex> lock(cout_mutex);
         std::cout << "Send error: " << err << std::endl;
     }
+    clearLine();
 }
 
 int main()
