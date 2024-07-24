@@ -25,7 +25,7 @@
 
 #include <fbxsdk/fbxsdk_nsbegin.h>
 
-class FbxRenamingStrategyCollada : public FbxRenamingStrategyBase
+class FBXSDK_DLL FbxRenamingStrategyCollada : public FbxRenamingStrategyBase
 {
 public:
 	FbxRenamingStrategyCollada();

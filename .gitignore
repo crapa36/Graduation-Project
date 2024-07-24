@@ -47,10 +47,6 @@ Temporary Items
 .apdisk
 
 .vs/
-Debug/
-Release/
-
-*.exe
-*.pdb
-*.idb
 /Output
+/Client/x64
+/Engine/x64

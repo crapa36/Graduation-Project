@@ -82,8 +82,7 @@ public:
 
     /** This method will decode a string that has a ncl2 to it
     * \param pString
-    * \return Returns true if the pString has been fully modified according to the ncl2 codes
-    * or false if only a partial conversion (or no conversion at all) took place.
+    * \return Returns true if the pString has been modified
     */
     static bool DecodeCaseInsensitive(FbxString &pString);
 

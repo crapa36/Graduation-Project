@@ -34,8 +34,8 @@ void SceneManager::Render() {
 }
 void SceneManager::LoadScene(wstring sceneName) {
 
-    // TODO : ±âÁ¸ Scene Á¤¸®
-    // TODO : ÆÄÀÏ¿¡¼­ Scene Á¤º¸ ·Îµå
+    // TODO : ï¿½ï¿½ï¿½ï¿½ Scene ï¿½ï¿½ï¿½ï¿½
+    // TODO : ï¿½ï¿½ï¿½Ï¿ï¿½ï¿½ï¿½ Scene ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½
 
     _activeScene = LoadTestScene();
 
@@ -45,7 +45,7 @@ void SceneManager::LoadScene(wstring sceneName) {
 
 void SceneManager::SetLayerName(uint8 index, const wstring& name) {
 
-    // ±âÁ¸ µ¥ÀÌÅÍ »èÁ¦
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     const wstring& prevName = _layerNames[index];
     _layerIndex.erase(prevName);
 
@@ -71,7 +71,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
     {
         shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"ComputeShader");
 
-        // UAV ¿ë Texture »ý¼º
+        // UAV ï¿½ï¿½ Texture ï¿½ï¿½ï¿½ï¿½
         shared_ptr<Texture> texture = GET_SINGLETON(Resources)->CreateTexture(L"UAVTexture",
                                                                               DXGI_FORMAT_R8G8B8A8_UNORM, 1024, 1024,
                                                                               CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
@@ -82,7 +82,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         material->SetInt(0, 1);
         GEngine->GetComputeDescriptorHeap()->SetUAV(texture->GetUAVHandle(), UAV_REGISTER::u0);
 
-        // ¾²·¹µå ±×·ì (1 * 1024 * 1)
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×·ï¿½ (1 * 1024 * 1)
         material->Dispatch(1, 1024, 1);
     }
 #pragma endregion
@@ -94,13 +94,13 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         shared_ptr<GameObject> camera = make_shared<GameObject>();
         camera->SetName(L"Main_Camera");
         camera->AddComponent(make_shared<Transform>());
-        camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, FOV=45µµ
-        camera->GetCamera()->SetFar(10000.f); // Far 10000 À¸·Î
+        camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, FOV=45ï¿½ï¿½
+        camera->GetCamera()->SetFar(10000.f); // Far 10000 ï¿½ï¿½ï¿½ï¿½
         camera->AddComponent(make_shared<TestCameraScript>());
         camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 0.f));
 
         uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
-        camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UI´Â ¾È ÂïÀ½
+        camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UIï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         scene->AddGameObject(camera);
     }
 #pragma endregion
@@ -114,8 +114,8 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 0.f));
         camera->GetCamera()->SetProjectionType(PROJECTION_TYPE::ORTHOGRAPHIC);
         uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
-        camera->GetCamera()->SetCullingMaskAll(); // ´Ù ²ô°í
-        camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, false); // UI¸¸ ÂïÀ½
+        camera->GetCamera()->SetCullingMaskAll(); // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+        camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, false); // UIï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         scene->AddGameObject(camera);
     }
 #pragma endregion
@@ -229,6 +229,16 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         light->GetLight()->SetDiffuse(Vec3(1.f, 1.f, 1.f));
         light->GetLight()->SetAmbient(Vec3(0.1f, 0.1f, 0.1f));
         light->GetLight()->SetSpecular(Vec3(0.2f, 0.2f, 0.2f));
+        /*shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+        {
+            shared_ptr<Mesh> frustumMesh = GET_SINGLETON(Resources)->LoadCameraFrustumMesh(light->GetLight()->GetShadowCamera()->GetCamera());
+            meshRenderer->SetMesh(frustumMesh);
+        }
+        {
+            shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Frustum");
+            meshRenderer->SetMaterial(material->Clone());
+        }
+        light->AddComponent(meshRenderer);*/
         scene->AddGameObject(light);
     }
 #pragma endregion

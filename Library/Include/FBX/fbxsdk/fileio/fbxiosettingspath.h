@@ -317,7 +317,6 @@
 #define IOSN_OBJ_REFERENCE_NODE          "ReferenceNode"
 #define IOSN_OBJ_TRIANGULATE			 "Triangulate"
 #define IOSN_OBJ_DEFORMATION             "Deformation"
-#define IOSN_OBJ_USE_DISSOLVE_FACTOR     "UseDissolveFactor"
 
 #define IOSN_3DS_REFERENCENODE			 "ReferenceNode"
 #define IOSN_3DS_TEXTURE      			 "Texture"
@@ -386,7 +385,6 @@
 #define IOSN_PREFERED_ENVELOPPE_SYSTEM      "kImportPreferedEnveloppeSystem"
 #define IOSN_FIRST_TIME_RUN_NOTICE          "FirstTimeRunNotice"
 #define IOSN_EXTRACT_EMBEDDED_DATA          "ExtractEmbeddedData"
-#define IOSN_CALCULATE_LEGACY_SHAPE_NORMAL  "CalculateLegacyShapeNormal"
 
 // internal usage
 #define IOSN_USETMPFILEPERIPHERAL		   "UseTmpFilePeripheral"
@@ -614,7 +612,6 @@
 #define IMP_FBX_PASSWORD_ENABLE                IMP_FBX "|" IOSN_PASSWORD_ENABLE
 #define IMP_FBX_CURRENT_TAKE_NAME              IMP_FBX "|" IOSN_CURRENT_TAKE_NAME
 #define IMP_FBX_EXTRACT_EMBEDDED_DATA          IMP_FBX "|" IOSN_EXTRACT_EMBEDDED_DATA
-#define IMP_FBX_CALCULATE_LEGACY_SHAPE_NORMAL  IMP_FBX "|" IOSN_CALCULATE_LEGACY_SHAPE_NORMAL // only used on FBX v7 (and above) imports. Turning this flag off will prevent the legacy type shapes to have normals
 
 #define IMP_FBX_NORMAL                   IMP_FBX "|" IOSN_NORMAL
 #define IMP_FBX_BINORMAL                 IMP_FBX "|" IOSN_BINORMAL
@@ -845,7 +842,6 @@
 
 #define EXP_OBJ_TRIANGULATE             EXP_OBJ "|" IOSN_OBJ_TRIANGULATE
 #define EXP_OBJ_DEFORMATION             EXP_OBJ "|" IOSN_OBJ_DEFORMATION
-#define EXP_OBJ_USE_DISSOLVE_FACTOR     EXP_OBJ "|" IOSN_OBJ_USE_DISSOLVE_FACTOR
 
 #define EXP_3DS_REFERENCENODE           EXP_3DS "|" IOSN_3DS_REFERENCENODE	
 #define EXP_3DS_TEXTURE                 EXP_3DS "|" IOSN_3DS_TEXTURE      	
