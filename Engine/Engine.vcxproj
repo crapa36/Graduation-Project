@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props" Condition="Exists('..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -194,19 +195,21 @@
     <ClInclude Include="FBXLoader.h" />
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="GameObject.h" />
-    <ClInclude Include="Input.h" />
     <ClInclude Include="InstancingBuffer.h" />
     <ClInclude Include="InstancingManager.h" />
+    <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshData.h" />
     <ClInclude Include="MeshRenderer.h" />
     <ClInclude Include="MonoBehaviour.h" />
+    <ClInclude Include="Mouse.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PhysicsManager.h" />
+    <ClInclude Include="PlatformHelpers.h" />
     <ClInclude Include="RenderTargetGroup.h" />
     <ClInclude Include="Resources.h" />
     <ClInclude Include="RootSignature.h" />
@@ -220,7 +223,6 @@
     <ClInclude Include="TableDescriptorHeap.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="TestCameraScript.h" />
-    <ClInclude Include="TestDragonScript.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Transform.h" />
@@ -238,15 +240,16 @@
     <ClCompile Include="FBXLoader.cpp" />
     <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="Input.cpp" />
     <ClCompile Include="InstancingBuffer.cpp" />
     <ClCompile Include="InstancingManager.cpp" />
+    <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshData.cpp" />
     <ClCompile Include="MeshRenderer.cpp" />
     <ClCompile Include="MonoBehaviour.cpp" />
+    <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="pch.cpp">
@@ -269,12 +272,12 @@
     <ClCompile Include="TableDescriptorHeap.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TestCameraScript.cpp" />
-    <ClCompile Include="TestDragonScript.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="SimpleMath.inl" />
   </ItemGroup>
   <ItemGroup>
@@ -294,5 +297,15 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\Microsoft.Web.WebView2.1.0.1264.42\build\native\Microsoft.Web.WebView2.targets" Condition="Exists('..\packages\Microsoft.Web.WebView2.1.0.1264.42\build\native\Microsoft.Web.WebView2.targets')" />
+    <Import Project="..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.targets" Condition="Exists('..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>이 프로젝트는 이 컴퓨터에 없는 NuGet 패키지를 참조합니다. 해당 패키지를 다운로드하려면 NuGet 패키지 복원을 사용하십시오. 자세한 내용은 http://go.microsoft.com/fwlink/?LinkID=322105를 참조하십시오. 누락된 파일은 {0}입니다.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.Web.WebView2.1.0.1264.42\build\native\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Web.WebView2.1.0.1264.42\build\native\Microsoft.Web.WebView2.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.UI.Xaml.2.8.6\build\native\Microsoft.UI.Xaml.targets'))" />
+  </Target>
 </Project>

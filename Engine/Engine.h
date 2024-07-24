@@ -53,7 +53,7 @@ private:
     shared_ptr<RootSignature> _rootSignature = make_shared<RootSignature>();
     shared_ptr<GraphicsDescriptorHeap> _graphicsDescriptorHeap = make_shared<GraphicsDescriptorHeap>();
     shared_ptr<ComputeDescriptorHeap> _computeDescriptorHeap = make_shared<ComputeDescriptorHeap>();
-
+    
     vector<shared_ptr<ConstantBuffer>> _constantBuffers;
     array<shared_ptr<RenderTargetGroup>, RENDER_TARGET_GROUP_COUNT> _renderTargetGroups;
 };

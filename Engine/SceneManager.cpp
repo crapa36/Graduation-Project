@@ -12,7 +12,6 @@
 #include "ParticleSystem.h"
 
 #include "TestCameraScript.h"
-#include "TestDragonScript.h"
 
 #include "Resources.h"
 #include "Terrain.h"
@@ -294,7 +293,6 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
             gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
             scene->AddGameObject(gameObject);
             gameObject->SetStatic(false);
-            gameObject->AddComponent(make_shared<TestDragonScript>());
         }
     }
 #pragma endregion

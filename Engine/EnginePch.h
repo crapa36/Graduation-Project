@@ -174,7 +174,12 @@ struct AnimFrameParams {
     Vec4 translate;
 };
 
+#include "Mouse.h"
+#include "Keyboard.h"
+
 extern unique_ptr<class Engine> GEngine;
+extern unique_ptr<Mouse> GMouse;
+extern unique_ptr<Keyboard> GKeyboard;
 
 wstring s2ws(const string& str);
 string ws2s(const wstring& wstr);

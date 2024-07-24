@@ -1,8 +1,12 @@
 #include "pch.h"
 #include "EnginePch.h"
 #include "Engine.h"
+#include "Mouse.h"
+#include "Keyboard.h"
 
 unique_ptr<Engine> GEngine = make_unique<Engine>();
+unique_ptr<Mouse> GMouse = make_unique<Mouse>();
+unique_ptr<Keyboard> GKeyboard = make_unique<Keyboard>();
 
 wstring s2ws(const string& s) {
     int32 len;

@@ -2,7 +2,6 @@
 #include "Engine.h"
 #include "Material.h"
 #include "Transform.h"
-#include "Input.h"
 #include "Timer.h"
 #include "SceneManager.h"
 #include "Light.h"
@@ -11,6 +10,7 @@
 
 void Engine::Init(const WindowInfo& info) {
     _window = info;
+    GMouse->SetWindow(info.hwnd);
 
     // 그려질 화면 크기를 설정
     _viewport = { 0, 0, static_cast<FLOAT>(info.width), static_cast<FLOAT>(info.height), 0.0f, 1.0f };
@@ -23,7 +23,7 @@ void Engine::Init(const WindowInfo& info) {
     _rootSignature->Init();
     _graphicsDescriptorHeap->Init(256);
     _computeDescriptorHeap->Init();
-
+    
     CreateConstantBuffer(CBV_REGISTER::b0, sizeof(LightParams), 1);
     CreateConstantBuffer(CBV_REGISTER::b1, sizeof(TransformParams), 256);
     CreateConstantBuffer(CBV_REGISTER::b2, sizeof(MaterialParams), 256);
@@ -32,13 +32,11 @@ void Engine::Init(const WindowInfo& info) {
 
     ResizeWindow(info.width, info.height);
 
-    GET_SINGLETON(Input)->Init(info.hwnd);
     GET_SINGLETON(Timer)->Init();
     GET_SINGLETON(Resources)->Init();
 }
 
 void Engine::Update() {
-    GET_SINGLETON(Input)->Update();
     GET_SINGLETON(Timer)->Update();
     GET_SINGLETON(SceneManager)->Update();
     GET_SINGLETON(InstancingManager)->ClearBuffer();
