@@ -181,5 +181,8 @@ extern unique_ptr<class Engine> GEngine;
 extern unique_ptr<Mouse> GMouse;
 extern unique_ptr<Keyboard> GKeyboard;
 
+extern DirectX::Keyboard::KeyboardStateTracker m_keys;
+extern DirectX::Mouse::ButtonStateTracker m_mouseButtons;
+
 wstring s2ws(const string& str);
 string ws2s(const wstring& wstr);

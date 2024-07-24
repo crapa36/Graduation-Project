@@ -15,14 +15,19 @@ TestCameraScript::~TestCameraScript() {
 }
 
 void TestCameraScript::LateUpdate() {
+    //마우스, 키보드 상태 불러오기
+    auto mouse = GMouse->GetState();
+    m_mouseButtons.Update(mouse);
+    auto kb = GKeyboard->GetState();
+    m_keys.Update(kb);
 
     //마우스 
-
-    auto mouse = GMouse->GetState();
+    GMouse->ResetScrollWheelValue();
 
     if (mouse.positionMode == Mouse::MODE_RELATIVE)
     {
         float offset = 0.0005f;
+
         Vec3 delta = Vec3(float(mouse.x), float(mouse.y), 0.f)
             * offset;
 
@@ -33,13 +38,10 @@ void TestCameraScript::LateUpdate() {
 
         GetTransform()->SetLocalRotation(rotation);
     }
-
     GMouse->SetMode(mouse.leftButton
         ? Mouse::MODE_RELATIVE : Mouse::MODE_ABSOLUTE);
 
     //키보드
-
-    auto kb = GKeyboard->GetState();
 
     Vec3 pos = GetTransform()->GetLocalPosition();
 
@@ -50,10 +52,10 @@ void TestCameraScript::LateUpdate() {
         pos -= GetTransform()->GetLook() * _speed * DELTA_TIME;
 
     if (kb.A)
-        pos -= GetTransform()->GetLook() * _speed * DELTA_TIME;
+        pos -= GetTransform()->GetRight() * _speed * DELTA_TIME;
 
     if (kb.D)
-        pos += GetTransform()->GetLook() * _speed * DELTA_TIME;
+        pos += GetTransform()->GetRight() * _speed * DELTA_TIME;
 
     GetTransform()->SetLocalPosition(pos);
 }
