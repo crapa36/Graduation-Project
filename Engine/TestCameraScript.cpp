@@ -98,7 +98,8 @@ void TestCameraScript::LateUpdate() {
 
         rotation.y += deltaX * sensitivity;
         rotation.x += deltaY * sensitivity;
-
+        rotation.x = std::clamp(rotation.x, -XM_PIDIV2, XM_PIDIV2); // Pitch 제한
+        rotation.y = std::fmod(rotation.y, XM_2PI); // Yaw 값을 -2PI ~ 2PI 범위로 제한
         GetTransform()->SetLocalRotation(rotation);
         SetCursorPos(_prevScreenMousePos.x, _prevScreenMousePos.y);
     }
