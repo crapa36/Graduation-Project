@@ -6,6 +6,7 @@
 #include "Input.h"
 #include "Timer.h"
 #include "PhysicsManager.h"
+#include "Engine.h"
 
 TestCameraScript::TestCameraScript() {
 }
@@ -79,6 +80,9 @@ void TestCameraScript::LateUpdate() {
 
     if (INPUT->GetButtonDown(KEY_TYPE::LBUTTON)) {
         _prevMousePos = INPUT->GetMousePos(); // 마우스 클릭 시 현재 마우스 위치 저장
+        _prevScreenMousePos = _prevMousePos;
+        ClientToScreen(GEngine->GetWindow().hwnd, &_prevScreenMousePos);
+        ShowCursor(false);
     }
 
     if (INPUT->GetButton(KEY_TYPE::LBUTTON)) {
@@ -96,11 +100,11 @@ void TestCameraScript::LateUpdate() {
         rotation.x += deltaY * sensitivity;
 
         GetTransform()->SetLocalRotation(rotation);
-
-        // 현재 마우스 위치를 이전 위치로 업데이트
-        _prevMousePos = currentMousePos;
+        SetCursorPos(_prevScreenMousePos.x, _prevScreenMousePos.y);
     }
-
+    if (INPUT->GetButtonUp(KEY_TYPE::LBUTTON)) {
+        ShowCursor(true);
+    }
     if (INPUT->GetButtonDown(KEY_TYPE::RBUTTON)) {
         const POINT& mousePos = INPUT->GetMousePos();
         GET_SINGLETON(PhysicsManager)->Pick(mousePos.x, mousePos.y);
