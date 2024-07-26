@@ -10,6 +10,8 @@ public:
 
 private:
     float		_speed = 100.f;
-    POINT       _prevMousePos;
-    POINT       _prevScreenMousePos;
+
+    bool        _isMouseLock = true;
+    POINT       _centerPos;
+    POINT       _centerScreenPos;
 };

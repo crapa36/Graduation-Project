@@ -8,6 +8,7 @@ enum class KEY_TYPE {
     SHIFT = VK_SHIFT,
     SPACE = VK_SPACE,
     CTRL = VK_CONTROL,
+    Alt = VK_MENU,
     W = 'W',
     A = 'A',
     S = 'S',
