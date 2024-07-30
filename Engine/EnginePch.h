@@ -1,10 +1,12 @@
 #pragma once
 
 // std::byte 사용하지 않음
-#define _HAS_STD_BYTE 0
+#define _HAS_STD_BYTE 0 
 
 // 각종 include
 #include <windows.h>
+#include <iostream>
+#include <fstream>
 #include <tchar.h>
 #include <memory>
 #include <string>
@@ -183,6 +185,17 @@ extern unique_ptr<Keyboard> GKeyboard;
 
 extern DirectX::Keyboard::KeyboardStateTracker m_keys;
 extern DirectX::Mouse::ButtonStateTracker m_mouseButtons;
+
+BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
+{
+    BYTE nStrLength = 0;
+    UINT nReads = 0;
+    nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+    nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pInFile);
+    pstrToken[nStrLength] = '\0';
+
+    return(nStrLength);
+}
 
 wstring s2ws(const string& str);
 string ws2s(const wstring& wstr);

@@ -7,6 +7,8 @@
 
 #define MAX_LOADSTRING 100
 
+#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
+
 // 전역 변수:
 WindowInfo GwindowInfo;
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
@@ -162,6 +164,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         break;
         case WM_ACTIVATE:
         case WM_ACTIVATEAPP:
+            //Mouse::ProcessMessage(message, wParam, lParam);
             Keyboard::ProcessMessage(message, wParam, lParam);
             break;
         case WM_INPUT:
