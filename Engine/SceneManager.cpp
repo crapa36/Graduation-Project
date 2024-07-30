@@ -307,5 +307,21 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 //    }
 //#pragma endregion
 
+#pragma region BIN
+    {
+        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadBIN(L"..\\Resources\\BIN\\PoliceCar.bin");
+
+        vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
+        for (auto& gameObject : gameObjects) {
+            gameObject->SetName(L"Car");
+            gameObject->SetCheckFrustum(false);
+            gameObject->GetTransform()->SetLocalPosition(Vec3(0.f, -100.f, 100.f));
+            gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
+            scene->AddGameObject(gameObject);
+            gameObject->SetStatic(false);
+        }
+    }
+#pragma endregion
+
     return scene;
 }

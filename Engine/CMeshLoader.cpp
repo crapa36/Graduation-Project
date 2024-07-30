@@ -5,7 +5,7 @@
 #include "Transform.h"
 #include "Shader.h"
 #include "Material.h"
-
+#include "Transform.h"
 /// 
 
 int ReadIntegerFromFile(FILE* pInFile)
@@ -47,30 +47,30 @@ void CMeshLoader::LoadBIN(const wstring& path)
 	LoadGeometry(path);
 
     // 우리 구조에 맞게 Texture / Material 생성
-    CreateTextures();
+    //CreateTextures();
     CreateMaterials();
 }
 
-CMeshLoadInfo CMeshLoader::LoadMesh(FILE *pInFile)
+void CMeshLoader::LoadMesh(FILE *pInFile, shared_ptr<CMeshInfo> info)
 {
 	char pstrToken[64] = { '\0' };
 	UINT nReads = 0;
 
 	int nPositions = 0, nColors = 0, nNormals = 0, nIndices = 0, nSubMeshes = 0, nSubIndices = 0;
 
-	CMeshLoadInfo pMeshInfo;
+	CMeshLoadInfo loadInfo;
 
-	pMeshInfo.m_nVertices = ::ReadIntegerFromFile(pInFile);
-	::ReadStringFromFile(pInFile, pMeshInfo.m_pstrMeshName);
+	loadInfo.m_nVertices = ::ReadIntegerFromFile(pInFile);
+	::ReadStringFromFile(pInFile, loadInfo.m_pstrMeshName);
 
-	for ( ; ; )
+	for (; ; )
 	{
 		::ReadStringFromFile(pInFile, pstrToken);
 
 		if (!strcmp(pstrToken, "<Bounds>:"))
 		{
-			nReads = (UINT)::fread(&(pMeshInfo.m_xmf3AABBCenter), sizeof(XMFLOAT3), 1, pInFile);
-			nReads = (UINT)::fread(&(pMeshInfo.m_xmf3AABBExtents), sizeof(XMFLOAT3), 1, pInFile);
+			nReads = (UINT)::fread(&(loadInfo.m_xmf3AABBCenter), sizeof(XMFLOAT3), 1, pInFile);
+			nReads = (UINT)::fread(&(loadInfo.m_xmf3AABBExtents), sizeof(XMFLOAT3), 1, pInFile);
 		}
 		else if (!strcmp(pstrToken, "<Positions>:"))
 		{
@@ -79,7 +79,7 @@ CMeshLoadInfo CMeshLoader::LoadMesh(FILE *pInFile)
 			{
 				XMFLOAT3* m_pxmf3Positions = new XMFLOAT3[nPositions];
 				nReads = (UINT)::fread(m_pxmf3Positions, sizeof(XMFLOAT3), nPositions, pInFile);
-				
+
 			}
 		}
 		else if (!strcmp(pstrToken, "<Colors>:"))
@@ -87,9 +87,9 @@ CMeshLoadInfo CMeshLoader::LoadMesh(FILE *pInFile)
 			nColors = ::ReadIntegerFromFile(pInFile);
 			if (nColors > 0)
 			{
-				pMeshInfo.m_nType |= VERTEXT_COLOR;
-				pMeshInfo.m_pxmf4Colors = new XMFLOAT4[nColors];
-				nReads = (UINT)::fread(pMeshInfo.m_pxmf4Colors, sizeof(XMFLOAT4), nColors, pInFile);
+				loadInfo.m_nType |= VERTEXT_COLOR;
+				loadInfo.m_pxmf4Colors = new XMFLOAT4[nColors];
+				nReads = (UINT)::fread(loadInfo.m_pxmf4Colors, sizeof(XMFLOAT4), nColors, pInFile);
 			}
 		}
 		else if (!strcmp(pstrToken, "<Normals>:"))
@@ -97,9 +97,9 @@ CMeshLoadInfo CMeshLoader::LoadMesh(FILE *pInFile)
 			nNormals = ::ReadIntegerFromFile(pInFile);
 			if (nNormals > 0)
 			{
-				pMeshInfo.m_nType |= VERTEXT_NORMAL;
-				pMeshInfo.m_pxmf3Normals = new XMFLOAT3[nNormals];
-				nReads = (UINT)::fread(pMeshInfo.m_pxmf3Normals, sizeof(XMFLOAT3), nNormals, pInFile);
+				loadInfo.m_nType |= VERTEXT_NORMAL;
+				loadInfo.m_pxmf3Normals = new XMFLOAT3[nNormals];
+				nReads = (UINT)::fread(loadInfo.m_pxmf3Normals, sizeof(XMFLOAT3), nNormals, pInFile);
 			}
 		}
 		else if (!strcmp(pstrToken, "<Indices>:"))
@@ -107,29 +107,29 @@ CMeshLoadInfo CMeshLoader::LoadMesh(FILE *pInFile)
 			nIndices = ::ReadIntegerFromFile(pInFile);
 			if (nIndices > 0)
 			{
-				pMeshInfo.m_pnIndices = new UINT[nIndices];
-				nReads = (UINT)::fread(pMeshInfo.m_pnIndices, sizeof(int), nIndices, pInFile);
+				loadInfo.m_pnIndices = new UINT[nIndices];
+				nReads = (UINT)::fread(loadInfo.m_pnIndices, sizeof(int), nIndices, pInFile);
 			}
 		}
 		else if (!strcmp(pstrToken, "<SubMeshes>:"))
 		{
-			pMeshInfo.m_nSubMeshes = ::ReadIntegerFromFile(pInFile);
-			if (pMeshInfo.m_nSubMeshes > 0)
+			loadInfo.m_nSubMeshes = ::ReadIntegerFromFile(pInFile);
+			if (loadInfo.m_nSubMeshes > 0)
 			{
-				pMeshInfo.m_pnSubSetIndices = new int[pMeshInfo.m_nSubMeshes];
-				pMeshInfo.m_ppnSubSetIndices = new UINT*[pMeshInfo.m_nSubMeshes];
-				for (int i = 0; i < pMeshInfo.m_nSubMeshes; i++)
+				loadInfo.m_pnSubSetIndices = new int[loadInfo.m_nSubMeshes];
+				loadInfo.m_ppnSubSetIndices = new UINT * [loadInfo.m_nSubMeshes];
+				for (int i = 0; i < loadInfo.m_nSubMeshes; i++)
 				{
-					pMeshInfo.m_ppnSubSetIndices[i] = NULL;
+					loadInfo.m_ppnSubSetIndices[i] = NULL;
 					::ReadStringFromFile(pInFile, pstrToken);
 					if (!strcmp(pstrToken, "<SubMesh>:"))
 					{
 						int nIndex = ::ReadIntegerFromFile(pInFile);
-						pMeshInfo.m_pnSubSetIndices[i] = ::ReadIntegerFromFile(pInFile);
-						if (pMeshInfo.m_pnSubSetIndices[i] > 0)
+						loadInfo.m_pnSubSetIndices[i] = ::ReadIntegerFromFile(pInFile);
+						if (loadInfo.m_pnSubSetIndices[i] > 0)
 						{
-							pMeshInfo.m_ppnSubSetIndices[i] = new UINT[pMeshInfo.m_pnSubSetIndices[i]];
-							nReads = (UINT)::fread(pMeshInfo.m_ppnSubSetIndices[i], sizeof(UINT), pMeshInfo.m_pnSubSetIndices[i], pInFile);
+							loadInfo.m_ppnSubSetIndices[i] = new UINT[loadInfo.m_pnSubSetIndices[i]];
+							nReads = (UINT)::fread(loadInfo.m_ppnSubSetIndices[i], sizeof(UINT), loadInfo.m_pnSubSetIndices[i], pInFile);
 						}
 
 					}
@@ -141,10 +141,10 @@ CMeshLoadInfo CMeshLoader::LoadMesh(FILE *pInFile)
 			break;
 		}
 	}
-	return(pMeshInfo);
+	*info = Li2i(loadInfo);
 }
 
-CMeshMaterialInfo CMeshLoader::LoadMaterial(FILE* pInFile)
+void CMeshLoader::LoadMaterial(FILE* pInFile, shared_ptr<CMeshInfo> info)
 {
 	char pstrToken[64] = { '\0' };
 	UINT nReads = 0;
@@ -201,17 +201,19 @@ CMeshMaterialInfo CMeshLoader::LoadMaterial(FILE* pInFile)
 			break;
 		}
 	}
-	return(pMaterialsInfo);
+	info->materials.push_back(pMaterialsInfo);
 }
 
 
-void CMeshLoader::LoadFrameHierarchy(FILE* pInFile)
+CMeshInfo CMeshLoader::LoadFrameHierarchy(FILE* pInFile)
 {
 	char pstrToken[64] = { '\0' };
 	UINT nReads = 0;
-	char* t;
+	char* t = NULL;
 
 	int nFrame = 0;
+
+	shared_ptr<CMeshInfo> info = make_shared<CMeshInfo>();
 
 	for (; ; )
 	{
@@ -221,8 +223,9 @@ void CMeshLoader::LoadFrameHierarchy(FILE* pInFile)
 
 			nFrame = ::ReadIntegerFromFile(pInFile);
 			_meshes.resize(nFrame);
-
+		
 			::ReadStringFromFile(pInFile, t);
+			info->name = t;
 		}
 		else if (!strcmp(pstrToken, "<Transform>:"))
 		{
@@ -233,12 +236,10 @@ void CMeshLoader::LoadFrameHierarchy(FILE* pInFile)
 			nReads = (UINT)::fread(&xmf3Scale, sizeof(float), 3, pInFile);
 			nReads = (UINT)::fread(&xmf4Rotation, sizeof(float), 4, pInFile); //Quaternion
 
-			Transform transform;
-			transform.SetLocalPosition(xmf3Position);
-			transform.SetLocalRotation(xmf3Rotation);
-			transform.SetLocalScale(xmf3Scale);
-			transform.SetLocalRotationQuaternion(xmf4Rotation);
-			_transform.push_back(transform);
+			info->_transform.SetLocalPosition(xmf3Position);
+			info->_transform.SetLocalRotation(xmf3Rotation);
+			info->_transform.SetLocalScale(xmf3Scale);
+			info->_transform.SetLocalRotationQuaternion(xmf4Rotation);
 		}
 		else if (!strcmp(pstrToken, "<TransformMatrix>:"))
 		{
@@ -246,11 +247,11 @@ void CMeshLoader::LoadFrameHierarchy(FILE* pInFile)
 		}
 		else if (!strcmp(pstrToken, "<Mesh>:"))
 		{
-			_loadMeshes.push_back(LoadMesh(pInFile));
+			LoadMesh(pInFile, info);
 		}
 		else if (!strcmp(pstrToken, "<Materials>:"))
 		{
-			_meshes.back().materials.push_back(LoadMaterial(pInFile));
+			LoadMaterial(pInFile, info);
 		}
 		else if (!strcmp(pstrToken, "<Children>:"))
 		{
@@ -259,8 +260,7 @@ void CMeshLoader::LoadFrameHierarchy(FILE* pInFile)
 			{
 				for (int i = 0; i < nChilds; i++)
 				{
-					//계층구조 고민
-					LoadFrameHierarchy(pInFile);
+					_meshes.push_back(LoadFrameHierarchy(pInFile));
 				}
 			}
 		}
@@ -269,17 +269,20 @@ void CMeshLoader::LoadFrameHierarchy(FILE* pInFile)
 			break;
 		}
 	}
-	return(pGameObject);
+	return *info;
 }
 
 
-CGameObject* CGameObject::LoadGeometryFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, char* pstrFileName)
+void CMeshLoader::LoadGeometry(const wstring& FileName)
 {
+	string path = ws2s(FileName);
+	char* pFileName = NULL;
+	copy(path.begin(), path.end(), pFileName);
+	pFileName[path.size()] = '\0';
 	FILE* pInFile = NULL;
-	::fopen_s(&pInFile, pstrFileName, "rb");
+	::fopen_s(&pInFile, pFileName, "rb");
 	::rewind(pInFile);
 
-	CGameObject* pGameObject = NULL;
 	char pstrToken[64] = { '\0' };
 
 	for (; ; )
@@ -288,40 +291,35 @@ CGameObject* CGameObject::LoadGeometryFromFile(ID3D12Device* pd3dDevice, ID3D12G
 
 		if (!strcmp(pstrToken, "<Hierarchy>:"))
 		{
-			pGameObject = CGameObject::LoadFrameHierarchyFromFile(pd3dDevice, pd3dCommandList, pd3dGraphicsRootSignature, pInFile);
+			_meshes.push_back(LoadFrameHierarchy(pInFile));
 		}
 		else if (!strcmp(pstrToken, "</Hierarchy>"))
 		{
 			break;
 		}
 	}
-
-	return(pGameObject);
 }
 
 
-
-void CMeshLoader::LoadInfoToInfo()
+CMeshInfo CMeshLoader::Li2i(CMeshLoadInfo loadInfo)
 {
-	for (int j = 0; j < _loadMeshes.size(); ++j) {
 		CMeshInfo temp;
-		temp.name = _loadMeshes[j].m_pstrMeshName;
+		temp.name = loadInfo.m_pstrMeshName;
 
 		Vertex vertex;
-		vertex.pos = *(_loadMeshes[j].m_pxmf3Positions);
-		vertex.normal = *(_loadMeshes[j].m_pxmf3Normals);
+		vertex.pos = *(loadInfo.m_pxmf3Positions);
+		vertex.normal = *(loadInfo.m_pxmf3Normals);
 		vertex.tangent = Vec3(1.0f, 0.0f, 0.0f);
 		temp.vertices.push_back(vertex);
 
-		for (int i = 0; i < _loadMeshes[j].m_nIndices; i += 3) {
+		for (int i = 0; i < loadInfo.m_nIndices; i += 3) {
 			vector<uint32> idx;
-			idx.push_back(static_cast<uint32>(_loadMeshes[j].m_pnIndices[i]));
-			idx.push_back(static_cast<uint32>(_loadMeshes[j].m_pnIndices[i + 1]));
-			idx.push_back(static_cast<uint32>(_loadMeshes[j].m_pnIndices[i + 2]));
+			idx.push_back(static_cast<uint32>(loadInfo.m_pnIndices[i]));
+			idx.push_back(static_cast<uint32>(loadInfo.m_pnIndices[i + 1]));
+			idx.push_back(static_cast<uint32>(loadInfo.m_pnIndices[i + 2]));
 			temp.indices.push_back(idx);
 		}
-		_meshes[j] = temp;
-	}
+		return temp;
 }
 
 void CMeshLoader::CreateTextures() {

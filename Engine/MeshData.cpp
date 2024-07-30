@@ -44,12 +44,12 @@ shared_ptr<MeshData> MeshData::LoadFromFBX(const wstring& path) {
 
 shared_ptr<MeshData> MeshData::LoadFromBIN(const wstring& path) {
     CMeshLoader loader;
-    loader.LoadFbx(path);
+    loader.LoadBIN(path);
 
     shared_ptr<MeshData> meshData = make_shared<MeshData>();
 
     for (int32 i = 0; i < loader.GetMeshCount(); i++) {
-        shared_ptr<Mesh> mesh = Mesh::CreateFromFBX(&loader.GetMesh(i), loader);
+        shared_ptr<Mesh> mesh = Mesh::CreateFromBIN(&loader.GetMesh(i), loader);
 
         GET_SINGLETON(Resources)->Add<Mesh>(mesh->GetName(), mesh);
 

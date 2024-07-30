@@ -176,26 +176,7 @@ struct AnimFrameParams {
     Vec4 translate;
 };
 
-#include "Mouse.h"
-#include "Keyboard.h"
-
 extern unique_ptr<class Engine> GEngine;
-extern unique_ptr<Mouse> GMouse;
-extern unique_ptr<Keyboard> GKeyboard;
-
-extern DirectX::Keyboard::KeyboardStateTracker m_keys;
-extern DirectX::Mouse::ButtonStateTracker m_mouseButtons;
-
-BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
-{
-    BYTE nStrLength = 0;
-    UINT nReads = 0;
-    nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
-    nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pInFile);
-    pstrToken[nStrLength] = '\0';
-
-    return(nStrLength);
-}
 
 wstring s2ws(const string& str);
 string ws2s(const wstring& wstr);

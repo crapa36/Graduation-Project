@@ -1,4 +1,5 @@
 #pragma once
+#include "Transform.h"
 
 struct CMeshMaterialInfo {
     Vec4			diffuse;
@@ -14,13 +15,8 @@ struct CMeshMaterialInfo {
 #define VERTEXT_POSITION			0x01
 #define VERTEXT_COLOR				0x02
 #define VERTEXT_NORMAL				0x04
-class CMeshLoadInfo
+struct CMeshLoadInfo
 {
-public:
-    CMeshLoadInfo() { }
-    ~CMeshLoadInfo();
-
-public:
     char							m_pstrMeshName[256] = { 0 };
 
     UINT							m_nType = 0x00;
@@ -45,6 +41,7 @@ public:
 struct CMeshInfo
 {
     string								name;
+    Transform                  _transform;
     vector<Vertex>						vertices;
     vector<vector<uint32>>				indices;
     vector<CMeshMaterialInfo>			materials;
@@ -59,17 +56,17 @@ public:
 public:
     void LoadBIN(const wstring& path);
 
+   CMeshInfo Li2i(CMeshLoadInfo loadInfo);
+
 public:
     int32 GetMeshCount() { return static_cast<int32>(_meshes.size()); }
     const CMeshInfo& GetMesh(int32 idx) { return _meshes[idx]; }
 private:
-    CMeshLoadInfo LoadMesh(FILE* pInFile);
-    CMeshMaterialInfo LoadMaterial(FILE* pInFile);
+    void LoadMesh(FILE* pInFile, shared_ptr<CMeshInfo> info);
+    void LoadMaterial(FILE* pInFile, shared_ptr<CMeshInfo>info);
 
-    void LoadFrameHierarchy(FILE* pInFile);
-    void LoadGeometry(wstring pstrFileName);
-
-    void LoadInfoToInfo();
+    CMeshInfo LoadFrameHierarchy(FILE* pInFile);
+    void LoadGeometry(const wstring& pstrFileName);
 
     void CreateTextures();
     void CreateMaterials();
@@ -78,7 +75,4 @@ private:
     wstring			_resourceDirectory;
 
     vector<CMeshInfo>					_meshes;
-    vector<class Transform>             _transform;
-
-    vector<CMeshLoadInfo>               _loadMeshes;
 };

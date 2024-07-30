@@ -150,14 +150,11 @@
     <ClCompile Include="Animator.cpp">
       <Filter>Object\Component</Filter>
     </ClCompile>
-    <ClCompile Include="Mouse.cpp">
-      <Filter>Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="Keyboard.cpp">
-      <Filter>Manager</Filter>
-    </ClCompile>
     <ClCompile Include="CMeshLoader.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>Manager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -284,17 +281,11 @@
     <ClInclude Include="SphereCollider.h">
       <Filter>Object\Component</Filter>
     </ClInclude>
-    <ClInclude Include="PlatformHelpers.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="Mouse.h">
-      <Filter>Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="Keyboard.h">
-      <Filter>Manager</Filter>
-    </ClInclude>
     <ClInclude Include="CMeshLoader.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Manager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
