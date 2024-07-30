@@ -21,6 +21,8 @@ TestCameraScript::~TestCameraScript() {
 void TestCameraScript::LateUpdate() {
     if (GetForegroundWindow() == GEngine->GetWindow().hwnd) {
         Vec3 pos = GetTransform()->GetLocalPosition();
+        if (INPUT->GetButton(KEY_TYPE::ESC))
+            PostQuitMessage(0);
 
         if (INPUT->GetButton(KEY_TYPE::W))
             pos += GetTransform()->GetLook() * _speed * DELTA_TIME;
@@ -82,7 +84,7 @@ void TestCameraScript::LateUpdate() {
         else {
             _speed = 100.f;
         }
-        if (INPUT->GetButton(KEY_TYPE::Alt)) {
+        if (INPUT->GetButton(KEY_TYPE::ALT)) {
             ShowCursor(true);
             _isMouseLock = false;
         }

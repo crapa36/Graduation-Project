@@ -23,6 +23,7 @@ void Engine::Init(const WindowInfo& info) {
     _rootSignature->Init();
     _graphicsDescriptorHeap->Init(256);
     _computeDescriptorHeap->Init();
+    _imguiManager->Init(info.hwnd, _device->GetDevice(), _graphicsDescriptorHeap->GetDescriptorHeap());
 
     CreateConstantBuffer(CBV_REGISTER::b0, sizeof(LightParams), 1);
     CreateConstantBuffer(CBV_REGISTER::b1, sizeof(TransformParams), 256);
