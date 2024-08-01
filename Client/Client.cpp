@@ -4,6 +4,13 @@
 #include "framework.h"
 #include "Client.h"
 #include "Game.h"
+
+#include "imgui.h"
+#include "imgui_impl_win32.h"
+#include "imgui_impl_dx12.h"
+#include "imgui_internal.h"
+#include <imgui_impl_win32.cpp>
+
 #define MAX_LOADSTRING 100
 
 // 전역 변수:
@@ -40,8 +47,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CLIENT));
 
     MSG msg;
-    GwindowInfo.width = 1920;
-    GwindowInfo.height = 1080;
+
+    // 클라이언트 영역의 크기를 가져옵니다.
+
     GwindowInfo.windowed = true;
 
     unique_ptr<Game> game = make_unique<Game>();
@@ -104,8 +112,20 @@ ATOM MyRegisterClass(HINSTANCE hInstance) {
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
     hInst = hInstance; // 인스턴스 핸들을 전역 변수에 저장합니다.
 
-    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-                              CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+    // 윈도우 스타일
+    DWORD style = WS_OVERLAPPEDWINDOW;
+
+    // 원하는 클라이언트 영역 크기
+    GwindowInfo.width = 1920;
+    GwindowInfo.height = 1080;
+
+    // 윈도우 크기를 조정하여 클라이언트 영역이 원하는 크기가 되도록 합니다.
+    RECT rect = { 0, 0, GwindowInfo.width, GwindowInfo.height };
+    AdjustWindowRect(&rect, style, FALSE);
+
+    HWND hWnd = CreateWindowW(szWindowClass, szTitle, style,
+                              CW_USEDEFAULT, 0, rect.right - rect.left, rect.bottom - rect.top,
+                              nullptr, nullptr, hInstance, nullptr);
 
     if (!hWnd) {
         return FALSE;
@@ -126,8 +146,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 //  WM_PAINT    - 주 창을 그립니다.
 //  WM_DESTROY  - 종료 메시지를 게시하고 반환합니다.
 //
-//
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+        return true;
     switch (message) {
     case WM_COMMAND:
     {
@@ -135,6 +156,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
         // 메뉴 선택을 구문 분석합니다:
         switch (wmId) {
+        case WM_SIZE:
+            if (wParam != SIZE_MINIMIZED) {
+            }
+            break;
         case IDM_ABOUT:
             DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
             break;
@@ -156,6 +181,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     }
     break;
     case WM_DESTROY:
+        ImGui_ImplDX12_Shutdown();
+        ImGui_ImplWin32_Shutdown();
         PostQuitMessage(0);
         break;
     default:

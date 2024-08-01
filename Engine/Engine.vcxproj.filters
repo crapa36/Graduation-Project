@@ -183,9 +183,6 @@
     <ClCompile Include="imgui_tables.cpp">
       <Filter>Utils\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Utils\imgui</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">

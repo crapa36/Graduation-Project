@@ -58,3 +58,28 @@ private:
     ComPtr<ID3D12DescriptorHeap> _descHeap;
     uint64						_handleSize = 0;
 };
+
+// ************************
+// ImguiDescriptorHeap
+// ************************
+
+class ImguiDescriptorHeap {
+public:
+    void Init();
+
+    void SetSRV(D3D12_CPU_DESCRIPTOR_HANDLE srcHandle, SRV_REGISTER reg);
+
+    void CommitTable();
+
+    D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(CBV_REGISTER reg);
+    D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(SRV_REGISTER reg);
+    D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(UAV_REGISTER reg);
+    ComPtr<ID3D12DescriptorHeap> GetDescriptorHeap() { return _descHeap; }
+private:
+    D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle(uint8 reg);
+
+private:
+
+    ComPtr<ID3D12DescriptorHeap> _descHeap;
+    uint64						_handleSize = 0;
+};

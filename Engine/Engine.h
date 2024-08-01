@@ -30,7 +30,7 @@ public:
 
     shared_ptr<ConstantBuffer> GetConstantBuffer(CONSTANT_BUFFER_TYPE type) { return _constantBuffers[static_cast<uint8>(type)]; }
     shared_ptr<RenderTargetGroup> GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE type) { return _renderTargetGroups[static_cast<uint8>(type)]; }
-    shared_ptr<ImguiManager> GetImguiManager() { return _imguiManager; }
+    shared_ptr<ImguiDescriptorHeap> GetImguiDescriptorHeap() { return _imguiDescriptorHeap; }
 
     void Render();
     void RenderBegin();
@@ -55,7 +55,7 @@ private:
     shared_ptr<RootSignature> _rootSignature = make_shared<RootSignature>();
     shared_ptr<GraphicsDescriptorHeap> _graphicsDescriptorHeap = make_shared<GraphicsDescriptorHeap>();
     shared_ptr<ComputeDescriptorHeap> _computeDescriptorHeap = make_shared<ComputeDescriptorHeap>();
-    shared_ptr<ImguiManager> _imguiManager = make_shared<ImguiManager>();
+    shared_ptr<ImguiDescriptorHeap> _imguiDescriptorHeap = make_shared<ImguiDescriptorHeap>();
 
     vector<shared_ptr<ConstantBuffer>> _constantBuffers;
     array<shared_ptr<RenderTargetGroup>, RENDER_TARGET_GROUP_COUNT> _renderTargetGroups;

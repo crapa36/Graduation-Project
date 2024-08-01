@@ -23,7 +23,7 @@ void Engine::Init(const WindowInfo& info) {
     _rootSignature->Init();
     _graphicsDescriptorHeap->Init(256);
     _computeDescriptorHeap->Init();
-    _imguiManager->Init(info.hwnd, _device->GetDevice(), _graphicsDescriptorHeap->GetDescriptorHeap());
+    _imguiDescriptorHeap->Init();
 
     CreateConstantBuffer(CBV_REGISTER::b0, sizeof(LightParams), 1);
     CreateConstantBuffer(CBV_REGISTER::b1, sizeof(TransformParams), 256);
@@ -36,6 +36,7 @@ void Engine::Init(const WindowInfo& info) {
     GET_SINGLETON(Input)->Init(info.hwnd);
     GET_SINGLETON(Timer)->Init();
     GET_SINGLETON(Resources)->Init();
+    GET_SINGLETON(ImguiManager)->Init(info.hwnd, _device->GetDevice(), *_imguiDescriptorHeap.get());
 }
 
 void Engine::Update() {
@@ -43,6 +44,7 @@ void Engine::Update() {
     GET_SINGLETON(Timer)->Update();
     GET_SINGLETON(SceneManager)->Update();
     GET_SINGLETON(InstancingManager)->ClearBuffer();
+    GET_SINGLETON(ImguiManager)->Update();
 
     Render();
 
@@ -53,7 +55,7 @@ void Engine::Render() {
     RenderBegin();
 
     GET_SINGLETON(SceneManager)->Render();
-
+    GET_SINGLETON(ImguiManager)->Render();
     RenderEnd();
 }
 
@@ -72,6 +74,10 @@ void Engine::ResizeWindow(int32 width, int32 height) {
     RECT rect = { 0, 0, width, height };
     ::AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
     ::SetWindowPos(_window.hwnd, 0, 100, 100, width, height, 0);
+    /*CleanupRenderTarget();
+    HRESULT result = g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT);
+    assert(SUCCEEDED(result) && "Failed to resize swapchain.");
+    CreateRenderTarget();*/
 }
 
 void Engine::ShowFps() {

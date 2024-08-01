@@ -84,37 +84,34 @@ void TestCameraScript::LateUpdate() {
         else {
             _speed = 100.f;
         }
-        if (INPUT->GetButton(KEY_TYPE::ALT)) {
-            ShowCursor(true);
-            _isMouseLock = false;
-        }
-        else {
-            ShowCursor(false);
-            _isMouseLock = true;
-        }
-        if (INPUT->GetButton(KEY_TYPE::LBUTTON)) {
-            ShowCursor(false);
-            _isMouseLock = true;
-        }
-        if (_isMouseLock) {
-            const POINT& currentMousePos = INPUT->GetMousePos();
-            Vec3 rotation = GetTransform()->GetLocalRotation();
 
-            // 마우스 움직임에 따른 회전량 계산
-            float deltaX = static_cast<float>(currentMousePos.x - _centerPos.x);
-            float deltaY = static_cast<float>(currentMousePos.y - _centerPos.y);
+        //if (INPUT->GetButton(KEY_TYPE::ALT)) {
+        //    _isMouseLock = !_isMouseLock;
+        //}
 
-            // 회전 민감도를 조절할 수 있는 변수
-            float sensitivity = 0.005f;
+        //if (_isMouseLock) {
+        //    ShowCursor(false);
+        //    const POINT& currentMousePos = INPUT->GetMousePos();
+        //    Vec3 rotation = GetTransform()->GetLocalRotation();
 
-            rotation.y += deltaX * sensitivity;
-            rotation.x += deltaY * sensitivity;
+        //    // 마우스 움직임에 따른 회전량 계산
+        //    float deltaX = static_cast<float>(currentMousePos.x - _centerPos.x);
+        //    float deltaY = static_cast<float>(currentMousePos.y - _centerPos.y);
 
-            //rotation.x = std::clamp(rotation.x, -XM_PIDIV2, XM_PIDIV2); // Pitch 제한
-            //rotation.y = std::fmod(rotation.y, XM_2PI); // Yaw 값을 -2PI ~ 2PI 범위로 제한
-            GetTransform()->SetLocalRotation(rotation);
-            SetCursorPos(_centerScreenPos.x, _centerScreenPos.y);
-        }
+        //    // 회전 민감도를 조절할 수 있는 변수
+        //    float sensitivity = 0.005f;
+
+        //    rotation.y += deltaX * sensitivity;
+        //    rotation.x += deltaY * sensitivity;
+
+        //    rotation.x = std::clamp(rotation.x, -XM_PIDIV2, XM_PIDIV2); // Pitch 제한
+        //    rotation.y = std::fmod(rotation.y, XM_2PI); // Yaw 값을 -2PI ~ 2PI 범위로 제한
+        //    GetTransform()->SetLocalRotation(rotation);
+        //    SetCursorPos(_centerScreenPos.x, _centerScreenPos.y);
+        //}
+        //else {
+        //    ShowCursor(true);
+        //}
         if (INPUT->GetButtonDown(KEY_TYPE::RBUTTON)) {
             const POINT& mousePos = INPUT->GetMousePos();
             GET_SINGLETON(PhysicsManager)->Pick(mousePos.x, mousePos.y);
