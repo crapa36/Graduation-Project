@@ -13,9 +13,7 @@
 #pragma comment(lib, "MSWSock.lib")
 using namespace std;
 
-
-std::random_device rd;
-std::default_random_engine dre(rd());
+std::default_random_engine dre;
 std::uniform_int_distribution<> uid(1, W_HEIGHT);
 
 
