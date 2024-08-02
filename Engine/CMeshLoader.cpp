@@ -6,6 +6,7 @@
 #include "Shader.h"
 #include "Material.h"
 #include "Transform.h"
+
 /// 
 
 int ReadIntegerFromFile(FILE* pInFile)
@@ -35,7 +36,6 @@ BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken)
 ///
 CMeshLoader::CMeshLoader()
 {
-	_meshes.resize(2);
 }
 
 CMeshLoader::~CMeshLoader()
@@ -51,7 +51,7 @@ void CMeshLoader::LoadBIN(const wstring& path)
     CreateMaterials();
 }
 
-void CMeshLoader::LoadMesh(FILE *pInFile, shared_ptr<CMeshInfo> info)
+void CMeshLoader::LoadMesh(FILE *pInFile, CMeshInfo* info)
 {
 	char pstrToken[64] = { '\0' };
 	UINT nReads = 0;
@@ -74,17 +74,18 @@ void CMeshLoader::LoadMesh(FILE *pInFile, shared_ptr<CMeshInfo> info)
 		}
 		else if (!strcmp(pstrToken, "<Positions>:"))
 		{
-			nPositions = ::ReadIntegerFromFile(pInFile);
-			if (nPositions > 0)
+			loadInfo.nPositions = ::ReadIntegerFromFile(pInFile);
+			
+			if (loadInfo.nPositions > 0)
 			{
-				XMFLOAT3* m_pxmf3Positions = new XMFLOAT3[nPositions];
-				nReads = (UINT)::fread(m_pxmf3Positions, sizeof(XMFLOAT3), nPositions, pInFile);
-
+				loadInfo.m_pxmf3Positions = new XMFLOAT3[loadInfo.nPositions];
+				nReads = (UINT)::fread(loadInfo.m_pxmf3Positions, sizeof(XMFLOAT3), loadInfo.nPositions, pInFile);
 			}
 		}
 		else if (!strcmp(pstrToken, "<Colors>:"))
 		{
 			nColors = ::ReadIntegerFromFile(pInFile);
+			loadInfo.nColors = nColors;
 			if (nColors > 0)
 			{
 				loadInfo.m_nType |= VERTEXT_COLOR;
@@ -95,6 +96,7 @@ void CMeshLoader::LoadMesh(FILE *pInFile, shared_ptr<CMeshInfo> info)
 		else if (!strcmp(pstrToken, "<Normals>:"))
 		{
 			nNormals = ::ReadIntegerFromFile(pInFile);
+			loadInfo.nNormals = nNormals;
 			if (nNormals > 0)
 			{
 				loadInfo.m_nType |= VERTEXT_NORMAL;
@@ -144,7 +146,7 @@ void CMeshLoader::LoadMesh(FILE *pInFile, shared_ptr<CMeshInfo> info)
 	*info = Li2i(loadInfo);
 }
 
-void CMeshLoader::LoadMaterial(FILE* pInFile, shared_ptr<CMeshInfo> info)
+void CMeshLoader::LoadMaterial(FILE* pInFile, CMeshInfo* info)
 {
 	char pstrToken[64] = { '\0' };
 	UINT nReads = 0;
@@ -152,9 +154,9 @@ void CMeshLoader::LoadMaterial(FILE* pInFile, shared_ptr<CMeshInfo> info)
 	int nMaterial = 0;
 	float temp;
 
+	CMeshMaterialInfo t;
 
 	int m_nMaterials = ::ReadIntegerFromFile(pInFile);
-	CMeshMaterialInfo pMaterialsInfo;
 
 	for (; ; )
 	{
@@ -163,18 +165,19 @@ void CMeshLoader::LoadMaterial(FILE* pInFile, shared_ptr<CMeshInfo> info)
 		if (!strcmp(pstrToken, "<Material>:"))
 		{
 			nMaterial = ::ReadIntegerFromFile(pInFile);
+			info->materials.push_back(t);
 		}
 		else if (!strcmp(pstrToken, "<AlbedoColor>:"))
 		{
-			nReads = (UINT)::fread(&(pMaterialsInfo.diffuse), sizeof(float), 4, pInFile);
+			nReads = (UINT)::fread(&(info->materials[nMaterial].diffuse), sizeof(float), 4, pInFile);
 		}
 		else if (!strcmp(pstrToken, "<EmissiveColor>:"))
 		{
-			nReads = (UINT)::fread(&(pMaterialsInfo.ambient), sizeof(float), 4, pInFile);
+			nReads = (UINT)::fread(&(info->materials[nMaterial].ambient), sizeof(float), 4, pInFile);
 		}
 		else if (!strcmp(pstrToken, "<SpecularColor>:"))
 		{
-			nReads = (UINT)::fread(&(pMaterialsInfo.specular), sizeof(float), 4, pInFile);
+			nReads = (UINT)::fread(&(info->materials[nMaterial].specular), sizeof(float), 4, pInFile);
 		}
 		else if (!strcmp(pstrToken, "<Glossiness>:"))
 		{
@@ -201,7 +204,6 @@ void CMeshLoader::LoadMaterial(FILE* pInFile, shared_ptr<CMeshInfo> info)
 			break;
 		}
 	}
-	info->materials.push_back(pMaterialsInfo);
 }
 
 
@@ -209,23 +211,22 @@ CMeshInfo CMeshLoader::LoadFrameHierarchy(FILE* pInFile)
 {
 	char pstrToken[64] = { '\0' };
 	UINT nReads = 0;
-	char* t = NULL;
+	
+	CMeshInfo info;
 
 	int nFrame = 0;
 
-	shared_ptr<CMeshInfo> info = make_shared<CMeshInfo>();
-
-	for (; ; )
+	while (1)
 	{
 		::ReadStringFromFile(pInFile, pstrToken);
 		if (!strcmp(pstrToken, "<Frame>:"))
 		{
 
 			nFrame = ::ReadIntegerFromFile(pInFile);
-			_meshes.resize(nFrame);
+			//_meshes.resize(nFrame);
 		
-			::ReadStringFromFile(pInFile, t);
-			info->name = t;
+			::ReadStringFromFile(pInFile, pstrToken);
+			info.name = pstrToken;
 		}
 		else if (!strcmp(pstrToken, "<Transform>:"))
 		{
@@ -236,22 +237,22 @@ CMeshInfo CMeshLoader::LoadFrameHierarchy(FILE* pInFile)
 			nReads = (UINT)::fread(&xmf3Scale, sizeof(float), 3, pInFile);
 			nReads = (UINT)::fread(&xmf4Rotation, sizeof(float), 4, pInFile); //Quaternion
 
-			info->_transform.SetLocalPosition(xmf3Position);
-			info->_transform.SetLocalRotation(xmf3Rotation);
-			info->_transform.SetLocalScale(xmf3Scale);
-			info->_transform.SetLocalRotationQuaternion(xmf4Rotation);
+			info._transform.SetLocalPosition(xmf3Position);
+			info._transform.SetLocalRotation(xmf3Rotation);
+			info._transform.SetLocalScale(xmf3Scale);
+			info._transform.SetLocalRotationQuaternion(xmf4Rotation);
 		}
 		else if (!strcmp(pstrToken, "<TransformMatrix>:"))
 		{
-			nReads = (UINT)::fread(t, sizeof(float), 16, pInFile);
+			nReads = (UINT)::fread(pstrToken, sizeof(float), 16, pInFile);
 		}
 		else if (!strcmp(pstrToken, "<Mesh>:"))
 		{
-			LoadMesh(pInFile, info);
+			LoadMesh(pInFile, &info);
 		}
 		else if (!strcmp(pstrToken, "<Materials>:"))
 		{
-			LoadMaterial(pInFile, info);
+			LoadMaterial(pInFile, &info);
 		}
 		else if (!strcmp(pstrToken, "<Children>:"))
 		{
@@ -269,18 +270,22 @@ CMeshInfo CMeshLoader::LoadFrameHierarchy(FILE* pInFile)
 			break;
 		}
 	}
-	return *info;
+
+	return info;
 }
 
 
 void CMeshLoader::LoadGeometry(const wstring& FileName)
 {
 	string path = ws2s(FileName);
-	char* pFileName = NULL;
-	copy(path.begin(), path.end(), pFileName);
-	pFileName[path.size()] = '\0';
+	
+	char* c = const_cast<char*>(path.c_str());
+	c[path.size() + 1] = '\0';
 	FILE* pInFile = NULL;
-	::fopen_s(&pInFile, pFileName, "rb");
+	cout << c;
+	::fopen_s(&pInFile, c, "rb");
+
+	assert(pInFile);
 	::rewind(pInFile);
 
 	char pstrToken[64] = { '\0' };
@@ -306,11 +311,17 @@ CMeshInfo CMeshLoader::Li2i(CMeshLoadInfo loadInfo)
 		CMeshInfo temp;
 		temp.name = loadInfo.m_pstrMeshName;
 
-		Vertex vertex;
-		vertex.pos = *(loadInfo.m_pxmf3Positions);
-		vertex.normal = *(loadInfo.m_pxmf3Normals);
-		vertex.tangent = Vec3(1.0f, 0.0f, 0.0f);
-		temp.vertices.push_back(vertex);
+		for (uint32 i = 0; i < loadInfo.nPositions; i++) {
+			Vertex vertex;
+			vertex.pos.x = loadInfo.m_pxmf3Positions[i].x;
+			vertex.pos.y = loadInfo.m_pxmf3Positions[i].y;
+			vertex.pos.z = loadInfo.m_pxmf3Positions[i].z;
+			vertex.normal.x = (loadInfo.m_pxmf3Normals[i].x);
+			vertex.normal.y = (loadInfo.m_pxmf3Normals[i].y);
+			vertex.normal.z = (loadInfo.m_pxmf3Normals[i].z);
+			vertex.tangent = Vec3(1.0f, 0.0f, 0.0f);
+			temp.vertices.push_back(vertex);
+		}
 
 		for (int i = 0; i < loadInfo.m_nIndices; i += 3) {
 			vector<uint32> idx;
@@ -319,6 +330,25 @@ CMeshInfo CMeshLoader::Li2i(CMeshLoadInfo loadInfo)
 			idx.push_back(static_cast<uint32>(loadInfo.m_pnIndices[i + 2]));
 			temp.indices.push_back(idx);
 		}
+		
+		if (loadInfo.m_nIndices == 0) {
+			for (uint32 i = 0; i < loadInfo.m_nVertices - (loadInfo.m_nSubMeshes * 3); i += 3) {
+				vector<uint32> idx;
+				idx.push_back(i);
+				idx.push_back(i + 1);
+				idx.push_back(i + 2);
+				temp.indices.push_back(idx);
+			}
+		}
+
+		for (int i = 0; i < loadInfo.m_nSubMeshes * 3 - 1; i+= 3) {
+			vector<uint32> idx;
+			idx.push_back(static_cast<uint32>(loadInfo.m_pnSubSetIndices[i]));
+			idx.push_back(static_cast<uint32>(loadInfo.m_pnSubSetIndices[i + 1]));
+			idx.push_back(static_cast<uint32>(loadInfo.m_pnSubSetIndices[i + 2]));
+			temp.indices.push_back(idx);
+		}
+
 		return temp;
 }
 

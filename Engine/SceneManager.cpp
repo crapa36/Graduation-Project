@@ -293,7 +293,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 //#pragma region FBX
 //    {
 //        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadFBX(L"..\\Resources\\FBX\\Dragon.fbx");
-//
+//  
 //        vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
 //
 //        for (auto& gameObject : gameObjects) {
@@ -309,7 +309,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 
 #pragma region BIN
     {
-        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadBIN(L"..\\Resources\\BIN\\PoliceCar.bin");
+        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadBIN(L"../Resources/BIN/Apache.bin");
 
         vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
         for (auto& gameObject : gameObjects) {

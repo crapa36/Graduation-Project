@@ -25,8 +25,11 @@ struct CMeshLoadInfo
     XMFLOAT3						m_xmf3AABBExtents = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
     int								m_nVertices = 0;
+    int       nPositions = 0;
     XMFLOAT3* m_pxmf3Positions = NULL;
+    int       nColors = 0;
     XMFLOAT4* m_pxmf4Colors = NULL;
+    int       nNormals = 0;
     XMFLOAT3* m_pxmf3Normals = NULL;
 
     int								m_nIndices = 0;
@@ -41,10 +44,10 @@ struct CMeshLoadInfo
 struct CMeshInfo
 {
     string								name;
-    Transform                  _transform;
     vector<Vertex>						vertices;
     vector<vector<uint32>>				indices;
     vector<CMeshMaterialInfo>			materials;
+    Transform                           _transform;
 };
 
 
@@ -61,9 +64,10 @@ public:
 public:
     int32 GetMeshCount() { return static_cast<int32>(_meshes.size()); }
     const CMeshInfo& GetMesh(int32 idx) { return _meshes[idx]; }
+
 private:
-    void LoadMesh(FILE* pInFile, shared_ptr<CMeshInfo> info);
-    void LoadMaterial(FILE* pInFile, shared_ptr<CMeshInfo>info);
+    void LoadMesh(FILE* pInFile, CMeshInfo* info);
+    void LoadMaterial(FILE* pInFile, CMeshInfo*info);
 
     CMeshInfo LoadFrameHierarchy(FILE* pInFile);
     void LoadGeometry(const wstring& pstrFileName);
