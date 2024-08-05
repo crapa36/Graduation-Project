@@ -16,6 +16,25 @@ using namespace std;
 std::default_random_engine dre;
 std::uniform_int_distribution<> uid(1, W_HEIGHT);
 
+
+class Secter {
+public:
+	std::unordered_set<int> players;  // 셀에 있는 플레이어 ID 목록
+	std::mutex secter_lock;
+
+	void addPlayer(int player_id) {
+		std::lock_guard<std::mutex> lock(secter_lock);
+		players.insert(player_id);
+	}
+
+	void removePlayer(int player_id) {
+		std::lock_guard<std::mutex> lock(secter_lock);
+		players.erase(player_id);
+	}
+};
+
+
+
 enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND };
 class OVER_EXP {
 public:
