@@ -31,7 +31,7 @@ void Engine::Init(const WindowInfo& info) {
 
     CreateRenderTargetGroups();
 
-    ResizeWindow(info.width, info.height);
+    //ResizeWindow(info.width, info.height); 윈도우 창크기와 렌더타겟 크기가 다른 현상으로 임시 주석처리
 
     GET_SINGLETON(Input)->Init(info.hwnd);
     GET_SINGLETON(Timer)->Init();
@@ -74,10 +74,6 @@ void Engine::ResizeWindow(int32 width, int32 height) {
     RECT rect = { 0, 0, width, height };
     ::AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
     ::SetWindowPos(_window.hwnd, 0, 100, 100, width, height, 0);
-    /*CleanupRenderTarget();
-    HRESULT result = g_pSwapChain->ResizeBuffers(0, (UINT)LOWORD(lParam), (UINT)HIWORD(lParam), DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT);
-    assert(SUCCEEDED(result) && "Failed to resize swapchain.");
-    CreateRenderTarget();*/
 }
 
 void Engine::ShowFps() {
