@@ -16,7 +16,7 @@ using namespace std;
 std::default_random_engine dre;
 std::uniform_int_distribution<> uid(1, W_HEIGHT);
 
-
+//섹터 기본 구조
 class Secter {
 public:
 	std::unordered_set<int> players;  // 셀에 있는 플레이어 ID 목록
@@ -33,6 +33,12 @@ public:
 	}
 };
 
+//섹터를 사용한 격자구조(게임월드)
+class Grid {
+private:
+	std::vector<std::vector<Secter>> secters;
+	int secters_width, secters_height;
+};
 
 
 enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND };
