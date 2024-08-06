@@ -16,49 +16,49 @@ using namespace std;
 std::default_random_engine dre;
 std::uniform_int_distribution<> uid(1, W_HEIGHT);
 
-//섹터 기본 구조
-class Secter {
-public:
-	std::unordered_set<int> players;  // 셀에 있는 플레이어 ID 목록
-	std::mutex secter_lock;
-
-	void addPlayer(int player_id) {
-		std::lock_guard<std::mutex> lock(secter_lock);
-		players.insert(player_id);
-	}
-
-	void removePlayer(int player_id) {
-		std::lock_guard<std::mutex> lock(secter_lock);
-		players.erase(player_id);
-	}
-};
-
-//섹터를 사용한 격자구조(게임월드)
-class Grid {
-private:
-	std::vector<std::vector<Secter>> secters;
-	int secters_width, secters_height;
-
-public:
-	Grid(int map_width, int map_height, int secter_size) {
-		secters_width = map_width / secter_size;
-		secters_height = map_height / secters_height;
-		secters.resize(secters_height, std::vector<Secter>(secters_width));
-	}
-
-	void updatePlayerPosition(int player_id, int old_x, int old_y, int new_x, int new_y) {
-		int old_cell_x = old_x / secters_width;
-		int old_cell_y = old_y / secters_height;
-		int new_cell_x = new_x / secters_width;
-		int new_cell_y = new_y / secters_height;
-
-		if (old_cell_x != new_cell_x || old_cell_y != new_cell_y) {
-			secters[old_cell_y][old_cell_x].removePlayer(player_id);
-			secters[new_cell_y][new_cell_x].addPlayer(player_id);
-		}
-	}
-
-};
+////섹터 기본 구조
+//class Secter {
+//public:
+//	std::unordered_set<int> players;  // 셀에 있는 플레이어 ID 목록
+//	std::mutex secter_lock;
+//
+//	void addPlayer(int player_id) {
+//		std::lock_guard<std::mutex> lock(secter_lock);
+//		players.insert(player_id);
+//	}
+//
+//	void removePlayer(int player_id) {
+//		std::lock_guard<std::mutex> lock(secter_lock);
+//		players.erase(player_id);
+//	}
+//};
+//
+////섹터를 사용한 격자구조(게임월드)
+//class Grid {
+//private:
+//	std::vector<std::vector<Secter>> secters;
+//	int secters_width, secters_height;
+//
+//public:
+//	Grid(int map_width, int map_height, int secter_size) {
+//		secters_width = map_width / secter_size;
+//		secters_height = map_height / secters_height;
+//		secters.resize(secters_height, std::vector<Secter>(secters_width));
+//	}
+//
+//	void updatePlayerPosition(int player_id, int old_x, int old_y, int new_x, int new_y) {
+//		int old_cell_x = old_x / secters_width;
+//		int old_cell_y = old_y / secters_height;
+//		int new_cell_x = new_x / secters_width;
+//		int new_cell_y = new_y / secters_height;
+//
+//		if (old_cell_x != new_cell_x || old_cell_y != new_cell_y) {
+//			secters[old_cell_y][old_cell_x].removePlayer(player_id);
+//			secters[new_cell_y][new_cell_x].addPlayer(player_id);
+//		}
+//	}
+//
+//};
 
 
 enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND };
