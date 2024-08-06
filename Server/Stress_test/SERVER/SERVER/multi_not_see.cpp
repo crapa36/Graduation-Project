@@ -38,6 +38,26 @@ class Grid {
 private:
 	std::vector<std::vector<Secter>> secters;
 	int secters_width, secters_height;
+
+public:
+	Grid(int map_width, int map_height, int secter_size) {
+		secters_width = map_width / secter_size;
+		secters_height = map_height / secters_height;
+		secters.resize(secters_height, std::vector<Secter>(secters_width));
+	}
+
+	void updatePlayerPosition(int player_id, int old_x, int old_y, int new_x, int new_y) {
+		int old_cell_x = old_x / secters_width;
+		int old_cell_y = old_y / secters_height;
+		int new_cell_x = new_x / secters_width;
+		int new_cell_y = new_y / secters_height;
+
+		if (old_cell_x != new_cell_x || old_cell_y != new_cell_y) {
+			secters[old_cell_y][old_cell_x].removePlayer(player_id);
+			secters[new_cell_y][new_cell_x].addPlayer(player_id);
+		}
+	}
+
 };
 
 
