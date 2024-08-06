@@ -16,49 +16,97 @@ using namespace std;
 std::default_random_engine dre;
 std::uniform_int_distribution<> uid(1, W_HEIGHT);
 
-////섹터 기본 구조
-//class Secter {
-//public:
-//	std::unordered_set<int> players;  // 셀에 있는 플레이어 ID 목록
-//	std::mutex secter_lock;
-//
-//	void addPlayer(int player_id) {
-//		std::lock_guard<std::mutex> lock(secter_lock);
-//		players.insert(player_id);
-//	}
-//
-//	void removePlayer(int player_id) {
-//		std::lock_guard<std::mutex> lock(secter_lock);
-//		players.erase(player_id);
-//	}
-//};
-//
-////섹터를 사용한 격자구조(게임월드)
-//class Grid {
-//private:
-//	std::vector<std::vector<Secter>> secters;
-//	int secters_width, secters_height;
-//
-//public:
-//	Grid(int map_width, int map_height, int secter_size) {
-//		secters_width = map_width / secter_size;
-//		secters_height = map_height / secters_height;
-//		secters.resize(secters_height, std::vector<Secter>(secters_width));
-//	}
-//
-//	void updatePlayerPosition(int player_id, int old_x, int old_y, int new_x, int new_y) {
-//		int old_cell_x = old_x / secters_width;
-//		int old_cell_y = old_y / secters_height;
-//		int new_cell_x = new_x / secters_width;
-//		int new_cell_y = new_y / secters_height;
-//
-//		if (old_cell_x != new_cell_x || old_cell_y != new_cell_y) {
-//			secters[old_cell_y][old_cell_x].removePlayer(player_id);
-//			secters[new_cell_y][new_cell_x].addPlayer(player_id);
-//		}
-//	}
-//
-//};
+//섹터 기본 구조
+class Secter {
+public:
+	std::unordered_set<int> players;  // 셀에 있는 플레이어 ID 목록
+	mutable std::mutex secter_lock;
+
+	Secter() = default;
+
+	// 복사 생성자
+	Secter(const Secter& other) {
+		std::lock_guard<std::mutex> lock(other.secter_lock);
+		players = other.players;
+	}
+
+	// 복사 대입 연산자
+	Secter& operator=(const Secter& other) {
+		if (this != &other) {
+			std::lock_guard<std::mutex> lock1(secter_lock);
+			std::lock_guard<std::mutex> lock2(other.secter_lock);
+			players = other.players;
+		}
+		return *this;
+	}
+
+	void addPlayer(int player_id) {
+		std::lock_guard<std::mutex> lock(secter_lock);
+		players.insert(player_id);
+	}
+
+	void removePlayer(int player_id) {
+		std::lock_guard<std::mutex> lock(secter_lock);
+		players.erase(player_id);
+	}
+
+
+};
+
+//섹터를 사용한 격자구조(게임월드)
+class Grid {
+private:
+	std::vector<std::vector<Secter>> secters;
+	int secters_width, secters_height;
+public:
+	Grid() {
+		secters_width = W_WIDTH / secter_size;
+		secters_height = W_HEIGHT / secter_size;
+		secters.resize(secters_height, std::vector<Secter>(secters_width));
+	}
+
+	void updatePlayerPosition(int player_id, int old_x, int old_y, int new_x, int new_y) {
+		int old_secter_x = old_x / secter_size;
+		int old_secter_y = old_y / secter_size;
+		int new_secter_x = new_x / secter_size;
+		int new_secter_y = new_y / secter_size;
+
+		if (old_secter_x != new_secter_x || old_secter_y != new_secter_y) {
+			secters[old_secter_y][old_secter_x].removePlayer(player_id);
+			secters[new_secter_y][new_secter_x].addPlayer(player_id);
+		}
+	}
+
+	std::vector<int> getNearbyPlayers(int x, int y, int range) {
+		std::vector<int> nearby_players;
+
+		int center_secter_x = x / secter_size;
+		int center_secter_y = y / secter_size;
+
+		int secter_range = (range + secter_size - 1) / secter_size;
+
+		for (int dy = -secter_range; dy <= secter_range; ++dy) {
+			for (int dx = -secter_range; dx <= secter_range; ++dx) {
+				int secter_x = center_secter_x + dx;
+				int secter_y = center_secter_y + dy;
+
+				if (secter_x < 0 || secter_x >= secters_width || secter_y < 0 || secter_y >= secters_height) {
+					continue;
+				}
+
+				Secter& secter = secters[secter_y][secter_x];
+				std::lock_guard<std::mutex> lock(secter.secter_lock);
+				for (int player_id : secter.players) {
+					// 여기서 추가적인 거리 체크를 할 수 있습니다.
+					nearby_players.push_back(player_id);
+				}
+			}
+		}
+
+		return nearby_players;
+	}
+
+};
 
 
 enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND };
