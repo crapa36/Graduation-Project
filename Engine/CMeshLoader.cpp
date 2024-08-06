@@ -5,7 +5,6 @@
 #include "Transform.h"
 #include "Shader.h"
 #include "Material.h"
-#include "Transform.h"
 
 /// 
 
@@ -213,7 +212,7 @@ CMeshInfo CMeshLoader::LoadFrameHierarchy(FILE* pInFile)
 	UINT nReads = 0;
 	
 	CMeshInfo info;
-
+	info.transform = make_shared<Transform>();
 	int nFrame = 0;
 
 	while (1)
@@ -236,11 +235,12 @@ CMeshInfo CMeshLoader::LoadFrameHierarchy(FILE* pInFile)
 			nReads = (UINT)::fread(&xmf3Rotation, sizeof(float), 3, pInFile); //Euler Angle
 			nReads = (UINT)::fread(&xmf3Scale, sizeof(float), 3, pInFile);
 			nReads = (UINT)::fread(&xmf4Rotation, sizeof(float), 4, pInFile); //Quaternion
-
-			info._transform.SetLocalPosition(xmf3Position);
-			info._transform.SetLocalRotation(xmf3Rotation);
-			info._transform.SetLocalScale(xmf3Scale);
-			info._transform.SetLocalRotationQuaternion(xmf4Rotation);
+			
+			info.transform->SetLocalPosition(xmf3Position);
+			info.transform->SetLocalRotation(xmf3Rotation);
+			info.transform->SetLocalScale(xmf3Scale);
+			info.transform->SetLocalRotationQuaternion(xmf4Rotation);
+			 
 		}
 		else if (!strcmp(pstrToken, "<TransformMatrix>:"))
 		{
@@ -322,30 +322,30 @@ CMeshInfo CMeshLoader::Li2i(CMeshLoadInfo loadInfo)
 			vertex.tangent = Vec3(1.0f, 0.0f, 0.0f);
 			temp.vertices.push_back(vertex);
 		}
-
-		for (int i = 0; i < loadInfo.m_nIndices; i += 3) {
-			vector<uint32> idx;
-			idx.push_back(static_cast<uint32>(loadInfo.m_pnIndices[i]));
-			idx.push_back(static_cast<uint32>(loadInfo.m_pnIndices[i + 1]));
-			idx.push_back(static_cast<uint32>(loadInfo.m_pnIndices[i + 2]));
-			temp.indices.push_back(idx);
-		}
 		
-		if (loadInfo.m_nIndices == 0) {
-			for (uint32 i = 0; i < loadInfo.m_nVertices - (loadInfo.m_nSubMeshes * 3); i += 3) {
+		{
+			if (loadInfo.m_nIndices != 0) {
 				vector<uint32> idx;
-				idx.push_back(i);
-				idx.push_back(i + 1);
-				idx.push_back(i + 2);
+				for (int i = 0; i < loadInfo.m_nIndices; i++) {
+					idx.push_back(static_cast<uint32>(loadInfo.m_pnIndices[i]));
+				}
 				temp.indices.push_back(idx);
+
+
+			//	for (uint32 i = 0; i < loadInfo.m_nVertices - (loadInfo.m_nSubMeshes * 3); i++) {
+			//		idx.push_back(i);
+			//	}
+			//	temp.indices.push_back(idx);
 			}
 		}
 
-		for (int i = 0; i < loadInfo.m_nSubMeshes * 3 - 1; i+= 3) {
+		{
 			vector<uint32> idx;
-			idx.push_back(static_cast<uint32>(loadInfo.m_pnSubSetIndices[i]));
-			idx.push_back(static_cast<uint32>(loadInfo.m_pnSubSetIndices[i + 1]));
-			idx.push_back(static_cast<uint32>(loadInfo.m_pnSubSetIndices[i + 2]));
+			for (int i = 0; i < loadInfo.m_nSubMeshes; i++) {
+				for (int j = 0; j < loadInfo.m_pnSubSetIndices[i]; j++) {
+					idx.push_back(static_cast<uint32>(loadInfo.m_ppnSubSetIndices[i][j]));
+				}
+			}
 			temp.indices.push_back(idx);
 		}
 

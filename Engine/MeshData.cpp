@@ -51,7 +51,8 @@ shared_ptr<MeshData> MeshData::LoadFromBIN(const wstring& path) {
     for (int32 i = 0; i < loader.GetMeshCount(); i++) {
         if (!loader.GetMesh(i).vertices.empty()) {
             shared_ptr<Mesh> mesh = Mesh::CreateFromBIN(&loader.GetMesh(i), loader);
-
+            mesh->SetTransform(loader.GetMesh(i).transform);
+            //mesh->SetTransform(make_shared<Transform>());
             GET_SINGLETON(Resources)->Add<Mesh>(mesh->GetName(), mesh);
 
             // Material 찾아서 연동
@@ -65,13 +66,9 @@ shared_ptr<MeshData> MeshData::LoadFromBIN(const wstring& path) {
             info.mesh = mesh;
             info.materials = materials;
             meshData->_meshRenders.push_back(info);
-
-
-            return meshData;
         }
-        else
-            return 0;
     }
+    return meshData;
 }
 
 void MeshData::Load(const wstring& _strFilePath) {
@@ -90,6 +87,7 @@ vector<shared_ptr<GameObject>> MeshData::Instantiate() {
     for (MeshRenderInfo& info : _meshRenders) {
         shared_ptr<GameObject> gameObject = make_shared<GameObject>();
         gameObject->AddComponent(make_shared<Transform>());
+        //gameObject->AddComponent(info.mesh->GetTransform());
         gameObject->AddComponent(make_shared<MeshRenderer>());
         gameObject->GetMeshRenderer()->SetMesh(info.mesh);
 

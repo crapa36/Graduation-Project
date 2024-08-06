@@ -47,7 +47,7 @@ struct CMeshInfo
     vector<Vertex>						vertices;
     vector<vector<uint32>>				indices;
     vector<CMeshMaterialInfo>			materials;
-    Transform                           _transform;
+    shared_ptr<Transform>               transform;
 };
 
 
