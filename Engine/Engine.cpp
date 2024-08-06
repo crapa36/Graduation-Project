@@ -44,7 +44,8 @@ void Engine::Update() {
     GET_SINGLETON(Timer)->Update();
     GET_SINGLETON(SceneManager)->Update();
     GET_SINGLETON(InstancingManager)->ClearBuffer();
-    GET_SINGLETON(ImguiManager)->Update();
+    if (_imguiMode)
+        GET_SINGLETON(ImguiManager)->Update();
 
     Render();
 
@@ -55,7 +56,8 @@ void Engine::Render() {
     RenderBegin();
 
     GET_SINGLETON(SceneManager)->Render();
-    GET_SINGLETON(ImguiManager)->Render();
+    if (_imguiMode)
+        GET_SINGLETON(ImguiManager)->Render();
     RenderEnd();
 }
 
