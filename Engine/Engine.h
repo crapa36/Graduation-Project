@@ -38,6 +38,12 @@ public:
 
     void ResizeWindow(int32 width, int32 height);
 
+    void SetDebugMode(bool debug) { _debugMode = debug; }
+    void SetImguiMode(bool imguiMode) { _imguiMode = imguiMode; }
+
+    bool GetDebugMode() { return _debugMode; }
+    bool GetImguiMode() { return _imguiMode; }
+
 private:
     void ShowFps();
     void CreateConstantBuffer(CBV_REGISTER reg, uint32 buffersize, uint32 count);
@@ -47,6 +53,9 @@ private:
     WindowInfo		_window;
     D3D12_VIEWPORT	_viewport = {};
     D3D12_RECT		_scissorRect = {};
+
+    bool _debugMode = false;
+    bool _imguiMode = false;
 
     shared_ptr<Device> _device = make_shared<Device>();
     shared_ptr<GraphicsCommandQueue> _graphicsCmdQueue = make_shared<GraphicsCommandQueue>();
