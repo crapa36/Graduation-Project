@@ -77,19 +77,19 @@ public:
 		}
 	}
 
-	std::vector<int> getNearbyPlayers(int x, int y, int range) {
+	std::vector<int> getNearbyPlayers(int x, int y) {
 		std::vector<int> nearby_players;
 
 		int center_secter_x = x / secter_size;
 		int center_secter_y = y / secter_size;
 
-		int secter_range = (range + secter_size - 1) / secter_size;
-
-		for (int dy = -secter_range; dy <= secter_range; ++dy) {
-			for (int dx = -secter_range; dx <= secter_range; ++dx) {
+		// 주변 9개 섹터를 검사 (현재 섹터 포함)
+		for (int dy = -1; dy <= 1; ++dy) {
+			for (int dx = -1; dx <= 1; ++dx) {
 				int secter_x = center_secter_x + dx;
 				int secter_y = center_secter_y + dy;
 
+				// 유효한 섹터 범위인지 확인
 				if (secter_x < 0 || secter_x >= secters_width || secter_y < 0 || secter_y >= secters_height) {
 					continue;
 				}
@@ -97,7 +97,6 @@ public:
 				Secter& secter = secters[secter_y][secter_x];
 				std::lock_guard<std::mutex> lock(secter.secter_lock);
 				for (int player_id : secter.players) {
-					// 여기서 추가적인 거리 체크를 할 수 있습니다.
 					nearby_players.push_back(player_id);
 				}
 			}
@@ -107,6 +106,8 @@ public:
 	}
 
 };
+
+Grid game_world;
 
 
 enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND };
@@ -262,22 +263,28 @@ void process_packet(int c_id, char* packet)
 	case CS_MOVE: {
 		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
 		clients[c_id]._last_move_time = p->move_time;
-		short x = clients[c_id].x;
-		short y = clients[c_id].y;
+		short old_x = clients[c_id].x;
+		short old_y = clients[c_id].y;
+		short new_x = old_x;
+		short new_y = old_y;
 		switch (p->direction) {
-		case 0: if (y > 0) y--; break;
-		case 1: if (y < W_HEIGHT - 1) y++; break;
-		case 2: if (x > 0) x--; break;
-		case 3: if (x < W_WIDTH - 1) x++; break;
+		case 0: if (new_y > 0) new_y--; break;
+		case 1: if (new_y < W_HEIGHT - 1) new_y++; break;
+		case 2: if (new_x > 0) new_x--; break;
+		case 3: if (new_x < W_WIDTH - 1) new_x++; break;
 		}
-		clients[c_id].x = x;
-		clients[c_id].y = y;
+		clients[c_id].x = new_x;
+		clients[c_id].y = new_y;
 
-		for (auto& cl : clients) {
-			if (cl._state != ST_INGAME) continue;
-			cl.send_move_packet(c_id);
+		game_world.updatePlayerPosition(c_id, old_x, old_y, new_x, new_y);
 
+		std::vector<int> nearby_players = game_world.getNearbyPlayers(new_x, new_y);
+		for (int player_id : nearby_players) {
+			if (player_id != c_id && clients[player_id]._state == ST_INGAME) {
+				clients[player_id].send_move_packet(c_id);
+			}
 		}
+		
 	}
 	}
 }
