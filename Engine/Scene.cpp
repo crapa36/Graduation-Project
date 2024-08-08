@@ -18,12 +18,14 @@ void Scene::Start() {
     for (const shared_ptr<GameObject>& gameObject : _gameObjects) {
         gameObject->Start();
     }
+
 }
 
 void Scene::Update() {
     for (const shared_ptr<GameObject>& gameObject : _gameObjects) {
         gameObject->Update();
     }
+
 }
 
 void Scene::LateUpdate() {

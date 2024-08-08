@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "Engine.h"
 #include "Material.h"
-#include "Transform.h"
 #include "Input.h"
+#include "Transform.h"
 #include "Timer.h"
 #include "SceneManager.h"
 #include "Light.h"
@@ -12,7 +12,7 @@
 void Engine::Init(const WindowInfo& info) {
     _window = info;
 
-    // ±×·ÁÁú È­¸é Å©±â¸¦ ¼³Á¤
+    // ê·¸ë ¤ì§ˆ í™”ë©´ í¬ê¸°ë¥¼ ì„¤ì •
     _viewport = { 0, 0, static_cast<FLOAT>(info.width), static_cast<FLOAT>(info.height), 0.0f, 1.0f };
     _scissorRect = CD3DX12_RECT(0, 0, info.width, info.height);
 
@@ -23,6 +23,7 @@ void Engine::Init(const WindowInfo& info) {
     _rootSignature->Init();
     _graphicsDescriptorHeap->Init(256);
     _computeDescriptorHeap->Init();
+
     _imguiDescriptorHeap->Init();
 
     CreateConstantBuffer(CBV_REGISTER::b0, sizeof(LightParams), 1);
@@ -31,7 +32,7 @@ void Engine::Init(const WindowInfo& info) {
 
     CreateRenderTargetGroups();
 
-    //ResizeWindow(info.width, info.height); À©µµ¿ì Ã¢Å©±â¿Í ·»´õÅ¸°Ù Å©±â°¡ ´Ù¸¥ Çö»óÀ¸·Î ÀÓ½Ã ÁÖ¼®Ã³¸®
+    //ResizeWindow(info.width, info.height); ìœˆë„ìš° ì°½í¬ê¸°ì™€ ë Œë”íƒ€ê²Ÿ í¬ê¸°ê°€ ë‹¤ë¥¸ í˜„ìƒìœ¼ë¡œ ì„ì‹œ ì£¼ì„ì²˜ë¦¬
 
     GET_SINGLETON(Input)->Init(info.hwnd);
     GET_SINGLETON(Timer)->Init();

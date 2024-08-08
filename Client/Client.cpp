@@ -5,6 +5,7 @@
 #include "Client.h"
 #include "Game.h"
 
+
 #include "imgui.h"
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx12.h"
@@ -13,11 +14,14 @@
 
 #define MAX_LOADSTRING 100
 
+#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
+
 // 전역 변수:
 WindowInfo GwindowInfo;
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
+
 
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -44,6 +48,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         return FALSE;
     }
 
+
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CLIENT));
 
     MSG msg;
@@ -69,6 +74,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
         // TODO
         game->Update();
+
     }
 
     return (int)msg.wParam;
@@ -147,12 +153,34 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 //  WM_DESTROY  - 종료 메시지를 게시하고 반환합니다.
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+
     if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
         return true;
     switch (message) {
     case WM_COMMAND:
     {
-        int wmId = LOWORD(wParam);
+        case WM_COMMAND:
+        {
+            int wmId = LOWORD(wParam);
+
+            // 메뉴 선택을 구문 분석합니다:
+            switch (wmId) {
+            case IDM_ABOUT:
+                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+                break;
+            case IDM_EXIT:
+                DestroyWindow(hWnd);
+                break;
+            default:
+                return DefWindowProc(hWnd, message, wParam, lParam);
+            }
+        }
+        break;
+        case WM_PAINT:
+        {
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(hWnd, &ps);
+
 
         // 메뉴 선택을 구문 분석합니다:
         switch (wmId) {

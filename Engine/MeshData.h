@@ -19,6 +19,7 @@ public:
 
 public:
 	static shared_ptr<MeshData> LoadFromFBX(const wstring& path);
+	static shared_ptr<MeshData> LoadFromBIN(const wstring& path);
 
 	virtual void Load(const wstring& path);
 	virtual void Save(const wstring& path);

@@ -43,6 +43,13 @@ public:
     void SetHeight(float value) { _height = value; }
     void SetViewMatrix(const Matrix& matView) { _matView = matView; }
 
+    float GetNear() { return _near; }
+    float GetFar() { return _far; }
+    float GetFOV() { return _fov; }
+    float GetScale() { return _scale; }
+    float GetWidth() { return _width; }
+    float GetHeight() { return _height; }
+
     Matrix& GetViewMatrix() { return _matView; }
     Matrix& GetProjectionMatrix() { return _matProjection; }
     Frustum& GetFrustum() { return _frustum; }

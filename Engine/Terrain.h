@@ -8,6 +8,9 @@ public:
 
     void Init(int32 sizeX, int32 sizeZ);
 
+    int32 GetsizeX() { return _sizeX; }
+    int32 GetsizeZ() { return _sizeZ; }
+
     virtual void FinalUpdate() override;
 
 private:

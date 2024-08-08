@@ -78,9 +78,6 @@
     <ClCompile Include="Scene.cpp">
       <Filter>Manager</Filter>
     </ClCompile>
-    <ClCompile Include="Input.cpp">
-      <Filter>Manager</Filter>
-    </ClCompile>
     <ClCompile Include="Timer.cpp">
       <Filter>Manager</Filter>
     </ClCompile>
@@ -156,8 +153,11 @@
     <ClCompile Include="Animator.cpp">
       <Filter>Object\Component</Filter>
     </ClCompile>
-    <ClCompile Include="TestDragonScript.cpp">
-      <Filter>Object\Test</Filter>
+    <ClCompile Include="CMeshLoader.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Input.cpp">
+      <Filter>Manager</Filter>
     </ClCompile>
     <ClCompile Include="ImguiManager.cpp">
       <Filter>Manager</Filter>
@@ -236,9 +236,6 @@
     <ClInclude Include="Scene.h">
       <Filter>Manager</Filter>
     </ClInclude>
-    <ClInclude Include="Input.h">
-      <Filter>Manager</Filter>
-    </ClInclude>
     <ClInclude Include="Timer.h">
       <Filter>Manager</Filter>
     </ClInclude>
@@ -308,12 +305,10 @@
     <ClInclude Include="Animator.h">
       <Filter>Object\Component</Filter>
     </ClInclude>
-    <ClInclude Include="TestDragonScript.h">
-      <Filter>Object\Test</Filter>
-    </ClInclude>
     <ClInclude Include="SphereCollider.h">
       <Filter>Object\Component</Filter>
     </ClInclude>
+
     <ClInclude Include="ImguiManager.h">
       <Filter>Manager</Filter>
     </ClInclude>
@@ -341,11 +336,13 @@
     <ClInclude Include="imgui_internal.h">
       <Filter>Utils\imgui</Filter>
     </ClInclude>
+
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl">
       <Filter>Utils</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Resources\Shader\forward.fx">

@@ -34,6 +34,8 @@ public:
     shared_ptr<BaseCollider> GetCollider();
     shared_ptr<Animator> GetAnimator();
 
+    wstring GetPath() { return _path; }
+
     void AddComponent(shared_ptr<Component> component);
 
     void SetCheckFrustum(bool checkFrustum) { _checkFrustum = checkFrustum; }
@@ -45,10 +47,17 @@ public:
     void SetStatic(bool isStatic) { _isStatic = isStatic; }
     bool IsStatic() { return _isStatic; }
 
+    void SetChiledObject(shared_ptr<GameObject> obj) { _childObject.push_back(obj); }
+    void SetParentsObject(shared_ptr<GameObject> obj) { _parentsObject = obj; }
+
 private:
     array<shared_ptr<Component>, FIXED_COMPONENT_COUNT> _components;
     vector<shared_ptr<MonoBehaviour>> _scripts;
 
+    shared_ptr<GameObject>          _parentsObject;
+    vector<shared_ptr<GameObject>> _childObject;
+
+    wstring _path = L"";
     bool _checkFrustum = true;
     uint8 _layerIndex = 0;
     bool _isStatic = true;

@@ -407,6 +407,18 @@ shared_ptr<class MeshData> Resources::LoadFBX(const wstring& path) {
     return meshData;
 }
 
+shared_ptr<class MeshData> Resources::LoadBIN(const wstring& path) {
+    wstring key = path;
+    shared_ptr<MeshData> meshData = Get<MeshData>(key);
+    if (meshData)
+        return meshData;
+    meshData = MeshData::LoadFromBIN(path);
+    meshData->SetName(key);
+    Add(key, meshData);
+
+    return meshData;
+}
+
 void Resources::CreateDefaultShader() {
 
     // Skybox

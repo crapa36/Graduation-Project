@@ -9,6 +9,10 @@
 #include "Engine.h"
 
 TestCameraScript::TestCameraScript() {
+    _centerPos.x = GEngine->GetWindow().width / 2;
+    _centerPos.y = GEngine->GetWindow().height / 2;
+    _centerScreenPos = _centerPos;
+    ClientToScreen(GEngine->GetWindow().hwnd, &_centerScreenPos);
 }
 
 TestCameraScript::~TestCameraScript() {
@@ -16,6 +20,7 @@ TestCameraScript::~TestCameraScript() {
 
 void TestCameraScript::LateUpdate() {
     if (GetForegroundWindow() == GEngine->GetWindow().hwnd) {
+
         _centerPos.x = GEngine->GetWindow().width / 2;
         _centerPos.y = GEngine->GetWindow().height / 2;
         _centerScreenPos = _centerPos;
@@ -42,13 +47,6 @@ void TestCameraScript::LateUpdate() {
         if (INPUT->GetButton(KEY_TYPE::CTRL))
             pos -= GetTransform()->GetUp() * _speed * DELTA_TIME;
 
-        if (INPUT->GetButton(KEY_TYPE::SHIFT)) {
-            _speed = 200.f;
-        }
-        else {
-            _speed = 100.f;
-        }
-
         if (INPUT->GetButtonDown(KEY_TYPE::DEL)) {
             GEngine->SetImguiMode(!GEngine->GetImguiMode());
         }
@@ -57,7 +55,7 @@ void TestCameraScript::LateUpdate() {
             GEngine->SetImguiMode(!GEngine->GetImguiMode());
         }
 
-        // ¸¶¿ì½º Áß¾Ó °íÁ¤ ¹× È­¸é È¸Àü
+        // ë§ˆìš°ìŠ¤ ì¤‘ì•™ ê³ ì • ë° í™”ë©´ íšŒì „
         if (INPUT->GetButtonDown(KEY_TYPE::ALT)) {
             _isMouseLock = !_isMouseLock;
         }
@@ -67,18 +65,19 @@ void TestCameraScript::LateUpdate() {
             const POINT& currentMousePos = INPUT->GetMousePos();
             Vec3 rotation = GetTransform()->GetLocalRotation();
 
-            // ¸¶¿ì½º ¿òÁ÷ÀÓ¿¡ µû¸¥ È¸Àü·® °è»ê
+            // ë§ˆìš°ìŠ¤ ì›€ì§ì„ì— ë”°ë¥¸ íšŒì „ëŸ‰ ê³„ì‚°
             float deltaX = static_cast<float>(currentMousePos.x - _centerPos.x);
             float deltaY = static_cast<float>(currentMousePos.y - _centerPos.y);
 
-            // È¸Àü ¹Î°¨µµ¸¦ Á¶ÀıÇÒ ¼ö ÀÖ´Â º¯¼ö
+            // íšŒì „ ë¯¼ê°ë„ë¥¼ ì¡°ì ˆí•  ìˆ˜ ìˆëŠ” ë³€ìˆ˜
             float sensitivity = 0.005f;
 
             rotation.y += deltaX * sensitivity;
             rotation.x += deltaY * sensitivity;
 
-            rotation.x = std::clamp(rotation.x, -XM_PIDIV2, XM_PIDIV2); // Pitch Á¦ÇÑ
-            rotation.y = std::fmod(rotation.y, XM_2PI); // Yaw °ªÀ» -2PI ~ 2PI ¹üÀ§·Î Á¦ÇÑ
+
+            rotation.x = std::clamp(rotation.x, -XM_PIDIV2, XM_PIDIV2); // Pitch ì œí•œ
+            rotation.y = std::fmod(rotation.y, XM_2PI); // Yaw ê°’ì„ -2PI ~ 2PI ë²”ìœ„ë¡œ ì œí•œ
             GetTransform()->SetLocalRotation(rotation);
             SetCursorPos(_centerScreenPos.x, _centerScreenPos.y);
         }

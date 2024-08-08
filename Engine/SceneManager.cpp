@@ -12,7 +12,6 @@
 #include "ParticleSystem.h"
 
 #include "TestCameraScript.h"
-#include "TestDragonScript.h"
 
 #include "Resources.h"
 #include "Terrain.h"
@@ -33,12 +32,93 @@ void SceneManager::Render() {
     if (_activeScene)
         _activeScene->Render();
 }
+
+void SceneManager::SaveScene(wstring sceneName) {
+    ofstream fout(sceneName, std::ios::binary);
+
+    string str;
+    str = "<Scene>";
+    fout.write(str.c_str(), str.size());
+
+    for (auto& obj : _activeScene->GetGameObjects()) {
+        fout << "<Object>" << endl;
+
+        fout << "<Name>" << endl;
+        fout << ws2s(obj->GetName()) << endl;
+
+        if (obj->GetTransform()) {
+            fout << "<Transform>" << endl;
+            fout << "<Position>" << endl;
+            fout.write(reinterpret_cast<const char*>(&obj->GetTransform()->GetLocalPosition()), sizeof(Vec3));
+            fout << "<Rotate>" << endl;
+            fout.write(reinterpret_cast<const char*>(&obj->GetTransform()->GetLocalRotation()), sizeof(Vec3));
+            fout << "<Scale>" << endl;
+            fout.write(reinterpret_cast<const char*>(&obj->GetTransform()->GetLocalScale()), sizeof(Vec3));
+        }
+
+        if (obj->GetCamera()) {
+            fout << "<Camera>" << endl;
+            fout << obj->GetCamera()->GetNear() << endl;
+            fout << obj->GetCamera()->GetFar() << endl;
+            fout << obj->GetCamera()->GetFOV() << endl;
+            fout << obj->GetCamera()->GetScale() << endl;
+            fout << obj->GetCamera()->GetWidth() << endl;
+            fout << obj->GetCamera()->GetHeight() << endl;
+        }
+
+        if (obj->GetMeshRenderer()) {
+            fout << "<MeshRenderer>" << endl;
+            if (obj->GetPath() != L"") {
+                fout << "<Path>" << endl;
+                fout << ws2s(obj->GetPath()) << endl;
+            }
+            else {
+                fout << "<Mesh>" << endl;
+            }
+        }
+
+        if (obj->GetLight()) {
+            fout << "<Light>" << endl;
+            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetLightDirection()), sizeof(Vec3));
+            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetDiffuse()), sizeof(Vec4));
+            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetAmbient()), sizeof(Vec4));
+            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetSpecular()), sizeof(Vec4));
+            fout << obj->GetLight()->GetLightRange() << endl;
+            fout << obj->GetLight()->GetLightAngle() << endl;
+            fout << obj->GetLight()->GetLightIndex() << endl;
+        }
+
+        if (obj->GetParticleSystem()) {
+
+        }
+
+        if (obj->GetTerrain()) {
+            fout << "<Terrain>" << endl;
+            fout << obj->GetTerrain()->GetsizeX() << endl;
+            fout << obj->GetTerrain()->GetsizeZ() << endl;
+        }
+
+        if (obj->GetCollider()) {
+
+        }
+
+        if (obj->GetAnimator()) {
+
+        }
+
+    }
+    
+    fout << "</Scene>" << endl;
+}
+
 void SceneManager::LoadScene(wstring sceneName) {
 
-    // TODO : ±âÁ¸ Scene Á¤¸®
-    // TODO : ÆÄÀÏ¿¡¼­ Scene Á¤º¸ ·Îµå
+    // TODO : ï¿½ï¿½ï¿½ï¿½ Scene ï¿½ï¿½ï¿½ï¿½
+    // TODO : ï¿½ï¿½ï¿½Ï¿ï¿½ï¿½ï¿½ Scene ï¿½ï¿½ï¿½ï¿½ ï¿½Îµï¿½
 
     _activeScene = LoadTestScene();
+
+    SaveScene(L"../Resources/main_scene.bin");
 
     _activeScene->Awake();
     _activeScene->Start();
@@ -46,7 +126,7 @@ void SceneManager::LoadScene(wstring sceneName) {
 
 void SceneManager::SetLayerName(uint8 index, const wstring& name) {
 
-    // ±âÁ¸ µ¥ÀÌÅÍ »èÁ¦
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     const wstring& prevName = _layerNames[index];
     _layerIndex.erase(prevName);
 
@@ -72,7 +152,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
     {
         shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"ComputeShader");
 
-        // UAV ¿ë Texture »ý¼º
+        // UAV ï¿½ï¿½ Texture ï¿½ï¿½ï¿½ï¿½
         shared_ptr<Texture> texture = GET_SINGLETON(Resources)->CreateTexture(L"UAVTexture",
                                                                               DXGI_FORMAT_R8G8B8A8_UNORM, 1024, 1024,
                                                                               CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
@@ -83,7 +163,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         material->SetInt(0, 1);
         GEngine->GetComputeDescriptorHeap()->SetUAV(texture->GetUAVHandle(), UAV_REGISTER::u0);
 
-        // ¾²·¹µå ±×·ì (1 * 1024 * 1)
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×·ï¿½ (1 * 1024 * 1)
         material->Dispatch(1, 1024, 1);
     }
 #pragma endregion
@@ -95,13 +175,13 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         shared_ptr<GameObject> camera = make_shared<GameObject>();
         camera->SetName(L"Main_Camera");
         camera->AddComponent(make_shared<Transform>());
-        camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, FOV=45µµ
-        camera->GetCamera()->SetFar(10000.f); // Far 10000 À¸·Î
+        camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, FOV=45ï¿½ï¿½
+        camera->GetCamera()->SetFar(10000.f); // Far 10000 ï¿½ï¿½ï¿½ï¿½
         camera->AddComponent(make_shared<TestCameraScript>());
         camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 0.f));
 
         uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
-        camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UI´Â ¾È ÂïÀ½
+        camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UIï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         scene->AddGameObject(camera);
     }
 #pragma endregion
@@ -115,8 +195,8 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 0.f));
         camera->GetCamera()->SetProjectionType(PROJECTION_TYPE::ORTHOGRAPHIC);
         uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
-        camera->GetCamera()->SetCullingMaskAll(); // ´Ù ²ô°í
-        camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, false); // UI¸¸ ÂïÀ½
+        camera->GetCamera()->SetCullingMaskAll(); // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+        camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, false); // UIï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         scene->AddGameObject(camera);
     }
 #pragma endregion
@@ -124,6 +204,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 #pragma region SkyBox
     {
         shared_ptr<GameObject> skybox = make_shared<GameObject>();
+        skybox->SetName(L"SkyBox");
         skybox->AddComponent(make_shared<Transform>());
         skybox->SetCheckFrustum(false);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
@@ -291,20 +372,34 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
     //    }
     //#pragma endregion
 
-#pragma region FBX
+//#pragma region FBX
+//    {
+//        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadFBX(L"..\\Resources\\FBX\\Apache.fbx");
+//  
+//        vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
+//
+//        for (auto& gameObject : gameObjects) {
+//            gameObject->SetName(L"Dragon");
+//            gameObject->SetCheckFrustum(false);
+//            gameObject->GetTransform()->SetLocalPosition(Vec3(0.f, -100.f, 100.f));
+//            gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
+//            scene->AddGameObject(gameObject);
+//            gameObject->SetStatic(false);
+//        }
+//    }
+//#pragma endregion
+
+#pragma region BIN
     {
-        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadFBX(L"..\\Resources\\FBX\\Dragon.fbx");
+        wstring path = L"../Resources/BIN/Apache.bin";
+        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadBIN(path);
 
         vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
-
         for (auto& gameObject : gameObjects) {
-            gameObject->SetName(L"Dragon");
+            gameObject->SetName(L"Apache");
             gameObject->SetCheckFrustum(false);
-            gameObject->GetTransform()->SetLocalPosition(Vec3(0.f, -100.f, 100.f));
-            gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
             scene->AddGameObject(gameObject);
             gameObject->SetStatic(false);
-            gameObject->AddComponent(make_shared<TestDragonScript>());
         }
     }
 #pragma endregion

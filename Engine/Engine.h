@@ -49,7 +49,7 @@ private:
     void CreateConstantBuffer(CBV_REGISTER reg, uint32 buffersize, uint32 count);
     void CreateRenderTargetGroups();
 
-    // ±×·ÁÁú È­¸é Å©±â °ü·Ã
+    // Â±Ã—Â·ÃÃÃº ÃˆÂ­Â¸Ã© Ã…Â©Â±Ã¢ Â°Ã¼Â·Ãƒ
     WindowInfo		_window;
     D3D12_VIEWPORT	_viewport = {};
     D3D12_RECT		_scissorRect = {};
@@ -64,6 +64,7 @@ private:
     shared_ptr<RootSignature> _rootSignature = make_shared<RootSignature>();
     shared_ptr<GraphicsDescriptorHeap> _graphicsDescriptorHeap = make_shared<GraphicsDescriptorHeap>();
     shared_ptr<ComputeDescriptorHeap> _computeDescriptorHeap = make_shared<ComputeDescriptorHeap>();
+
     shared_ptr<ImguiDescriptorHeap> _imguiDescriptorHeap = make_shared<ImguiDescriptorHeap>();
 
     vector<shared_ptr<ConstantBuffer>> _constantBuffers;

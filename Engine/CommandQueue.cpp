@@ -93,7 +93,7 @@ void GraphicsCommandQueue::RenderEnd() {
     ID3D12CommandList* cmdListArr[] = { _cmdList.Get() };
     _cmdQueue->ExecuteCommandLists(_countof(cmdListArr), cmdListArr);
 
-    _swapChain->Present();
+    _swapChain->Present(); // VSync 켜짐 (0으로 설정하면 VSync 꺼짐)
 
     WaitSync();
 
