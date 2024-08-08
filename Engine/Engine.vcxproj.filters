@@ -183,6 +183,9 @@
     <ClCompile Include="imgui_tables.cpp">
       <Filter>Utils\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="TestPlayerScript.cpp">
+      <Filter>Object\Test</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -340,6 +343,9 @@
     </ClInclude>
     <ClInclude Include="imgui_internal.h">
       <Filter>Utils\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="TestPlayerScript.h">
+      <Filter>Object\Test</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
