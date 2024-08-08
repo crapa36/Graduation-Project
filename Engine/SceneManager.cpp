@@ -79,19 +79,19 @@ void SceneManager::SaveScene(wstring sceneName) {
             }
         }
 
-        if (obj->GetLight()) {
-            fout << "<Light>" << endl;
-            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetLightDirection()), sizeof(Vec3));
-            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetDiffuse()), sizeof(Vec4));
-            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetAmbient()), sizeof(Vec4));
-            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetSpecular()), sizeof(Vec4));
-            fout << obj->GetLight()->GetLightRange() << endl;
-            fout << obj->GetLight()->GetLightAngle() << endl;
-            fout << obj->GetLight()->GetLightIndex() << endl;
-        }
+        /*      if (obj->GetLight()) {
+                  fout << "<Light>" << endl;
+
+                  fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetLightDirection()), sizeof(Vec3));
+                  fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetDiffuse()), sizeof(Vec4));
+                  fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetAmbient()), sizeof(Vec4));
+                  fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetSpecular()), sizeof(Vec4));
+                  fout << obj->GetLight()->GetLightRange() << endl;
+                  fout << obj->GetLight()->GetLightAngle() << endl;
+                  fout << obj->GetLight()->GetLightIndex() << endl;
+              }*/
 
         if (obj->GetParticleSystem()) {
-
         }
 
         if (obj->GetTerrain()) {
@@ -101,15 +101,12 @@ void SceneManager::SaveScene(wstring sceneName) {
         }
 
         if (obj->GetCollider()) {
-
         }
 
         if (obj->GetAnimator()) {
-
         }
-
     }
-    
+
     fout << "</Scene>" << endl;
 }
 
@@ -383,15 +380,15 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
     {
         shared_ptr<GameObject> light = make_shared<GameObject>();
         light->AddComponent(make_shared<Transform>());
-        light->GetTransform()->SetLocalPosition(Vec3(300.f, 100.f, 300.f));
+        light->GetTransform()->SetLocalPosition(Vec3(300.f, 0.f, 400.f));
         light->AddComponent(make_shared<Light>());
         light->GetLight()->SetLightDirection(Vec3(0.f, -1.f, 0.f));
         light->GetLight()->SetLightType(LIGHT_TYPE::SPOT);
         light->GetLight()->SetDiffuse(Vec3(0.0f, 0.f, 1.f));
         light->GetLight()->SetAmbient(Vec3(0.0f, 0.0f, 0.1f));
         light->GetLight()->SetSpecular(Vec3(0.0f, 0.0f, 0.1f));
-        light->GetLight()->SetLightRange(200.f);
-        light->GetLight()->SetLightAngle(3.14f / 2);
+        light->GetLight()->SetLightRange(500.f);
+        light->GetLight()->SetLightAngle(3.14f / 4);
 
         scene->AddGameObject(light);
     }
@@ -410,8 +407,8 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 
 #pragma region FBX
     {
-        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadFBX(L"..\\Resources\\FBX\\Apache.fbx");
-  
+        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadFBX(L"..\\Resources\\FBX\\Dragon.fbx");
+
         vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
 
         for (auto& gameObject : gameObjects) {
@@ -420,25 +417,26 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
             gameObject->GetTransform()->SetLocalPosition(Vec3(0.f, -100.f, 100.f));
             gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
             scene->AddGameObject(gameObject);
+            gameObject->AddComponent(make_shared<TestDragonScript>());
             gameObject->SetStatic(false);
         }
     }
 #pragma endregion
 
-#pragma region BIN
-    {
-        wstring path = L"../Resources/BIN/Apache.bin";
-        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadBIN(path);
-
-        vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
-        for (auto& gameObject : gameObjects) {
-            gameObject->SetName(L"Apache");
-            gameObject->SetCheckFrustum(false);
-            scene->AddGameObject(gameObject);
-            gameObject->SetStatic(false);
-        }
-    }
-#pragma endregion
+    //#pragma region BIN
+    //    {
+    //        wstring path = L"../Resources/BIN/Apache.bin";
+    //        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadBIN(path);
+    //
+    //        vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
+    //        for (auto& gameObject : gameObjects) {
+    //            gameObject->SetName(L"Apache");
+    //            gameObject->SetCheckFrustum(false);
+    //            scene->AddGameObject(gameObject);
+    //            gameObject->SetStatic(false);
+    //        }
+    //    }
+    //#pragma endregion
 
     return scene;
 }

@@ -344,10 +344,14 @@
     <ClInclude Include="TestPlayerScript.h">
       <Filter>Object\Test</Filter>
     </ClInclude>
-    <ClInclude Include="CMeshLoader.h" />
-    <ClInclude Include="Input.h" />
     <ClInclude Include="TestDragonScript.h">
       <Filter>Object\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="CMeshLoader.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

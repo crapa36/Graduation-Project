@@ -20,7 +20,6 @@ TestCameraScript::~TestCameraScript() {
 
 void TestCameraScript::LateUpdate() {
     if (GetForegroundWindow() == GEngine->GetWindow().hwnd) {
-
         _centerPos.x = GEngine->GetWindow().width / 2;
         _centerPos.y = GEngine->GetWindow().height / 2;
         _centerScreenPos = _centerPos;
@@ -46,6 +45,12 @@ void TestCameraScript::LateUpdate() {
 
         if (INPUT->GetButton(KEY_TYPE::CTRL))
             pos -= GetTransform()->GetUp() * _speed * DELTA_TIME;
+
+        if (INPUT->GetButtonDown(KEY_TYPE::SHIFT))
+            _speed = 200.f;
+
+        if (INPUT->GetButtonUp(KEY_TYPE::SHIFT))
+            _speed = 100.f;
 
         if (INPUT->GetButtonDown(KEY_TYPE::DEL)) {
             GEngine->SetImguiMode(!GEngine->GetImguiMode());
@@ -74,7 +79,6 @@ void TestCameraScript::LateUpdate() {
 
             rotation.y += deltaX * sensitivity;
             rotation.x += deltaY * sensitivity;
-
 
             rotation.x = std::clamp(rotation.x, -XM_PIDIV2, XM_PIDIV2); // Pitch 제한
             rotation.y = std::fmod(rotation.y, XM_2PI); // Yaw 값을 -2PI ~ 2PI 범위로 제한
