@@ -123,3 +123,8 @@ void Light::SetLightType(LIGHT_TYPE type) {
         break;
     }
 }
+
+Vec3 Light::GetLightDirection()
+{
+    return GetTransform()->GetLook();
+}

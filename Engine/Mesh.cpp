@@ -62,7 +62,7 @@ shared_ptr<Mesh> Mesh::CreateFromFBX(const FbxMeshInfo* meshInfo, FBXLoader& loa
 shared_ptr<Mesh> Mesh::CreateFromBIN(const CMeshInfo* meshInfo, CMeshLoader& loader) {
     shared_ptr<Mesh> mesh = make_shared<Mesh>();
     mesh->CreateVertexBuffer(meshInfo->vertices);
-
+    
     for (const vector<uint32>& buffer : meshInfo->indices) {
         if (buffer.empty()) {
 

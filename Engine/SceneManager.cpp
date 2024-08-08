@@ -32,12 +32,93 @@ void SceneManager::Render() {
     if (_activeScene)
         _activeScene->Render();
 }
+
+void SceneManager::SaveScene(wstring sceneName) {
+    ofstream fout(sceneName, std::ios::binary);
+
+    string str;
+    str = "<Scene>";
+    fout.write(str.c_str(), str.size());
+
+    for (auto& obj : _activeScene->GetGameObjects()) {
+        fout << "<Object>" << endl;
+
+        fout << "<Name>" << endl;
+        fout << ws2s(obj->GetName()) << endl;
+
+        if (obj->GetTransform()) {
+            fout << "<Transform>" << endl;
+            fout << "<Position>" << endl;
+            fout.write(reinterpret_cast<const char*>(&obj->GetTransform()->GetLocalPosition()), sizeof(Vec3));
+            fout << "<Rotate>" << endl;
+            fout.write(reinterpret_cast<const char*>(&obj->GetTransform()->GetLocalRotation()), sizeof(Vec3));
+            fout << "<Scale>" << endl;
+            fout.write(reinterpret_cast<const char*>(&obj->GetTransform()->GetLocalScale()), sizeof(Vec3));
+        }
+
+        if (obj->GetCamera()) {
+            fout << "<Camera>" << endl;
+            fout << obj->GetCamera()->GetNear() << endl;
+            fout << obj->GetCamera()->GetFar() << endl;
+            fout << obj->GetCamera()->GetFOV() << endl;
+            fout << obj->GetCamera()->GetScale() << endl;
+            fout << obj->GetCamera()->GetWidth() << endl;
+            fout << obj->GetCamera()->GetHeight() << endl;
+        }
+
+        if (obj->GetMeshRenderer()) {
+            fout << "<MeshRenderer>" << endl;
+            if (obj->GetPath() != L"") {
+                fout << "<Path>" << endl;
+                fout << ws2s(obj->GetPath()) << endl;
+            }
+            else {
+                fout << "<Mesh>" << endl;
+            }
+        }
+
+        if (obj->GetLight()) {
+            fout << "<Light>" << endl;
+            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetLightDirection()), sizeof(Vec3));
+            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetDiffuse()), sizeof(Vec4));
+            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetAmbient()), sizeof(Vec4));
+            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetSpecular()), sizeof(Vec4));
+            fout << obj->GetLight()->GetLightRange() << endl;
+            fout << obj->GetLight()->GetLightAngle() << endl;
+            fout << obj->GetLight()->GetLightIndex() << endl;
+        }
+
+        if (obj->GetParticleSystem()) {
+
+        }
+
+        if (obj->GetTerrain()) {
+            fout << "<Terrain>" << endl;
+            fout << obj->GetTerrain()->GetsizeX() << endl;
+            fout << obj->GetTerrain()->GetsizeZ() << endl;
+        }
+
+        if (obj->GetCollider()) {
+
+        }
+
+        if (obj->GetAnimator()) {
+
+        }
+
+    }
+    
+    fout << "</Scene>" << endl;
+}
+
 void SceneManager::LoadScene(wstring sceneName) {
 
     // TODO : ���� Scene ����
     // TODO : ���Ͽ��� Scene ���� �ε�
 
     _activeScene = LoadTestScene();
+
+    SaveScene(L"../Resources/main_scene.bin");
 
     _activeScene->Awake();
     _activeScene->Start();
@@ -123,6 +204,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 #pragma region SkyBox
     {
         shared_ptr<GameObject> skybox = make_shared<GameObject>();
+        skybox->SetName(L"SkyBox");
         skybox->AddComponent(make_shared<Transform>());
         skybox->SetCheckFrustum(false);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
@@ -292,7 +374,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 
 //#pragma region FBX
 //    {
-//        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadFBX(L"..\\Resources\\FBX\\Dragon.fbx");
+//        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadFBX(L"..\\Resources\\FBX\\Apache.fbx");
 //  
 //        vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
 //
@@ -309,14 +391,13 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 
 #pragma region BIN
     {
-        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadBIN(L"../Resources/BIN/Gunship.bin");
+        wstring path = L"../Resources/BIN/Apache.bin";
+        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadBIN(path);
 
         vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
         for (auto& gameObject : gameObjects) {
             gameObject->SetName(L"Apache");
             gameObject->SetCheckFrustum(false);
-            gameObject->GetTransform()->SetLocalPosition(Vec3(0.f, -100.f, 100.f));
-            gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
             scene->AddGameObject(gameObject);
             gameObject->SetStatic(false);
         }

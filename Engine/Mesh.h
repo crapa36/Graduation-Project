@@ -44,7 +44,6 @@ public:
     void Render(shared_ptr<class InstancingBuffer>& buffer, uint32 idx = 0);
 
 
-    static Mesh* LoadFrameHierarchyFromFile(ID3D12Device* pd3dDevice, ID3D12GraphicsCommandList* pd3dCommandList, ID3D12RootSignature* pd3dGraphicsRootSignature, FILE* pInFile);
     static shared_ptr<Mesh> CreateFromFBX(const struct FbxMeshInfo* meshInfo, class FBXLoader& loader);
     static shared_ptr<Mesh> CreateFromBIN(const struct CMeshInfo* meshInfo, class CMeshLoader& loader);
 

@@ -56,6 +56,17 @@ public:
 
     void SetLightIndex(int8 index) { _lightIndex = index; }
 
+    Vec3 GetLightDirection();
+
+    Vec4 GetDiffuse() { return _lightInfo.color.diffuse; }
+    Vec4 GetAmbient() { return _lightInfo.color.ambient; }
+    Vec4 GetSpecular() { return _lightInfo.color.specular; }
+
+    float GetLightRange() { return _lightInfo.range; }
+    float GetLightAngle() { return _lightInfo.angle; }
+
+    int8 GetLightIndex() { return _lightIndex; }
+
 private:
 
     LightInfo _lightInfo = {};

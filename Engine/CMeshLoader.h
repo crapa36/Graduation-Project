@@ -78,5 +78,7 @@ private:
 private:
     wstring			_resourceDirectory;
 
+    int32                               _childCount = 0;
+
     vector<CMeshInfo>					_meshes;
 };

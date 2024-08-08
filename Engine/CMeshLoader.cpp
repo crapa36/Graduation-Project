@@ -43,7 +43,26 @@ CMeshLoader::~CMeshLoader()
 
 void CMeshLoader::LoadBIN(const wstring& path)
 {
+	_resourceDirectory = path;
+
 	LoadGeometry(path);
+
+	reverse(_meshes.begin(), _meshes.end());
+
+	CMeshInfo meshInfo;
+
+	for (int i = 0; i < _meshes.size(); i++) {
+		if (_meshes.at(i).name == "rotor") {
+			meshInfo.transform = _meshes.at(i).transform;
+		}
+		//_meshes.at(i).transform->SetParent(_meshes.back().transform);
+	}
+	
+	for (int i = 0; i < _meshes.size(); i++) {
+		if (_meshes.at(i).name != "rotor") {
+			_meshes.at(i).transform->SetParent(meshInfo.transform);
+		}
+	}
 
     // 快府 备炼俊 嘎霸 Texture / Material 积己
     //CreateTextures();
@@ -143,6 +162,19 @@ void CMeshLoader::LoadMesh(FILE *pInFile, CMeshInfo* info)
 		}
 	}
 	*info = Li2i(loadInfo);
+
+	for (int i = 0; i < loadInfo.m_nSubMeshes; i++)
+	{
+		delete loadInfo.m_ppnSubSetIndices[i];
+	}
+
+	delete loadInfo.m_pxmf3Normals;
+	delete loadInfo.m_pxmf3Positions;
+	delete loadInfo.m_pxmf4Colors;
+	delete loadInfo.m_pnIndices;
+	delete loadInfo.m_ppnSubSetIndices;
+	delete loadInfo.m_pnSubSetIndices;
+
 }
 
 void CMeshLoader::LoadMaterial(FILE* pInFile, CMeshInfo* info)
@@ -211,8 +243,10 @@ CMeshInfo CMeshLoader::LoadFrameHierarchy(FILE* pInFile)
 	char pstrToken[64] = { '\0' };
 	UINT nReads = 0;
 	
+	XMFLOAT3 xmf3Position, xmf3Rotation, xmf3Scale;
+	XMFLOAT4 xmf4Rotation;
+
 	CMeshInfo info;
-	info.transform = make_shared<Transform>();
 	int nFrame = 0;
 
 	while (1)
@@ -222,25 +256,17 @@ CMeshInfo CMeshLoader::LoadFrameHierarchy(FILE* pInFile)
 		{
 
 			nFrame = ::ReadIntegerFromFile(pInFile);
-			//_meshes.resize(nFrame);
 		
 			::ReadStringFromFile(pInFile, pstrToken);
 			info.name = pstrToken;
 		}
 		else if (!strcmp(pstrToken, "<Transform>:"))
 		{
-			XMFLOAT3 xmf3Position, xmf3Rotation, xmf3Scale;
-			XMFLOAT4 xmf4Rotation;
 			nReads = (UINT)::fread(&xmf3Position, sizeof(float), 3, pInFile);
 			nReads = (UINT)::fread(&xmf3Rotation, sizeof(float), 3, pInFile); //Euler Angle
 			nReads = (UINT)::fread(&xmf3Scale, sizeof(float), 3, pInFile);
-			nReads = (UINT)::fread(&xmf4Rotation, sizeof(float), 4, pInFile); //Quaternion
-			
-			info.transform->SetLocalPosition(xmf3Position);
-			info.transform->SetLocalRotation(xmf3Rotation);
-			info.transform->SetLocalScale(xmf3Scale);
-			info.transform->SetLocalRotationQuaternion(xmf4Rotation);
-			 
+			nReads = (UINT)::fread(&xmf4Rotation, sizeof(float), 4, pInFile); //Quaternion		 
+
 		}
 		else if (!strcmp(pstrToken, "<TransformMatrix>:"))
 		{
@@ -257,6 +283,8 @@ CMeshInfo CMeshLoader::LoadFrameHierarchy(FILE* pInFile)
 		else if (!strcmp(pstrToken, "<Children>:"))
 		{
 			int nChilds = ::ReadIntegerFromFile(pInFile);
+			_childCount = nChilds;
+
 			if (nChilds > 0)
 			{
 				for (int i = 0; i < nChilds; i++)
@@ -270,6 +298,15 @@ CMeshInfo CMeshLoader::LoadFrameHierarchy(FILE* pInFile)
 			break;
 		}
 	}
+
+	info.transform = make_shared<Transform>();
+
+
+	info.transform->SetLocalPosition(xmf3Position);
+	info.transform->SetLocalRotation(xmf3Rotation);
+	info.transform->SetLocalScale(xmf3Scale);
+	info.transform->SetLocalRotationQuaternion(xmf4Rotation);
+
 
 	return info;
 }

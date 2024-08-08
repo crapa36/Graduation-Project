@@ -49,16 +49,16 @@ shared_ptr<MeshData> MeshData::LoadFromBIN(const wstring& path) {
     shared_ptr<MeshData> meshData = make_shared<MeshData>();
 
     for (int32 i = 0; i < loader.GetMeshCount(); i++) {
-        if (!loader.GetMesh(i).vertices.empty()) {
+        if(!loader.GetMesh(i).vertices.empty()) {
             shared_ptr<Mesh> mesh = Mesh::CreateFromBIN(&loader.GetMesh(i), loader);
-            mesh->SetTransform(loader.GetMesh(i).transform);
+            mesh->SetTransform(loader.GetMesh(i).transform);  
             //mesh->SetTransform(make_shared<Transform>());
             GET_SINGLETON(Resources)->Add<Mesh>(mesh->GetName(), mesh);
 
             // Material 찾아서 연동
             vector<shared_ptr<Material>> materials;
             for (size_t j = 0; j < loader.GetMesh(i).materials.size(); j++) {
-                shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(loader.GetMesh(i).materials[j].name);
+                shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(loader.GetMesh(i).materials.at(j).name);
                 materials.push_back(material);
             }
 
@@ -86,8 +86,8 @@ vector<shared_ptr<GameObject>> MeshData::Instantiate() {
 
     for (MeshRenderInfo& info : _meshRenders) {
         shared_ptr<GameObject> gameObject = make_shared<GameObject>();
-        gameObject->AddComponent(make_shared<Transform>());
-        //gameObject->AddComponent(info.mesh->GetTransform());
+        //gameObject->AddComponent(make_shared<Transform>()); // FBX
+        gameObject->AddComponent(info.mesh->GetTransform()); // BIN
         gameObject->AddComponent(make_shared<MeshRenderer>());
         gameObject->GetMeshRenderer()->SetMesh(info.mesh);
 
