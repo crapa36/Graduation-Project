@@ -231,6 +231,8 @@
     <ClInclude Include="TableDescriptorHeap.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="TestCameraScript.h" />
+    <ClInclude Include="TestDragonScript.h" />
+    <ClInclude Include="TestPlayerScript.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Transform.h" />
@@ -288,6 +290,8 @@
     <ClCompile Include="TableDescriptorHeap.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="TestCameraScript.cpp" />
+    <ClCompile Include="TestDragonScript.cpp" />
+    <ClCompile Include="TestPlayerScript.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Transform.cpp" />

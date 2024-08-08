@@ -12,6 +12,8 @@
 #include "ParticleSystem.h"
 
 #include "TestCameraScript.h"
+#include "TestPlayerScript.h"
+#include "TestDragonScript.h"
 
 #include "Resources.h"
 #include "Terrain.h"
@@ -183,6 +185,40 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
         camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UI�� �� ����
         scene->AddGameObject(camera);
+
+#pragma region Player
+        {
+            shared_ptr<GameObject> player = make_shared<GameObject>();
+            player->SetName(L"Player");
+            player->AddComponent(make_shared<Transform>());
+
+            player->AddComponent(make_shared<SphereCollider>());
+
+            player->GetTransform()->SetLocalScale(Vec3(50.f, 50.f, 50.f));
+
+            player->AddComponent(make_shared<TestPlayerScript>());
+
+            player->GetTransform()->SetLocalPosition(Vec3(0.f, -50.f, 200.f));
+            player->SetStatic(false);
+            shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+            {
+                shared_ptr<Mesh> playerMesh = GET_SINGLETON(Resources)->LoadCubeMesh();
+                meshRenderer->SetMesh(playerMesh);
+            }
+            {
+                shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Wood");
+                meshRenderer->SetMaterial(material->Clone());
+            }
+            player->GetTransform()->SetParent(camera->GetTransform());
+
+            player->GetTransform()->SetInheritRotation(false);
+            player->GetTransform()->SetInheritScale(false);
+            dynamic_pointer_cast<SphereCollider>(player->GetCollider())->SetRadius(0.5f);
+
+            player->AddComponent(meshRenderer);
+            scene->AddGameObject(player);
+        }
+#pragma endregion
     }
 #pragma endregion
 
@@ -361,33 +397,33 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
     }
 #pragma endregion
 
-    //#pragma region ParticleSystem
-    //    {
-    //        shared_ptr<GameObject> particle = make_shared<GameObject>();
-    //        particle->AddComponent(make_shared<Transform>());
-    //        particle->AddComponent(make_shared<ParticleSystem>());
-    //        particle->SetCheckFrustum(false);
-    //        particle->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 100.f));
-    //        scene->AddGameObject(particle);
-    //    }
-    //#pragma endregion
+#pragma region ParticleSystem
+    {
+        shared_ptr<GameObject> particle = make_shared<GameObject>();
+        particle->AddComponent(make_shared<Transform>());
+        particle->AddComponent(make_shared<ParticleSystem>());
+        particle->SetCheckFrustum(false);
+        particle->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, -200.f));
+        scene->AddGameObject(particle);
+    }
+#pragma endregion
 
-//#pragma region FBX
-//    {
-//        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadFBX(L"..\\Resources\\FBX\\Apache.fbx");
-//  
-//        vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
-//
-//        for (auto& gameObject : gameObjects) {
-//            gameObject->SetName(L"Dragon");
-//            gameObject->SetCheckFrustum(false);
-//            gameObject->GetTransform()->SetLocalPosition(Vec3(0.f, -100.f, 100.f));
-//            gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
-//            scene->AddGameObject(gameObject);
-//            gameObject->SetStatic(false);
-//        }
-//    }
-//#pragma endregion
+#pragma region FBX
+    {
+        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadFBX(L"..\\Resources\\FBX\\Apache.fbx");
+  
+        vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
+
+        for (auto& gameObject : gameObjects) {
+            gameObject->SetName(L"Dragon");
+            gameObject->SetCheckFrustum(false);
+            gameObject->GetTransform()->SetLocalPosition(Vec3(0.f, -100.f, 100.f));
+            gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
+            scene->AddGameObject(gameObject);
+            gameObject->SetStatic(false);
+        }
+    }
+#pragma endregion
 
 #pragma region BIN
     {
