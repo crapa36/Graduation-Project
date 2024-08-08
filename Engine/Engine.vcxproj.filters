@@ -186,6 +186,9 @@
     <ClCompile Include="TestPlayerScript.cpp">
       <Filter>Object\Test</Filter>
     </ClCompile>
+    <ClCompile Include="TestDragonScript.cpp">
+      <Filter>Object\Test</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -311,7 +314,6 @@
     <ClInclude Include="SphereCollider.h">
       <Filter>Object\Component</Filter>
     </ClInclude>
-
     <ClInclude Include="ImguiManager.h">
       <Filter>Manager</Filter>
     </ClInclude>
@@ -340,6 +342,11 @@
       <Filter>Utils\imgui</Filter>
     </ClInclude>
     <ClInclude Include="TestPlayerScript.h">
+      <Filter>Object\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="CMeshLoader.h" />
+    <ClInclude Include="Input.h" />
+    <ClInclude Include="TestDragonScript.h">
       <Filter>Object\Test</Filter>
     </ClInclude>
   </ItemGroup>
