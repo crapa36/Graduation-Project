@@ -8,18 +8,75 @@ enum class KEY_TYPE {
     SHIFT = VK_SHIFT,
     SPACE = VK_SPACE,
     CTRL = VK_CONTROL,
-    Alt = VK_MENU,
+
+    ALT = VK_MENU,
+    ESC = VK_ESCAPE,
+    DEL = VK_DELETE,
+    END = VK_END,
+    PAGE_UP = VK_PRIOR,
+    PAGE_DOWN = VK_NEXT,
+    HOME = VK_HOME,
+    INSERT = VK_INSERT,
+    TAB = VK_TAB,
+    BACKSPACE = VK_BACK,
+    ENTER = VK_RETURN,
+    LSHIFT = VK_LSHIFT,
+    RSHIFT = VK_RSHIFT,
+    LCTRL = VK_LCONTROL,
+    RCTRL = VK_RCONTROL,
+    LALT = VK_LMENU,
+    RALT = VK_RMENU,
+    CAPS = VK_CAPITAL,
+    NUMLOCK = VK_NUMLOCK,
+    SCROLL = VK_SCROLL,
+    PRINT = VK_PRINT,
+    PAUSE = VK_PAUSE,
+
+    F1 = VK_F1,
+    F2 = VK_F2,
+    F3 = VK_F3,
+    F4 = VK_F4,
+
     W = 'W',
     A = 'A',
     S = 'S',
     D = 'D',
     Q = 'Q',
     E = 'E',
+    R = 'R',
+    T = 'T',
+    Y = 'Y',
+    U = 'U',
+    I = 'I',
+    O = 'O',
+    P = 'P',
+    F = 'F',
+    G = 'G',
+    H = 'H',
+    J = 'J',
+    K = 'K',
+    L = 'L',
+    Z = 'Z',
+    X = 'X',
+    C = 'C',
+    V = 'V',
+    B = 'B',
+    N = 'N',
+    M = 'M',
 
     KEY_1 = '1',
     KEY_2 = '2',
     KEY_3 = '3',
     KEY_4 = '4',
+    KEY_5 = '5',
+    KEY_6 = '6',
+    KEY_7 = '7',
+    KEY_8 = '8',
+    KEY_9 = '9',
+    KEY_0 = '0',
+    MIN = VK_OEM_MINUS,
+    PLUS = VK_OEM_PLUS,
+
     LBUTTON = VK_LBUTTON,
     RBUTTON = VK_RBUTTON,
 };
@@ -43,13 +100,13 @@ public:
     void Init(HWND hwnd);
     void Update();
 
-    // ¥©∏£∞Ì ¿÷¿ª ∂ß
+    // ÎàÑÎ•¥Í≥† ÏûàÏùÑ Îïå
     bool GetButton(KEY_TYPE key) { return GetState(key) == KEY_STATE::PRESS; }
 
-    // ∏« √≥¿Ω ¥≠∑∂¿ª ∂ß
+    // Îß® Ï≤òÏùå ÎàåÎ†ÄÏùÑ Îïå
     bool GetButtonDown(KEY_TYPE key) { return GetState(key) == KEY_STATE::DOWN; }
 
-    // ∏« √≥¿Ω ¥≠∑∂¥Ÿ ∂√¿ª ∂ß
+    // Îß® Ï≤òÏùå ÎàåÎ†ÄÎã§ ÎóêÏùÑ Îïå
     bool GetButtonUp(KEY_TYPE key) { return GetState(key) == KEY_STATE::UP; }
     const POINT& GetMousePos() { return _mousePos; }
 

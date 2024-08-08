@@ -12,7 +12,7 @@
 void Engine::Init(const WindowInfo& info) {
     _window = info;
 
-    // �׷��� ȭ�� ũ�⸦ ����
+    // 그려질 화면 크기를 설정
     _viewport = { 0, 0, static_cast<FLOAT>(info.width), static_cast<FLOAT>(info.height), 0.0f, 1.0f };
     _scissorRect = CD3DX12_RECT(0, 0, info.width, info.height);
 
@@ -23,18 +23,21 @@ void Engine::Init(const WindowInfo& info) {
     _rootSignature->Init();
     _graphicsDescriptorHeap->Init(256);
     _computeDescriptorHeap->Init();
-    
+
+    _imguiDescriptorHeap->Init();
+
     CreateConstantBuffer(CBV_REGISTER::b0, sizeof(LightParams), 1);
     CreateConstantBuffer(CBV_REGISTER::b1, sizeof(TransformParams), 256);
     CreateConstantBuffer(CBV_REGISTER::b2, sizeof(MaterialParams), 256);
 
     CreateRenderTargetGroups();
 
-    ResizeWindow(info.width, info.height);
+    //ResizeWindow(info.width, info.height); 윈도우 창크기와 렌더타겟 크기가 다른 현상으로 임시 주석처리
 
     GET_SINGLETON(Input)->Init(info.hwnd);
     GET_SINGLETON(Timer)->Init();
     GET_SINGLETON(Resources)->Init();
+    GET_SINGLETON(ImguiManager)->Init(info.hwnd, _device->GetDevice(), *_imguiDescriptorHeap.get());
 }
 
 void Engine::Update() {
@@ -42,6 +45,8 @@ void Engine::Update() {
     GET_SINGLETON(Timer)->Update();
     GET_SINGLETON(SceneManager)->Update();
     GET_SINGLETON(InstancingManager)->ClearBuffer();
+    if (_imguiMode)
+        GET_SINGLETON(ImguiManager)->Update();
 
     Render();
 
@@ -52,7 +57,8 @@ void Engine::Render() {
     RenderBegin();
 
     GET_SINGLETON(SceneManager)->Render();
-
+    if (_imguiMode)
+        GET_SINGLETON(ImguiManager)->Render();
     RenderEnd();
 }
 

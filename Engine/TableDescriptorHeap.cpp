@@ -130,3 +130,44 @@ D3D12_CPU_DESCRIPTOR_HANDLE ComputeDescriptorHeap::GetCPUHandle(uint8 reg) {
     handle.ptr += reg * _handleSize;
     return handle;
 }
+
+// ************************
+// ImguiDescriptorHeap
+// ************************
+
+void ImguiDescriptorHeap::Init() {
+    D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+    desc.NumDescriptors = 1;
+    desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+    desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+
+    DEVICE->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_descHeap));
+
+    _handleSize = DEVICE->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+}
+
+void ImguiDescriptorHeap::SetSRV(D3D12_CPU_DESCRIPTOR_HANDLE srcHandle, SRV_REGISTER reg) {
+    D3D12_CPU_DESCRIPTOR_HANDLE destHandle = GetCPUHandle(reg);
+
+    uint32 destRange = 1;
+    uint32 srcRange = 1;
+    DEVICE->CopyDescriptors(1, &destHandle, &destRange, 1, &srcHandle, &srcRange, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+}
+
+void ImguiDescriptorHeap::CommitTable() {
+    ID3D12DescriptorHeap* descHeap = _descHeap.Get();
+    COMPUTE_CMD_LIST->SetDescriptorHeaps(1, &descHeap);
+
+    D3D12_GPU_DESCRIPTOR_HANDLE handle = descHeap->GetGPUDescriptorHandleForHeapStart();
+    COMPUTE_CMD_LIST->SetComputeRootDescriptorTable(0, handle);
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE ImguiDescriptorHeap::GetCPUHandle(SRV_REGISTER reg) {
+    return GetCPUHandle(static_cast<uint8>(reg));
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE ImguiDescriptorHeap::GetCPUHandle(uint8 reg) {
+    D3D12_CPU_DESCRIPTOR_HANDLE handle = _descHeap->GetCPUDescriptorHandleForHeapStart();
+    handle.ptr += reg * _handleSize;
+    return handle;
+}

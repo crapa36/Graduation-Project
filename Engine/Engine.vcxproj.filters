@@ -22,11 +22,14 @@
     <Filter Include="Object\Component">
       <UniqueIdentifier>{c31527e6-ddf5-4223-870c-2f1d6187f7d6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Object\Resource">
-      <UniqueIdentifier>{07fe09cd-7db5-4bc2-9573-f2854417128a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Object\Component\Collider">
       <UniqueIdentifier>{54c39628-7ed1-4f54-8a10-0fb2212cd351}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\imgui">
+      <UniqueIdentifier>{6bf2131c-8ee6-43e2-b308-fcc9b1283074}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{07fe09cd-7db5-4bc2-9573-f2854417128a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -52,10 +55,10 @@
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
-      <Filter>Object\Resource</Filter>
+      <Filter>Resource</Filter>
     </ClCompile>
     <ClCompile Include="Shader.cpp">
-      <Filter>Object\Resource</Filter>
+      <Filter>Resource</Filter>
     </ClCompile>
     <ClCompile Include="ConstantBuffer.cpp">
       <Filter>Engine</Filter>
@@ -64,10 +67,10 @@
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="Texture.cpp">
-      <Filter>Object\Resource</Filter>
+      <Filter>Resource</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
-      <Filter>Object\Resource</Filter>
+      <Filter>Resource</Filter>
     </ClCompile>
     <ClCompile Include="GameObject.cpp">
       <Filter>Object</Filter>
@@ -145,7 +148,7 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="MeshData.cpp">
-      <Filter>Object\Resource</Filter>
+      <Filter>Resource</Filter>
     </ClCompile>
     <ClCompile Include="Animator.cpp">
       <Filter>Object\Component</Filter>
@@ -155,6 +158,30 @@
     </ClCompile>
     <ClCompile Include="Input.cpp">
       <Filter>Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="ImguiManager.cpp">
+      <Filter>Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_widgets.cpp">
+      <Filter>Utils\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui.cpp">
+      <Filter>Utils\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_demo.cpp">
+      <Filter>Utils\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_draw.cpp">
+      <Filter>Utils\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_impl_dx12.cpp">
+      <Filter>Utils\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_impl_win32.cpp">
+      <Filter>Utils\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_tables.cpp">
+      <Filter>Utils\imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -183,10 +210,10 @@
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Mesh.h">
-      <Filter>Object\Resource</Filter>
+      <Filter>Resource</Filter>
     </ClInclude>
     <ClInclude Include="Shader.h">
-      <Filter>Object\Resource</Filter>
+      <Filter>Resource</Filter>
     </ClInclude>
     <ClInclude Include="ConstantBuffer.h">
       <Filter>Engine</Filter>
@@ -195,10 +222,10 @@
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h">
-      <Filter>Object\Resource</Filter>
+      <Filter>Resource</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
-      <Filter>Object\Resource</Filter>
+      <Filter>Resource</Filter>
     </ClInclude>
     <ClInclude Include="GameObject.h">
       <Filter>Object</Filter>
@@ -273,7 +300,7 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="MeshData.h">
-      <Filter>Object\Resource</Filter>
+      <Filter>Resource</Filter>
     </ClInclude>
     <ClInclude Include="Animator.h">
       <Filter>Object\Component</Filter>
@@ -281,12 +308,35 @@
     <ClInclude Include="SphereCollider.h">
       <Filter>Object\Component</Filter>
     </ClInclude>
-    <ClInclude Include="CMeshLoader.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="Input.h">
+
+    <ClInclude Include="ImguiManager.h">
       <Filter>Manager</Filter>
     </ClInclude>
+    <ClInclude Include="imstb_rectpack.h">
+      <Filter>Utils\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imstb_textedit.h">
+      <Filter>Utils\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imstb_truetype.h">
+      <Filter>Utils\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imconfig.h">
+      <Filter>Utils\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui.h">
+      <Filter>Utils\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_impl_dx12.h">
+      <Filter>Utils\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_impl_win32.h">
+      <Filter>Utils\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_internal.h">
+      <Filter>Utils\imgui</Filter>
+    </ClInclude>
+
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl">

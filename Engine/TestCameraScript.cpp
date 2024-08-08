@@ -20,8 +20,15 @@ TestCameraScript::~TestCameraScript() {
 
 void TestCameraScript::LateUpdate() {
     if (GetForegroundWindow() == GEngine->GetWindow().hwnd) {
-        Vec3 pos = GetTransform()->GetLocalPosition();
 
+        _centerPos.x = GEngine->GetWindow().width / 2;
+        _centerPos.y = GEngine->GetWindow().height / 2;
+        _centerScreenPos = _centerPos;
+        ClientToScreen(GEngine->GetWindow().hwnd, &_centerScreenPos);
+        if (INPUT->GetButton(KEY_TYPE::ESC))
+            PostQuitMessage(0);
+
+        Vec3 pos = GetTransform()->GetLocalPosition();
         if (INPUT->GetButton(KEY_TYPE::W))
             pos += GetTransform()->GetLook() * _speed * DELTA_TIME;
 
@@ -40,80 +47,44 @@ void TestCameraScript::LateUpdate() {
         if (INPUT->GetButton(KEY_TYPE::CTRL))
             pos -= GetTransform()->GetUp() * _speed * DELTA_TIME;
 
-        if (INPUT->GetButton(KEY_TYPE::Q)) {
-            Vec3 rotation = GetTransform()->GetLocalRotation();
-            rotation.x += DELTA_TIME * 1.f;
-            GetTransform()->SetLocalRotation(rotation);
+        if (INPUT->GetButtonDown(KEY_TYPE::DEL)) {
+            GEngine->SetImguiMode(!GEngine->GetImguiMode());
         }
 
-        if (INPUT->GetButton(KEY_TYPE::E)) {
-            Vec3 rotation = GetTransform()->GetLocalRotation();
-            rotation.x -= DELTA_TIME * 1.f;
-            GetTransform()->SetLocalRotation(rotation);
+        if (INPUT->GetButtonDown(KEY_TYPE::END)) {
+            GEngine->SetImguiMode(!GEngine->GetImguiMode());
         }
 
-        if (INPUT->GetButton(KEY_TYPE::UP)) {
-            Vec3 rotation = GetTransform()->GetLocalRotation();
-            rotation.x -= DELTA_TIME * 1.f;
-            GetTransform()->SetLocalRotation(rotation);
+        // ë§ˆìš°ìŠ¤ ì¤‘ì•™ ê³ ì • ë° í™”ë©´ íšŒì „
+        if (INPUT->GetButtonDown(KEY_TYPE::ALT)) {
+            _isMouseLock = !_isMouseLock;
         }
 
-        if (INPUT->GetButton(KEY_TYPE::DOWN)) {
-            Vec3 rotation = GetTransform()->GetLocalRotation();
-            rotation.x += DELTA_TIME * 1.f;
-            GetTransform()->SetLocalRotation(rotation);
-        }
-
-        if (INPUT->GetButton(KEY_TYPE::LEFT)) {
-            Vec3 rotation = GetTransform()->GetLocalRotation();
-            rotation.y -= DELTA_TIME * 1.f;
-            GetTransform()->SetLocalRotation(rotation);
-        }
-
-        if (INPUT->GetButton(KEY_TYPE::RIGHT)) {
-            Vec3 rotation = GetTransform()->GetLocalRotation();
-            rotation.y += DELTA_TIME * 1.f;
-            GetTransform()->SetLocalRotation(rotation);
-        }
-
-        if (INPUT->GetButton(KEY_TYPE::SHIFT)) {
-            _speed = 200.f;
-        }
-        else {
-            _speed = 100.f;
-        }
-        if (INPUT->GetButton(KEY_TYPE::Alt)) {
-            ShowCursor(true);
-            _isMouseLock = false;
-        }
-        else {
-            ShowCursor(false);
-            _isMouseLock = true;
-        }
-        if (INPUT->GetButton(KEY_TYPE::LBUTTON)) {
-            ShowCursor(false);
-            _isMouseLock = true;
-        }
         if (_isMouseLock) {
+            ShowCursor(false);
             const POINT& currentMousePos = INPUT->GetMousePos();
             Vec3 rotation = GetTransform()->GetLocalRotation();
 
-            // ¸¶¿ì½º ¿òÁ÷ÀÓ¿¡ µû¸¥ È¸Àü·® °è»ê
+            // ë§ˆìš°ìŠ¤ ì›€ì§ì„ì— ë”°ë¥¸ íšŒì „ëŸ‰ ê³„ì‚°
             float deltaX = static_cast<float>(currentMousePos.x - _centerPos.x);
             float deltaY = static_cast<float>(currentMousePos.y - _centerPos.y);
 
-            // È¸Àü ¹Î°¨µµ¸¦ Á¶ÀıÇÒ ¼ö ÀÖ´Â º¯¼ö
+            // íšŒì „ ë¯¼ê°ë„ë¥¼ ì¡°ì ˆí•  ìˆ˜ ìˆëŠ” ë³€ìˆ˜
             float sensitivity = 0.005f;
 
             rotation.y += deltaX * sensitivity;
             rotation.x += deltaY * sensitivity;
 
-            //rotation.x = std::clamp(rotation.x, -XM_PIDIV2, XM_PIDIV2); // Pitch Á¦ÇÑ
-            //rotation.y = std::fmod(rotation.y, XM_2PI); // Yaw °ªÀ» -2PI ~ 2PI ¹üÀ§·Î Á¦ÇÑ
+
+            rotation.x = std::clamp(rotation.x, -XM_PIDIV2, XM_PIDIV2); // Pitch ì œí•œ
+            rotation.y = std::fmod(rotation.y, XM_2PI); // Yaw ê°’ì„ -2PI ~ 2PI ë²”ìœ„ë¡œ ì œí•œ
             GetTransform()->SetLocalRotation(rotation);
             SetCursorPos(_centerScreenPos.x, _centerScreenPos.y);
         }
-        if (INPUT->GetButtonDown(KEY_TYPE::RBUTTON)) {
+        else {
+            ShowCursor(true);
+        }
+        if (INPUT->GetButtonDown(KEY_TYPE::LBUTTON)) {
             const POINT& mousePos = INPUT->GetMousePos();
             GET_SINGLETON(PhysicsManager)->Pick(mousePos.x, mousePos.y);
         }
