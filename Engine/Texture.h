@@ -28,6 +28,8 @@ public:
     FLOAT GetWidth() { return static_cast<FLOAT>(_desc.Width); }
     FLOAT GetHeight() { return static_cast<FLOAT>(_desc.Height); }
 
+    Vec4 GetPixel(uint32 x, uint32 y);
+
 private:
     ScratchImage			 		_image;
     D3D12_RESOURCE_DESC             _desc;

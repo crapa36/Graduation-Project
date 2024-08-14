@@ -7,6 +7,7 @@
 #include "Light.h"
 #include "Engine.h"
 #include "Resources.h"
+#include "BaseCollider.h"
 
 void Scene::Awake() {
     for (const shared_ptr<GameObject>& gameObject : _gameObjects) {
@@ -18,22 +19,29 @@ void Scene::Start() {
     for (const shared_ptr<GameObject>& gameObject : _gameObjects) {
         gameObject->Start();
     }
-
 }
 
 void Scene::Update() {
     for (const shared_ptr<GameObject>& gameObject : _gameObjects) {
         gameObject->Update();
     }
-
 }
 
 void Scene::LateUpdate() {
     for (const shared_ptr<GameObject>& gameObject : _gameObjects) {
         gameObject->LateUpdate();
+        if (gameObject->GetCollider()) {
+            for (const shared_ptr<GameObject>& otherGameObject : _gameObjects) {
+                if (otherGameObject->GetCollider() && gameObject != otherGameObject) {
+                    if (gameObject->GetCollider()->Intersects(otherGameObject->GetCollider())) {
+
+                        //TODO : 面倒 贸府 包访 内靛
+                    }
+                }
+            }
+        }
     }
 }
-
 void Scene::FinalUpdate() {
     for (const shared_ptr<GameObject>& gameObject : _gameObjects) {
         gameObject->FinalUpdate();

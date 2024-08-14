@@ -13,10 +13,12 @@ public:
 
     virtual void FinalUpdate() override;
 
+    float GetHeightAtPosition(float x, float z) const;
 private:
     int32 _sizeX = 15;
     int32 _sizeZ = 15;
     float _maxTesselation = 5.f;
 
+    shared_ptr<class Texture> _heightMap;
     shared_ptr<class Material> _material;
 };
