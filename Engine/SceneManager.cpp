@@ -276,7 +276,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
             shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Pebbles");
             meshRenderer->SetMaterial(material->Clone());
         }
-        dynamic_pointer_cast<SphereCollider>(obj->GetCollider())->SetRadius(0.5f);
+        dynamic_pointer_cast<SphereCollider>(obj->GetCollider())->SetRadius(1.f);
 
         obj->AddComponent(meshRenderer);
         scene->AddGameObject(obj);
@@ -395,14 +395,15 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 #pragma endregion
 
 #pragma region ParticleSystem
-    {
+    /*{
         shared_ptr<GameObject> particle = make_shared<GameObject>();
+        particle->SetName(L"ParticleSystem");
         particle->AddComponent(make_shared<Transform>());
         particle->AddComponent(make_shared<ParticleSystem>());
         particle->SetCheckFrustum(false);
         particle->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, -200.f));
         scene->AddGameObject(particle);
-    }
+    }*/
 #pragma endregion
 
 #pragma region FBX

@@ -4,6 +4,10 @@
 #include "OBBBoxCollider.h"
 #include "GameObject.h"
 #include "Transform.h"
+#include "Mesh.h"
+#include "Material.h"
+#include "MeshRenderer.h"
+#include "Resources.h"
 
 SphereCollider::SphereCollider() : BaseCollider(ColliderType::Sphere) {
 }
@@ -47,3 +51,19 @@ bool SphereCollider::Intersects(const shared_ptr<BaseCollider>& other) {
     // 위의 경우에 해당하지 않는 경우, 교차하지 않는 것으로 처리
     return false;
 }
+
+#ifdef _DEBUG
+void SphereCollider::CreateMesh() {
+    _mesh = GET_SINGLETON(Resources)->LoadSphereMesh();
+    _material = GET_SINGLETON(Resources)->Get<Material>(L"Collider")->Clone();
+}
+
+void SphereCollider::Render() {
+    if (_meshRenderer == nullptr)
+        CreateMesh();
+
+    GetTransform()->PushData();
+    _material->PushGraphicsData();
+    _mesh->Render();
+}
+#endif

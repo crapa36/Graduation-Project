@@ -672,6 +672,19 @@ void Resources::CreateDefaultShader() {
         shader->CreateGraphicsShader(L"..\\Resources\\Shader\\forward.fx", info);
         Add<Shader>(L"Frustum", shader);
     }
+
+    // Collider
+    {
+        ShaderInfo info =
+        {
+            SHADER_TYPE::FORWARD,
+            RASTERIZER_TYPE::WIREFRAME,
+        };
+
+        shared_ptr<Shader> shader = make_shared<Shader>();
+        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\forward.fx", info);
+        Add<Shader>(L"Collider", shader);
+    }
 }
 
 void Resources::CreateDefaultMaterial() {
@@ -832,5 +845,13 @@ void Resources::CreateDefaultMaterial() {
         shared_ptr<Material> material = make_shared<Material>();
         material->SetShader(shader);
         Add<Material>(L"Frustum", material);
+    }
+
+    // Collider
+    {
+        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Collider");
+        shared_ptr<Material> material = make_shared<Material>();
+        material->SetShader(shader);
+        Add<Material>(L"Collider", material);
     }
 }
