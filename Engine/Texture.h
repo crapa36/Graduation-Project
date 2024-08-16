@@ -21,6 +21,7 @@ public:
     ComPtr<ID3D12DescriptorHeap> GetRTV() { return _rtvHeap; }
     ComPtr<ID3D12DescriptorHeap> GetDSV() { return _dsvHeap; }
     ComPtr<ID3D12DescriptorHeap> GetUAV() { return _uavHeap; }
+    wstring GetPath() { return _path; }
 
     D3D12_CPU_DESCRIPTOR_HANDLE GetSRVHandle() { return _srvHeapBegin; }
     D3D12_CPU_DESCRIPTOR_HANDLE GetUAVHandle() { return _uavHeapBegin; }
@@ -28,7 +29,10 @@ public:
     FLOAT GetWidth() { return static_cast<FLOAT>(_desc.Width); }
     FLOAT GetHeight() { return static_cast<FLOAT>(_desc.Height); }
 
+
 private:
+    wstring                         _path = L"";
+
     ScratchImage			 		_image;
     D3D12_RESOURCE_DESC             _desc;
     ComPtr<ID3D12Resource>			_tex2D;

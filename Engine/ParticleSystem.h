@@ -32,7 +32,21 @@ public:
     virtual void Load(const wstring& path) override {}
     virtual void Save(const wstring& path) override {}
 
+    wstring GetPath() { return _path; }
+
+    uint32 GetMaxParticle() { return _maxParticle; }
+
+    float GetCreateInterval() { return _createInterval; }
+    float GetMinLifeTime() { return _minLifeTime; }
+    float GetMaxLifeTime() { return _maxLifeTime; }
+    float GetMinSpeed() { return _minSpeed; }
+    float GetMaxSpeed() { return _maxSpeed; }
+    float GetStartScale() { return _startScale; }
+    float GetEndScale() { return _endScale; }
+
 private:
+    wstring                         _path;
+
     shared_ptr<StructuredBuffer>	_particleBuffer;
     shared_ptr<StructuredBuffer>	_computeSharedBuffer;
     uint32							_maxParticle = 1000;

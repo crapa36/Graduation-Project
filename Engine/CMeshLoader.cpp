@@ -49,19 +49,8 @@ void CMeshLoader::LoadBIN(const wstring& path)
 
 	reverse(_meshes.begin(), _meshes.end());
 
-	CMeshInfo meshInfo;
-
-	for (int i = 0; i < _meshes.size(); i++) {
-		if (_meshes.at(i).name == "rotor") {
-			meshInfo.transform = _meshes.at(i).transform;
-		}
-		//_meshes.at(i).transform->SetParent(_meshes.back().transform);
-	}
-	
-	for (int i = 0; i < _meshes.size(); i++) {
-		if (_meshes.at(i).name != "rotor") {
-			_meshes.at(i).transform->SetParent(meshInfo.transform);
-		}
+	for (int i = 1; i < _meshes.size(); i++) {
+		_meshes.at(i).transform->SetParent(_meshes.front().transform);
 	}
 
     // 快府 备炼俊 嘎霸 Texture / Material 积己
@@ -319,7 +308,6 @@ void CMeshLoader::LoadGeometry(const wstring& FileName)
 	char* c = const_cast<char*>(path.c_str());
 	c[path.size() + 1] = '\0';
 	FILE* pInFile = NULL;
-	cout << c;
 	::fopen_s(&pInFile, c, "rb");
 
 	assert(pInFile);

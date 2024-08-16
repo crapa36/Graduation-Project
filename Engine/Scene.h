@@ -32,6 +32,9 @@ public:
 
     const vector<shared_ptr<GameObject>>& GetGameObjects() { return _gameObjects; }
 
+    void SaveScene(wstring path);
+    void LoadScene(wstring path);
+
 private:
     vector<shared_ptr<GameObject>>		_gameObjects;
     vector<shared_ptr<class Camera>>	_cameras;

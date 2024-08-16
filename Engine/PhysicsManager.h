@@ -5,4 +5,6 @@ class PhysicsManager {
 public:
 
     shared_ptr<class GameObject> Pick(int32 screenX, int32 screenY);
+
+    void Gravity();
 };

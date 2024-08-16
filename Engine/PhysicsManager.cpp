@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Input.h"
 #include "Engine.h"
+#include "Transform.h"
 #include "Scene.h"
 #include "BaseCollider.h"
 
@@ -53,4 +54,40 @@ shared_ptr<GameObject> PhysicsManager::Pick(int32 screenX, int32 screenY) {
     }
 
     return picked;
+}
+
+void PhysicsManager::Gravity()
+{
+    auto& gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
+
+    Vec3 gravity = { 0.0f, -9.8f, 0.0f };
+
+    vector<shared_ptr<GameObject>> Terrains;
+
+    for (auto& gameObject : gameObjects) {
+        if (gameObject->GetTerrain()) {
+            Terrains.push_back(gameObject);
+        }
+    }
+
+    for (auto& gameObject : gameObjects) {
+        if (gameObject->IsGravity()) {
+            Vec3 acceleration = gameObject->GetTransform()->GetAcceleration();
+            Vec3 velocity = gameObject->GetTransform()->GetVelocity();
+            acceleration = gravity;
+
+            for (auto& terrain : Terrains) {
+                if (gameObject->GetCollider()->Intersects(terrain)) {
+                    acceleration.y = 0.f;
+                    velocity.y = 0.f;
+                    break;
+                }
+            }
+
+        gameObject->GetTransform()->SetAcceleration(acceleration);
+        gameObject->GetTransform()->SetVelocity(velocity);
+        }
+    }
+
+
 }

@@ -18,6 +18,21 @@ void Mesh::Create(const vector<Vertex>& vertexBuffer, const vector<uint32>& inde
     CreateIndexBuffer(indexBuffer);
 }
 
+void Mesh::Create(const vector<Vertex>& vertexBuffer, const vector<vector<uint32>>& indexBuffer) {
+    CreateVertexBuffer(vertexBuffer);
+    for (const vector<uint32>& buffer : indexBuffer) {
+        if (buffer.empty()) {
+
+            // FBX 파일이 이상하다. IndexBuffer가 없으면 에러 나니까 임시 처리
+            vector<uint32> defaultBuffer{ 0 };
+            CreateIndexBuffer(defaultBuffer);
+        }
+        else {
+            CreateIndexBuffer(buffer);
+        }
+    }
+}
+
 void Mesh::Render(uint32 instanceCount, uint32 idx) {
     GRAPHICS_CMD_LIST->IASetVertexBuffers(0, 1, &_vertexBufferView); // Slot: (0~15)
     GRAPHICS_CMD_LIST->IASetIndexBuffer(&_vecIndexInfo[idx].bufferView);

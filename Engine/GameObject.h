@@ -46,9 +46,9 @@ public:
 
     void SetStatic(bool isStatic) { _isStatic = isStatic; }
     bool IsStatic() { return _isStatic; }
-
-    void SetChiledObject(shared_ptr<GameObject> obj) { _childObject.push_back(obj); }
-    void SetParentsObject(shared_ptr<GameObject> obj) { _parentsObject = obj; }
+    
+    void SetGravity(bool isGravity) { _isGravity = isGravity; }
+    bool IsGravity() { return _isGravity; }
 
 private:
     array<shared_ptr<Component>, FIXED_COMPONENT_COUNT> _components;
@@ -61,4 +61,7 @@ private:
     bool _checkFrustum = true;
     uint8 _layerIndex = 0;
     bool _isStatic = true;
+    bool _isGravity = false;
+
+
 };

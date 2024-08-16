@@ -183,6 +183,9 @@
     <ClCompile Include="imgui_tables.cpp">
       <Filter>Utils\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="BoxCollider.cpp">
+      <Filter>Object\Component\Collider</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -308,7 +311,6 @@
     <ClInclude Include="SphereCollider.h">
       <Filter>Object\Component</Filter>
     </ClInclude>
-
     <ClInclude Include="ImguiManager.h">
       <Filter>Manager</Filter>
     </ClInclude>
@@ -336,7 +338,13 @@
     <ClInclude Include="imgui_internal.h">
       <Filter>Utils\imgui</Filter>
     </ClInclude>
-
+    <ClInclude Include="CMeshLoader.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="BoxCollider.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl">
