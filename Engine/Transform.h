@@ -30,6 +30,10 @@ public:
     void SetLocalRotation(const Vec3& rotation) { _localRotation = rotation; }
     void SetLocalScale(const Vec3& scale) { _localScale = scale; }
 
+    void SetInheritPosition(bool inherit) { _inheritPosition = inherit; }
+    void SetInheritRotation(bool inherit) { _inheritRotation = inherit; }
+    void SetInheritScale(bool inherit) { _inheritScale = inherit; }
+
     void LookAt(const Vec3& dir);
     void SetLocalRotationQuaternion(const DirectX::SimpleMath::Quaternion& quaternion);
     static bool CloseEnough(const float& a, const float& b, const float& epsilon = std::numeric_limits<float>::epsilon());
@@ -46,6 +50,10 @@ public:
     weak_ptr<Transform> GetParent() { return _parent; }
 
 private:
+
+    bool _inheritPosition = true;
+    bool _inheritRotation = true;
+    bool _inheritScale = true;
 
     // Parent ±‚¡ÿ
     Vec3 _localPosition = {};

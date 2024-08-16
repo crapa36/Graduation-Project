@@ -27,7 +27,20 @@ void Transform::FinalUpdate() {
 
     shared_ptr<Transform> parent = GetParent().lock();
     if (parent != nullptr) {
-        _matWorld *= parent->GetLocalToWorldMatrix();
+        if (_inheritScale) {
+            Matrix parentmatScale = Matrix::CreateScale(parent->GetLocalScale());
+            _matWorld *= parentmatScale;
+        }
+        if (_inheritRotation) {
+            Matrix parentMatRotation = Matrix::CreateRotationX(parent->GetLocalRotation().x);
+            parentMatRotation *= Matrix::CreateRotationY(parent->GetLocalRotation().y);
+            parentMatRotation *= Matrix::CreateRotationZ(parent->GetLocalRotation().z);
+            _matWorld *= parentMatRotation;
+        }
+        if (_inheritPosition) {
+            Matrix parentMatTranslation = Matrix::CreateTranslation(parent->GetLocalPosition());
+            _matWorld *= parentMatTranslation;
+        }
     }
 }
 

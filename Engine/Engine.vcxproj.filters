@@ -183,7 +183,16 @@
     <ClCompile Include="imgui_tables.cpp">
       <Filter>Utils\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="BoxCollider.cpp">
+    <ClCompile Include="TestPlayerScript.cpp">
+      <Filter>Object\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="TestDragonScript.cpp">
+      <Filter>Object\Test</Filter>
+    </ClCompile>
+    <ClCompile Include="AABBBoxCollider.cpp">
+      <Filter>Object\Component\Collider</Filter>
+    </ClCompile>
+    <ClCompile Include="OBBBoxCollider.cpp">
       <Filter>Object\Component\Collider</Filter>
     </ClCompile>
   </ItemGroup>
@@ -308,9 +317,6 @@
     <ClInclude Include="Animator.h">
       <Filter>Object\Component</Filter>
     </ClInclude>
-    <ClInclude Include="SphereCollider.h">
-      <Filter>Object\Component</Filter>
-    </ClInclude>
     <ClInclude Include="ImguiManager.h">
       <Filter>Manager</Filter>
     </ClInclude>
@@ -338,13 +344,27 @@
     <ClInclude Include="imgui_internal.h">
       <Filter>Utils\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="CMeshLoader.h">
-      <Filter>Utils</Filter>
+    <ClInclude Include="TestPlayerScript.h">
+      <Filter>Object\Test</Filter>
+    </ClInclude>
+    <ClInclude Include="TestDragonScript.h">
+      <Filter>Object\Test</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">
       <Filter>Manager</Filter>
     </ClInclude>
-    <ClInclude Include="BoxCollider.h" />
+    <ClInclude Include="CMeshLoader.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereCollider.h">
+      <Filter>Object\Component\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="AABBBoxCollider.h">
+      <Filter>Object\Component\Collider</Filter>
+    </ClInclude>
+    <ClInclude Include="OBBBoxCollider.h">
+      <Filter>Object\Component\Collider</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl">

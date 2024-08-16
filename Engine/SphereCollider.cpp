@@ -1,42 +1,49 @@
 #include "pch.h"
 #include "SphereCollider.h"
-#include "BoxCollider.h"
+#include "AABBBoxCollider.h"
+#include "OBBBoxCollider.h"
 #include "GameObject.h"
 #include "Transform.h"
 
-SphereCollider::SphereCollider() : BaseCollider(ColliderType::Sphere)
-{
-
+SphereCollider::SphereCollider() : BaseCollider(ColliderType::Sphere) {
 }
 
-SphereCollider::~SphereCollider()
-{
-
+SphereCollider::~SphereCollider() {
 }
 
-void SphereCollider::FinalUpdate()
-{
-	_boundingSphere.Center = GetGameObject()->GetTransform()->GetWorldPosition();
+void SphereCollider::FinalUpdate() {
+    _boundingSphere.Center = GetGameObject()->GetTransform()->GetWorldPosition();
 
-	Vec3 scale = GetGameObject()->GetTransform()->GetLocalScale();
-	_boundingSphere.Radius = _radius * max(max(scale.x, scale.y), scale.z);
+    Vec3 scale = GetGameObject()->GetTransform()->GetLocalScale();
+    _boundingSphere.Radius = _radius * max(max(scale.x, scale.y), scale.z);
 }
 
-bool SphereCollider::Intersects(Vec4 rayOrigin, Vec4 rayDir, OUT float& distance)
-{
-	return _boundingSphere.Intersects(rayOrigin, rayDir, OUT distance);
+bool SphereCollider::Intersects(Vec4 rayOrigin, Vec4 rayDir, OUT float& distance) {
+    return _boundingSphere.Intersects(rayOrigin, rayDir, OUT distance);
 }
 
-bool SphereCollider::Intersects(shared_ptr<GameObject> gameObject)
-{
-	ColliderType colliderType = gameObject->GetCollider()->GetColliderType();
-	if (colliderType == ColliderType::Sphere) {
-		BoundingSphere sphere = dynamic_pointer_cast<SphereCollider>(gameObject->GetCollider())->GetBoundingSphere();
-		return _boundingSphere.Intersects(sphere);
-	}
+bool SphereCollider::Intersects(const shared_ptr<BaseCollider>& other) {
 
-	if (colliderType == ColliderType::Box) {
-		BoundingBox box = dynamic_pointer_cast<BoxCollider>(gameObject->GetCollider())->GetBoundingBox();
-		return _boundingSphere.Intersects(box);
-	}
+    // 다른 충돌 감지기의 타입을 가져옴
+    ColliderType type = other->GetColliderType();
+
+    // 타입에 따라 적절한 교차 판단 로직 수행
+    switch (type) {
+    case ColliderType::Sphere:
+
+        // 다른 충돌 감지기가 구체인 경우
+        return _boundingSphere.Intersects(dynamic_pointer_cast<SphereCollider>(other)->GetBoundingSphere());
+
+    case ColliderType::AABB:
+
+        // 다른 충돌 감지기가 AABB인 경우
+        return _boundingSphere.Intersects(dynamic_pointer_cast<AABBBoxCollider>(other)->GetBoundingBox());
+    case ColliderType::OBB:
+
+        // 다른 충돌 감지기가 OBB인 경우
+        return _boundingSphere.Intersects(dynamic_pointer_cast<OBBBoxCollider>(other)->GetBoundingBox());
+    }
+
+    // 위의 경우에 해당하지 않는 경우, 교차하지 않는 것으로 처리
+    return false;
 }

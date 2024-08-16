@@ -1,23 +1,21 @@
 #pragma once
 #include "Component.h"
 
-enum class ColliderType
-{
-	Sphere,
-	Box,
-
+enum class ColliderType {
+    Sphere,
+    AABB,
+    OBB,
 };
 
-class BaseCollider : public Component
-{
+class BaseCollider : public Component {
 public:
-	BaseCollider(ColliderType colliderType);
-	virtual ~BaseCollider();
+    BaseCollider(ColliderType colliderType);
+    virtual ~BaseCollider();
 
-	virtual bool Intersects(Vec4 rayOrigin, Vec4 rayDir, OUT float& distance) = 0;
-	virtual bool Intersects(shared_ptr<GameObject> gameObject) = 0;
+    virtual bool Intersects(Vec4 rayOrigin, Vec4 rayDir, OUT float& distance) = 0;
 
-	ColliderType GetColliderType() { return _colliderType; }
+    virtual bool Intersects(const shared_ptr<BaseCollider>& other) = 0;
+    ColliderType GetColliderType() { return _colliderType; }
 private:
-	ColliderType _colliderType = {};
+    ColliderType _colliderType = {};
 };

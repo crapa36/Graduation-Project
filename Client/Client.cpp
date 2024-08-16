@@ -1,10 +1,9 @@
-﻿// Client.cpp : 애플리케이션에 대한 진입점을 정의합니다.
-//
+﻿﻿﻿// Client.cpp : 애플리케이션에 대한 진입점을 정의합니다.
+
 #include "pch.h"
 #include "framework.h"
 #include "Client.h"
 #include "Game.h"
-
 
 #include "imgui.h"
 #include "imgui_impl_win32.h"
@@ -14,14 +13,11 @@
 
 #define MAX_LOADSTRING 100
 
-#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
-
-// 전역 변수:
+// 전역 변수
 WindowInfo GwindowInfo;
 HINSTANCE hInst;                                // 현재 인스턴스입니다.
 WCHAR szTitle[MAX_LOADSTRING];                  // 제목 표시줄 텍스트입니다.
 WCHAR szWindowClass[MAX_LOADSTRING];            // 기본 창 클래스 이름입니다.
-
 
 // 이 코드 모듈에 포함된 함수의 선언을 전달합니다:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -30,9 +26,9 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-                      _In_opt_ HINSTANCE hPrevInstance,
-                      _In_ LPWSTR    lpCmdLine,
-                      _In_ int       nCmdShow) {
+    _In_opt_ HINSTANCE hPrevInstance,
+    _In_ LPWSTR    lpCmdLine,
+    _In_ int       nCmdShow) {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
@@ -47,7 +43,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     if (!InitInstance(hInstance, nCmdShow)) {
         return FALSE;
     }
-
 
     HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_CLIENT));
 
@@ -74,7 +69,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
         // TODO
         game->Update();
-
     }
 
     return (int)msg.wParam;
@@ -130,8 +124,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
     AdjustWindowRect(&rect, style, FALSE);
 
     HWND hWnd = CreateWindowW(szWindowClass, szTitle, style,
-                              CW_USEDEFAULT, 0, rect.right - rect.left, rect.bottom - rect.top,
-                              nullptr, nullptr, hInstance, nullptr);
+        CW_USEDEFAULT, 0, rect.right - rect.left, rect.bottom - rect.top,
+        nullptr, nullptr, hInstance, nullptr);
 
     if (!hWnd) {
         return FALSE;
@@ -153,49 +147,38 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 //  WM_DESTROY  - 종료 메시지를 게시하고 반환합니다.
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-    int wmId = LOWORD(wParam);
-
     if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
         return true;
     switch (message) {
-        case WM_COMMAND:
-        {
+    case WM_COMMAND:
+    {
+        int wmId = LOWORD(wParam);
 
-            // 메뉴 선택을 구문 분석합니다:
-            switch (wmId) {
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
+        // 메뉴 선택을 구문 분석합니다:
+        switch (wmId) {
+        case WM_SIZE:
+            if (wParam != SIZE_MINIMIZED) {
             }
+            break;
+        case IDM_ABOUT:
+            DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+            break;
+        case IDM_EXIT:
+            DestroyWindow(hWnd);
+            break;
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
         }
-        break;
-        case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
+    }
+    break;
+    case WM_PAINT:
+    {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hWnd, &ps);
 
-
-            // 메뉴 선택을 구문 분석합니다:
-            switch (wmId) {
-            case WM_SIZE:
-                if (wParam != SIZE_MINIMIZED) {
-                }
-                break;
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
-            }
-        }
+        // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+        EndPaint(hWnd, &ps);
+    }
     break;
     case WM_DESTROY:
         ImGui_ImplDX12_Shutdown();

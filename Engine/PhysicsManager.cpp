@@ -77,7 +77,7 @@ void PhysicsManager::Gravity()
             acceleration = gravity;
 
             for (auto& terrain : Terrains) {
-                if (gameObject->GetCollider()->Intersects(terrain)) {
+                if (gameObject->GetCollider()->Intersects(terrain->GetCollider())) {
                     acceleration.y = 0.f;
                     velocity.y = 0.f;
                     break;

@@ -188,3 +188,26 @@ void Texture::CreateFromResource(ComPtr<ID3D12Resource> tex2D) {
         DEVICE->CreateShaderResourceView(_tex2D.Get(), &srvDesc, _srvHeapBegin);
     }
 }
+
+Vec4 Texture::GetPixel(uint32 x, uint32 y) {
+    Vec4 color = Vec4(0, 0, 0, 0);
+
+    if (_image.GetPixels() == nullptr)
+        return color;
+
+    uint32 width = _image.GetMetadata().width;
+    uint32 height = _image.GetMetadata().height;
+
+    if (x < 0 || x >= width || y < 0 || y >= height)
+        return color;
+
+    uint8* pixels = _image.GetPixels();
+    uint32 index = (y * width + x) * 4;
+
+    color.x = pixels[index + 0] / 255.0f;
+    color.y = pixels[index + 1] / 255.0f;
+    color.z = pixels[index + 2] / 255.0f;
+    color.w = pixels[index + 3] / 255.0f;
+
+    return color;
+}

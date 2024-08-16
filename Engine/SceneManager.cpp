@@ -13,11 +13,14 @@
 #include "ParticleSystem.h"
 
 #include "TestCameraScript.h"
+#include "TestPlayerScript.h"
+#include "TestDragonScript.h"
 
 #include "Resources.h"
 #include "Terrain.h"
 #include "SphereCollider.h"
-#include "BoxCollider.h"
+#include "AABBBoxCollider.h"
+#include "OBBBoxCollider.h"
 #include "MeshData.h"
 
 void SceneManager::Update() {
@@ -206,27 +209,19 @@ void SceneManager::SaveScene(wstring sceneName) {
             fout << "</MeshRenderer>" << endl;
         }
 
-        if (obj->GetLight()) {
-            fout << "<Light>" << endl;
-            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetLightDirection()), sizeof(Vec3));
-            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetDiffuse()), sizeof(Vec4));
-            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetAmbient()), sizeof(Vec4));
-            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetSpecular()), sizeof(Vec4));
-            fout << obj->GetLight()->GetLightRange() << endl;
-            fout << obj->GetLight()->GetLightAngle() << endl;
-            fout << obj->GetLight()->GetLightIndex() << endl;
-        }
+        /*      if (obj->GetLight()) {
+                  fout << "<Light>" << endl;
+
+                  fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetLightDirection()), sizeof(Vec3));
+                  fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetDiffuse()), sizeof(Vec4));
+                  fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetAmbient()), sizeof(Vec4));
+                  fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetSpecular()), sizeof(Vec4));
+                  fout << obj->GetLight()->GetLightRange() << endl;
+                  fout << obj->GetLight()->GetLightAngle() << endl;
+                  fout << obj->GetLight()->GetLightIndex() << endl;
+              }*/
 
         if (obj->GetParticleSystem()) {
-            fout << "<Particle>" << endl;
-            fout << ws2s(obj->GetParticleSystem()->GetPath()) << endl;
-            fout << obj->GetParticleSystem()->GetCreateInterval() << endl;
-            fout << obj->GetParticleSystem()->GetMinLifeTime() << endl;
-            fout << obj->GetParticleSystem()->GetMaxLifeTime() << endl;
-            fout << obj->GetParticleSystem()->GetMinSpeed() << endl;
-            fout << obj->GetParticleSystem()->GetMaxSpeed() << endl;
-            fout << obj->GetParticleSystem()->GetStartScale() << endl;
-            fout << obj->GetParticleSystem()->GetEndScale() << endl;
         }
 
         if (obj->GetTerrain()) {
@@ -236,18 +231,45 @@ void SceneManager::SaveScene(wstring sceneName) {
         }
 
         if (obj->GetCollider()) {
-
         }
 
         if (obj->GetAnimator()) {
-
         }
-
     }
-    fout << "</Object>" << endl;
+
+    fout << "</Scene>" << endl;
 }
 
 void SceneManager::LoadScene(wstring sceneName) {
+
+    _activeScene = LoadTestScene();
+
+    //SaveScene(L"../Resources/main_scene.bin");
+
+    _activeScene->Awake();
+    _activeScene->Start();
+}
+
+
+void SceneManager::SetLayerName(uint8 index, const wstring& name) {
+
+    const wstring& prevName = _layerNames[index];
+    _layerIndex.erase(prevName);
+
+    _layerNames[index] = name;
+    _layerIndex[name] = index;
+}
+
+uint8 SceneManager::LayerNameToIndex(const wstring& name) {
+    auto findIt = _layerIndex.find(name);
+    if (findIt == _layerIndex.end())
+        return 0;
+
+    return findIt->second;
+}
+
+shared_ptr<Scene> SceneManager::LoadTestScene() {
+   
 #pragma region LayerMask
     SetLayerName(0, L"Default");
     SetLayerName(1, L"UI");
@@ -273,37 +295,7 @@ void SceneManager::LoadScene(wstring sceneName) {
     }
 #pragma endregion
 
-    shared_ptr<Scene> scene = make_shared<Scene>();
 
-    //scene->LoadScene(sceneName);
-
-    _activeScene = LoadTestScene();
-
-    //SaveScene(L"../Resources/main_scene.bin");
-
-    _activeScene->Awake();
-    _activeScene->Start();
-}
-
-void SceneManager::SetLayerName(uint8 index, const wstring& name) {
-
-    const wstring& prevName = _layerNames[index];
-    _layerIndex.erase(prevName);
-
-    _layerNames[index] = name;
-    _layerIndex[name] = index;
-}
-
-uint8 SceneManager::LayerNameToIndex(const wstring& name) {
-    auto findIt = _layerIndex.find(name);
-    if (findIt == _layerIndex.end())
-        return 0;
-
-    return findIt->second;
-}
-
-shared_ptr<Scene> SceneManager::LoadTestScene() {
-   
     shared_ptr<Scene> scene = make_shared<Scene>();
 
 #pragma region Camera
@@ -319,6 +311,40 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
         camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UI�� �� ����
         scene->AddGameObject(camera);
+
+#pragma region Player
+        {
+            shared_ptr<GameObject> player = make_shared<GameObject>();
+            player->SetName(L"Player");
+            player->AddComponent(make_shared<Transform>());
+
+            player->AddComponent(make_shared<SphereCollider>());
+
+            player->GetTransform()->SetLocalScale(Vec3(50.f, 50.f, 50.f));
+
+            player->AddComponent(make_shared<TestPlayerScript>());
+
+            player->GetTransform()->SetLocalPosition(Vec3(0.f, -50.f, 200.f));
+            player->SetStatic(false);
+            shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+            {
+                shared_ptr<Mesh> playerMesh = GET_SINGLETON(Resources)->LoadCubeMesh();
+                meshRenderer->SetMesh(playerMesh);
+            }
+            {
+                shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Wood");
+                meshRenderer->SetMaterial(material->Clone());
+            }
+            player->GetTransform()->SetParent(camera->GetTransform());
+
+            player->GetTransform()->SetInheritRotation(false);
+            player->GetTransform()->SetInheritScale(false);
+            dynamic_pointer_cast<SphereCollider>(player->GetCollider())->SetRadius(0.5f);
+
+            player->AddComponent(meshRenderer);
+            scene->AddGameObject(player);
+        }
+#pragma endregion
     }
 #pragma endregion
 
@@ -392,15 +418,16 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         shared_ptr<GameObject> obj = make_shared<GameObject>();
         obj->AddComponent(make_shared<Transform>());
         obj->AddComponent(make_shared<Terrain>());
-        obj->AddComponent(make_shared<BoxCollider>());
+        obj->AddComponent(make_shared<AABBBoxCollider>());
         obj->AddComponent(make_shared<MeshRenderer>());
 
         obj->GetTransform()->SetLocalScale(Vec3(50.f, 400.f, 50.f));
         obj->GetTransform()->SetLocalPosition(Vec3(-1600.f, -400.f, -1600.f));
         obj->SetStatic(true);
         obj->GetTerrain()->Init(64, 64);
-        dynamic_pointer_cast<BoxCollider>(obj->GetCollider())->SetCenter(Vec3(0.f, -400.f, 0.f));
-        dynamic_pointer_cast<BoxCollider>(obj->GetCollider())->SetExtents(Vec3(3200.f, 1.f, 3200.f));
+        BoundingBox& boundingBox = dynamic_pointer_cast<AABBBoxCollider>(obj->GetCollider())->GetBoundingBox();
+        boundingBox.Center = Vec3(0.f, -400.f, 0.f);
+        boundingBox.Extents = Vec3(3200.f, 1.f, 3200.f);
         obj->SetCheckFrustum(false);
 
         scene->AddGameObject(obj);
@@ -487,62 +514,63 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
     {
         shared_ptr<GameObject> light = make_shared<GameObject>();
         light->AddComponent(make_shared<Transform>());
-        light->GetTransform()->SetLocalPosition(Vec3(300.f, 100.f, 300.f));
+        light->GetTransform()->SetLocalPosition(Vec3(300.f, 0.f, 400.f));
         light->AddComponent(make_shared<Light>());
         light->GetLight()->SetLightDirection(Vec3(0.f, -1.f, 0.f));
         light->GetLight()->SetLightType(LIGHT_TYPE::SPOT);
         light->GetLight()->SetDiffuse(Vec3(0.0f, 0.f, 1.f));
         light->GetLight()->SetAmbient(Vec3(0.0f, 0.0f, 0.1f));
         light->GetLight()->SetSpecular(Vec3(0.0f, 0.0f, 0.1f));
-        light->GetLight()->SetLightRange(200.f);
-        light->GetLight()->SetLightAngle(3.14f / 2);
+        light->GetLight()->SetLightRange(500.f);
+        light->GetLight()->SetLightAngle(3.14f / 4);
 
         scene->AddGameObject(light);
     }
 #pragma endregion
 
-    //#pragma region ParticleSystem
-    //    {
-    //        shared_ptr<GameObject> particle = make_shared<GameObject>();
-    //        particle->AddComponent(make_shared<Transform>());
-    //        particle->AddComponent(make_shared<ParticleSystem>());
-    //        particle->SetCheckFrustum(false);
-    //        particle->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 100.f));
-    //        scene->AddGameObject(particle);
-    //    }
-    //#pragma endregion
-
-//#pragma region FBX
-//    {
-//        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadFBX(L"..\\Resources\\FBX\\Apache.fbx");
-//  
-//        vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
-//
-//        for (auto& gameObject : gameObjects) {
-//            gameObject->SetName(L"Dragon");
-//            gameObject->SetCheckFrustum(false);
-//            gameObject->GetTransform()->SetLocalPosition(Vec3(0.f, -100.f, 100.f));
-//            gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
-//            scene->AddGameObject(gameObject);
-//            gameObject->SetStatic(false);
-//        }
-//    }
-//#pragma endregion
-
-#pragma region BIN
+#pragma region ParticleSystem
     {
-        wstring path = L"../Resources/BIN/Apache.bin";
-        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadBIN(path);
+        shared_ptr<GameObject> particle = make_shared<GameObject>();
+        particle->AddComponent(make_shared<Transform>());
+        particle->AddComponent(make_shared<ParticleSystem>());
+        particle->SetCheckFrustum(false);
+        particle->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, -200.f));
+        scene->AddGameObject(particle);
+    }
+#pragma endregion
+
+#pragma region FBX
+    {
+        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadFBX(L"..\\Resources\\FBX\\Dragon.fbx");
 
         vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
+
         for (auto& gameObject : gameObjects) {
-            gameObject->SetName(L"Apache");
+            gameObject->SetName(L"Dragon");
             gameObject->SetCheckFrustum(false);
+            gameObject->GetTransform()->SetLocalPosition(Vec3(0.f, -100.f, 100.f));
+            gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
             scene->AddGameObject(gameObject);
+            gameObject->AddComponent(make_shared<TestDragonScript>());
             gameObject->SetStatic(false);
         }
     }
 #pragma endregion
+
+    //#pragma region BIN
+    //    {
+    //        wstring path = L"../Resources/BIN/Apache.bin";
+    //        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadBIN(path);
+    //
+    //        vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
+    //        for (auto& gameObject : gameObjects) {
+    //            gameObject->SetName(L"Apache");
+    //            gameObject->SetCheckFrustum(false);
+    //            scene->AddGameObject(gameObject);
+    //            gameObject->SetStatic(false);
+    //        }
+    //    }
+    //#pragma endregion
 
     return scene;
 }
