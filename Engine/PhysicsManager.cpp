@@ -57,6 +57,13 @@ shared_ptr<GameObject> PhysicsManager::Pick(int32 screenX, int32 screenY) {
     return picked;
 }
 
+void PhysicsManager::Update() {
+    Gravity();
+}
+void PhysicsManager::FinalUpdate() {
+    Collision();
+}
+
 void PhysicsManager::Gravity()
 {
     auto& gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
@@ -83,7 +90,7 @@ void PhysicsManager::Gravity()
                 Vec3 terrainScale = terrain->GetTransform()->GetLocalScale();
                 Vec4 rayOrigin = Vec4(position.x, position.y, position.z, 1.0f);
                 Vec4 rayDir = Vec4(0.0f, -1.0f, 0.0f, 0.0f);
-                float height = terrain->GetTerrain()->GetHeightAtPosition(position.x, position.z);
+                float height = terrain->GetTerrain()->GetHeightAtPosition(position.x - terrainPosition.x, position.z - terrainPosition.z);
                 float heightValue = terrainScale.y * height + terrainPosition.y;    
                 float distance = 0.f;
                 if (terrain->GetCollider()->Intersects(rayOrigin, rayDir, OUT distance)) {
@@ -101,6 +108,20 @@ void PhysicsManager::Gravity()
         gameObject->GetTransform()->SetVelocity(velocity);
         }
     }
+}
 
+void PhysicsManager::Collision() {
+    auto& gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
+    for (auto& gameObject : gameObjects) {
+        if (gameObject->GetCollider()) {
+            for (const shared_ptr<GameObject>& otherGameObject : gameObjects) {
+                if (otherGameObject->GetCollider() && gameObject != otherGameObject && !otherGameObject->GetTerrain()) {
+                    if (gameObject->GetCollider()->Intersects(otherGameObject->GetCollider())) {
 
+                        //TODO : 面倒 贸府 包访 内靛
+                    }
+                }
+            }
+        }
+    }
 }

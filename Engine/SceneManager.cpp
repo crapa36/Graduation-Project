@@ -69,36 +69,159 @@ void SceneManager::SaveScene(wstring sceneName) {
 
         if (obj->GetMeshRenderer()) {
             fout << "<MeshRenderer>" << endl;
-            if (obj->GetPath() != L"") {
-                fout << "<Path>" << endl;
-                fout << ws2s(obj->GetPath()) << endl;
+
+            fout << "<Mesh>" << endl;
+
+
+            fout << "<Vertex>" << endl;
+            uint32 _vertexCount = obj->GetMeshRenderer()->GetMesh()->GetVertexCount();
+            uint32 bufferSize = _vertexCount * sizeof(Vertex);
+            fout << _vertexCount << endl;
+
+            Vertex* vertex = new Vertex[_vertexCount];
+
+            void* vertexDataBuffer = nullptr;
+            CD3DX12_RANGE readRange(0, 0); // We do not intend to read from this resource on the CPU.
+            obj->GetMeshRenderer()->GetMesh()->GetVertexBuffer()->Map(0, &readRange, &vertexDataBuffer);
+            ::memcpy(&vertex[0], vertexDataBuffer, bufferSize);
+            obj->GetMeshRenderer()->GetMesh()->GetVertexBuffer()->Unmap(0, nullptr);
+
+
+            for (int i = 0; i < _vertexCount; i++) {
+                fout << vertex[i].pos.x << vertex[i].pos.y << vertex[i].pos.z << endl;
+                fout << vertex[i].normal.x << vertex[i].normal.y << vertex[i].normal.z << endl;
             }
-            else {
-                fout << "<Mesh>" << endl;
+
+            fout << "</Vertex>" << endl;
+
+            delete[] vertex;
+
+
+            for (int i = 0; i < obj->GetMeshRenderer()->GetMesh()->GetIndexBuffer().size(); i++) {
+                fout << "<Index>" << endl;
+
+                uint32 _indexCount = obj->GetMeshRenderer()->GetMesh()->GetIndexBuffer().at(i).count;
+                bufferSize = _indexCount * sizeof(uint32);
+                fout << _indexCount << endl;
+
+                uint32* index = new uint32[_indexCount];
+
+                void* indexDataBuffer = nullptr;
+                CD3DX12_RANGE readRange(0, 0); // We do not intend to read from this resource on the CPU.
+                obj->GetMeshRenderer()->GetMesh()->GetIndexBuffer().at(i).buffer->Map(0, &readRange, &indexDataBuffer);
+                ::memcpy(&index[0], indexDataBuffer, bufferSize);
+                obj->GetMeshRenderer()->GetMesh()->GetIndexBuffer().at(i).buffer->Unmap(0, nullptr);
+                for (int j = 0; j < _indexCount; j++) {
+                    fout << index[j];
+                }
+
+                delete[] index;
             }
+            fout << "</Mesh>" << endl;
+            fout << "<Material>" << endl;
+            shared_ptr<Material> material = obj->GetMeshRenderer()->GetMaterial();
+
+            if (material->GetShader()->GetVsBlob()) {
+                void* pVSData = material->GetShader()->GetVsBlob()->GetBufferPointer();
+                size_t VSDataSize = material->GetShader()->GetVsBlob()->GetBufferSize();
+                fout << VSDataSize;
+                vector<char> vsData(VSDataSize);
+                copy(static_cast<char*>(pVSData), static_cast<char*>(pVSData) + VSDataSize, vsData.begin());
+                fout << vsData.size();
+                for (int i = 0; i < vsData.size(); i++) {
+                    fout << vsData.at(i) << endl;
+                }
+            }
+            if (material->GetShader()->GetHsBlob()) {
+                void* pVSData = material->GetShader()->GetHsBlob()->GetBufferPointer();
+                size_t VSDataSize = material->GetShader()->GetHsBlob()->GetBufferSize();
+                fout << VSDataSize;
+                vector<char> vsData(VSDataSize);
+                copy(static_cast<char*>(pVSData), static_cast<char*>(pVSData) + VSDataSize, vsData.begin());
+                fout << vsData.size();
+                for (int i = 0; i < vsData.size(); i++) {
+                    fout << vsData.at(i) << endl;
+                }
+            }
+            if (material->GetShader()->GetDsBlob()) {
+                void* pVSData = material->GetShader()->GetDsBlob()->GetBufferPointer();
+                size_t VSDataSize = material->GetShader()->GetDsBlob()->GetBufferSize();
+                fout << VSDataSize;
+                vector<char> vsData(VSDataSize);
+                copy(static_cast<char*>(pVSData), static_cast<char*>(pVSData) + VSDataSize, vsData.begin());
+                fout << vsData.size();
+                for (int i = 0; i < vsData.size(); i++) {
+                    fout << vsData.at(i) << endl;
+                }
+            }
+            if (material->GetShader()->GetGsBlob()) {
+                void* pVSData = material->GetShader()->GetGsBlob()->GetBufferPointer();
+                size_t VSDataSize = material->GetShader()->GetGsBlob()->GetBufferSize();
+                fout << VSDataSize;
+                vector<char> vsData(VSDataSize);
+                copy(static_cast<char*>(pVSData), static_cast<char*>(pVSData) + VSDataSize, vsData.begin());
+                fout << vsData.size();
+                for (int i = 0; i < vsData.size(); i++) {
+                    fout << vsData.at(i) << endl;
+                }
+            }
+            if (material->GetShader()->GetPsBlob()) {
+                void* pVSData = material->GetShader()->GetPsBlob()->GetBufferPointer();
+                size_t VSDataSize = material->GetShader()->GetPsBlob()->GetBufferSize();
+                fout << VSDataSize;
+                vector<char> vsData(VSDataSize);
+                copy(static_cast<char*>(pVSData), static_cast<char*>(pVSData) + VSDataSize, vsData.begin());
+                fout << vsData.size();
+                for (int i = 0; i < vsData.size(); i++) {
+                    fout << vsData.at(i) << endl;
+                }
+            }
+            if (material->GetShader()->GetCsBlob()) {
+                void* pVSData = material->GetShader()->GetCsBlob()->GetBufferPointer();
+                size_t VSDataSize = material->GetShader()->GetCsBlob()->GetBufferSize();
+                fout << VSDataSize;
+                vector<char> vsData(VSDataSize);
+                copy(static_cast<char*>(pVSData), static_cast<char*>(pVSData) + VSDataSize, vsData.begin());
+                fout << vsData.size();
+                for (int i = 0; i < vsData.size(); i++) {
+                    fout << vsData.at(i) << endl;
+                }
+            }
+
+            ShaderInfo shaderInfo = material->GetShader()->GetInfo();
+            fout.write(reinterpret_cast<const char*>(&shaderInfo), sizeof(ShaderInfo));
+
+            //Texture
+            //fout << material->GetTextures().size();
+            //for (int i = 0; i < material->GetTextures().size(); i++) {
+            //        void* mappedData;
+            //        void* binaryData = nullptr;
+            //        shared_ptr<Texture> texture = material->GetTextures().at(i);
+            //        uint64 dataSize = texture->GetWidth() * texture->GetHeight() * texture->GetTexture2D()->GetDesc().DepthOrArraySize * texture->GetTexture2D()->GetDesc().MipLevels * texture->GetTexture2D()->GetDesc().Format;
+            //        fout << dataSize;
+            //        material->GetTextures().at(i)->GetTexture2D()->Map(0, nullptr, &mappedData);
+            //        memcpy(binaryData, mappedData, dataSize);
+            //        
+            //        
+            //        material->GetTextures().at(i)->GetTexture2D()->Unmap(0, nullptr);
+            //        fout.write(reinterpret_cast<const char*>(binaryData), dataSize);
+            //}
+            fout << "</MeshRenderer>" << endl;
         }
 
-        if (obj->GetLight()) {
-            fout << "<Light>" << endl;
-            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetLightDirection()), sizeof(Vec3));
-            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetDiffuse()), sizeof(Vec4));
-            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetAmbient()), sizeof(Vec4));
-            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetSpecular()), sizeof(Vec4));
-            fout << obj->GetLight()->GetLightRange() << endl;
-            fout << obj->GetLight()->GetLightAngle() << endl;
-            fout << obj->GetLight()->GetLightIndex() << endl;
-        }
+        /*      if (obj->GetLight()) {
+                  fout << "<Light>" << endl;
+
+                  fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetLightDirection()), sizeof(Vec3));
+                  fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetDiffuse()), sizeof(Vec4));
+                  fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetAmbient()), sizeof(Vec4));
+                  fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetSpecular()), sizeof(Vec4));
+                  fout << obj->GetLight()->GetLightRange() << endl;
+                  fout << obj->GetLight()->GetLightAngle() << endl;
+                  fout << obj->GetLight()->GetLightIndex() << endl;
+              }*/
 
         if (obj->GetParticleSystem()) {
-            fout << "<Particle>" << endl;
-            fout << ws2s(obj->GetParticleSystem()->GetPath()) << endl;
-            fout << obj->GetParticleSystem()->GetCreateInterval() << endl;
-            fout << obj->GetParticleSystem()->GetMinLifeTime() << endl;
-            fout << obj->GetParticleSystem()->GetMaxLifeTime() << endl;
-            fout << obj->GetParticleSystem()->GetMinSpeed() << endl;
-            fout << obj->GetParticleSystem()->GetMaxSpeed() << endl;
-            fout << obj->GetParticleSystem()->GetStartScale() << endl;
-            fout << obj->GetParticleSystem()->GetEndScale() << endl;
         }
 
         if (obj->GetTerrain()) {
@@ -113,7 +236,8 @@ void SceneManager::SaveScene(wstring sceneName) {
         if (obj->GetAnimator()) {
         }
     }
-    fout << "</Object>" << endl;
+
+    fout << "</Scene>" << endl;
 }
 
 void SceneManager::LoadScene(wstring sceneName) {
