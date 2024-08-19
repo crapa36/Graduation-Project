@@ -43,23 +43,11 @@ void CMeshLoader::LoadBIN(const wstring& path) {
 
     reverse(_meshes.begin(), _meshes.end());
 
-    CMeshInfo meshInfo;
+	for (int i = 1; i < _meshes.size(); i++) {
+		_meshes.at(i).transform->SetParent(_meshes.front().transform);
+	}
 
-    for (int i = 0; i < _meshes.size(); i++) {
-        if (_meshes.at(i).name == "rotor") {
-            meshInfo.transform = _meshes.at(i).transform;
-        }
-
-        //_meshes.at(i).transform->SetParent(_meshes.back().transform);
-    }
-
-    for (int i = 0; i < _meshes.size(); i++) {
-        if (_meshes.at(i).name != "rotor") {
-            _meshes.at(i).transform->SetParent(meshInfo.transform);
-        }
-    }
-
-    // ¿ì¸® ±¸Á¶¿¡ ¸Â°Ô Texture / Material »ý¼º
+    // ï¿½ì¸® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Â°ï¿½ Texture / Material ï¿½ï¿½ï¿½ï¿½
     //CreateTextures();
     CreateMaterials();
 }
@@ -258,14 +246,15 @@ CMeshInfo CMeshLoader::LoadFrameHierarchy(FILE* pInFile) {
     return info;
 }
 
-void CMeshLoader::LoadGeometry(const wstring& FileName) {
-    string path = ws2s(FileName);
 
-    char* c = const_cast<char*>(path.c_str());
-    c[path.size() + 1] = '\0';
-    FILE* pInFile = NULL;
-    cout << c;
-    ::fopen_s(&pInFile, c, "rb");
+void CMeshLoader::LoadGeometry(const wstring& FileName)
+{
+	string path = ws2s(FileName);
+	
+	char* c = const_cast<char*>(path.c_str());
+	c[path.size() + 1] = '\0';
+	FILE* pInFile = NULL;
+	::fopen_s(&pInFile, c, "rb");
 
     assert(pInFile);
     ::rewind(pInFile);

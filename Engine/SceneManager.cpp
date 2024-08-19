@@ -3,6 +3,7 @@
 #include "Scene.h"
 
 #include "Engine.h"
+#include "Shader.h"
 #include "Material.h"
 #include "GameObject.h"
 #include "MeshRenderer.h"
@@ -18,6 +19,8 @@
 #include "Resources.h"
 #include "Terrain.h"
 #include "SphereCollider.h"
+#include "BoxCollider.h"
+
 #include "MeshData.h"
 
 void SceneManager::Update() {
@@ -39,7 +42,6 @@ void SceneManager::SaveScene(wstring sceneName) {
     ofstream fout(sceneName, std::ios::binary);
 
     string str;
-    str = "<Scene>";
     fout.write(str.c_str(), str.size());
 
     for (auto& obj : _activeScene->GetGameObjects()) {
@@ -50,12 +52,9 @@ void SceneManager::SaveScene(wstring sceneName) {
 
         if (obj->GetTransform()) {
             fout << "<Transform>" << endl;
-            fout << "<Position>" << endl;
             fout.write(reinterpret_cast<const char*>(&obj->GetTransform()->GetLocalPosition()), sizeof(Vec3));
-            fout << "<Rotate>" << endl;
             fout.write(reinterpret_cast<const char*>(&obj->GetTransform()->GetLocalRotation()), sizeof(Vec3));
-            fout << "<Scale>" << endl;
-            fout.write(reinterpret_cast<const char*>(&obj->GetTransform()->GetLocalScale()), sizeof(Vec3));
+            fout.write(reinterpret_cast<const char*>(&obj->GetTransform()->GetLocalScale()), sizeof(Vec3)) << endl;
         }
 
         if (obj->GetCamera()) {
@@ -79,19 +78,27 @@ void SceneManager::SaveScene(wstring sceneName) {
             }
         }
 
-        /*      if (obj->GetLight()) {
-                  fout << "<Light>" << endl;
-
-                  fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetLightDirection()), sizeof(Vec3));
-                  fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetDiffuse()), sizeof(Vec4));
-                  fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetAmbient()), sizeof(Vec4));
-                  fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetSpecular()), sizeof(Vec4));
-                  fout << obj->GetLight()->GetLightRange() << endl;
-                  fout << obj->GetLight()->GetLightAngle() << endl;
-                  fout << obj->GetLight()->GetLightIndex() << endl;
-              }*/
+        if (obj->GetLight()) {
+            fout << "<Light>" << endl;
+            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetLightDirection()), sizeof(Vec3));
+            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetDiffuse()), sizeof(Vec4));
+            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetAmbient()), sizeof(Vec4));
+            fout.write(reinterpret_cast<const char*>(&obj->GetLight()->GetSpecular()), sizeof(Vec4));
+            fout << obj->GetLight()->GetLightRange() << endl;
+            fout << obj->GetLight()->GetLightAngle() << endl;
+            fout << obj->GetLight()->GetLightIndex() << endl;
+        }
 
         if (obj->GetParticleSystem()) {
+            fout << "<Particle>" << endl;
+            fout << ws2s(obj->GetParticleSystem()->GetPath()) << endl;
+            fout << obj->GetParticleSystem()->GetCreateInterval() << endl;
+            fout << obj->GetParticleSystem()->GetMinLifeTime() << endl;
+            fout << obj->GetParticleSystem()->GetMaxLifeTime() << endl;
+            fout << obj->GetParticleSystem()->GetMinSpeed() << endl;
+            fout << obj->GetParticleSystem()->GetMaxSpeed() << endl;
+            fout << obj->GetParticleSystem()->GetStartScale() << endl;
+            fout << obj->GetParticleSystem()->GetEndScale() << endl;
         }
 
         if (obj->GetTerrain()) {
@@ -106,42 +113,10 @@ void SceneManager::SaveScene(wstring sceneName) {
         if (obj->GetAnimator()) {
         }
     }
-
-    fout << "</Scene>" << endl;
+    fout << "</Object>" << endl;
 }
 
 void SceneManager::LoadScene(wstring sceneName) {
-
-    // TODO : ���� Scene ����
-    // TODO : ���Ͽ��� Scene ���� �ε�
-
-    _activeScene = LoadTestScene();
-
-    SaveScene(L"../Resources/main_scene.bin");
-
-    _activeScene->Awake();
-    _activeScene->Start();
-}
-
-void SceneManager::SetLayerName(uint8 index, const wstring& name) {
-
-    // ���� ������ ����
-    const wstring& prevName = _layerNames[index];
-    _layerIndex.erase(prevName);
-
-    _layerNames[index] = name;
-    _layerIndex[name] = index;
-}
-
-uint8 SceneManager::LayerNameToIndex(const wstring& name) {
-    auto findIt = _layerIndex.find(name);
-    if (findIt == _layerIndex.end())
-        return 0;
-
-    return findIt->second;
-}
-
-shared_ptr<Scene> SceneManager::LoadTestScene() {
 #pragma region LayerMask
     SetLayerName(0, L"Default");
     SetLayerName(1, L"UI");
@@ -169,6 +144,35 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 
     shared_ptr<Scene> scene = make_shared<Scene>();
 
+    //scene->LoadScene(sceneName);
+
+    _activeScene = LoadTestScene();
+
+    //SaveScene(L"../Resources/main_scene.bin");
+
+    _activeScene->Awake();
+    _activeScene->Start();
+}
+
+void SceneManager::SetLayerName(uint8 index, const wstring& name) {
+    const wstring& prevName = _layerNames[index];
+    _layerIndex.erase(prevName);
+
+    _layerNames[index] = name;
+    _layerIndex[name] = index;
+}
+
+uint8 SceneManager::LayerNameToIndex(const wstring& name) {
+    auto findIt = _layerIndex.find(name);
+    if (findIt == _layerIndex.end())
+        return 0;
+
+    return findIt->second;
+}
+
+shared_ptr<Scene> SceneManager::LoadTestScene() {
+    shared_ptr<Scene> scene = make_shared<Scene>();
+
 #pragma region Camera
     {
         shared_ptr<GameObject> camera = make_shared<GameObject>();
@@ -189,7 +193,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
             player->SetName(L"Player");
             player->AddComponent(make_shared<Transform>());
 
-            player->AddComponent(make_shared<SphereCollider>());
+            player->AddComponent(make_shared<BoxCollider>());
 
             player->GetTransform()->SetLocalScale(Vec3(50.f, 50.f, 50.f));
 
@@ -210,7 +214,6 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 
             player->GetTransform()->SetInheritRotation(false);
             player->GetTransform()->SetInheritScale(false);
-            dynamic_pointer_cast<SphereCollider>(player->GetCollider())->SetRadius(0.5f);
 
             player->AddComponent(meshRenderer);
             scene->AddGameObject(player);
@@ -276,9 +279,10 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
             shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Pebbles");
             meshRenderer->SetMaterial(material->Clone());
         }
-        dynamic_pointer_cast<SphereCollider>(obj->GetCollider())->SetRadius(1.f);
-
         obj->AddComponent(meshRenderer);
+
+        dynamic_pointer_cast<SphereCollider>(obj->GetCollider())->SetRadius(0.5f);
+        obj->SetGravity(true);
         scene->AddGameObject(obj);
     }
 #pragma endregion
@@ -288,12 +292,15 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         shared_ptr<GameObject> obj = make_shared<GameObject>();
         obj->AddComponent(make_shared<Transform>());
         obj->AddComponent(make_shared<Terrain>());
+        obj->AddComponent(make_shared<BoxCollider>());
         obj->AddComponent(make_shared<MeshRenderer>());
 
         obj->GetTransform()->SetLocalScale(Vec3(50.f, 400.f, 50.f));
         obj->GetTransform()->SetLocalPosition(Vec3(-1600.f, -400.f, -1600.f));
         obj->SetStatic(true);
         obj->GetTerrain()->Init(64, 64);
+        dynamic_pointer_cast<BoxCollider>(obj->GetCollider())->SetCenter(Vec3(0.f, -400.f, 0.f));
+        dynamic_pointer_cast<BoxCollider>(obj->GetCollider())->SetExtents(Vec3(3200.f, 1.f, 3200.f));
         obj->SetCheckFrustum(false);
 
         scene->AddGameObject(obj);

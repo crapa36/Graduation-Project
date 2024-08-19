@@ -189,10 +189,7 @@
     <ClCompile Include="TestDragonScript.cpp">
       <Filter>Object\Test</Filter>
     </ClCompile>
-    <ClCompile Include="AABBBoxCollider.cpp">
-      <Filter>Object\Component\Collider</Filter>
-    </ClCompile>
-    <ClCompile Include="OBBBoxCollider.cpp">
+    <ClCompile Include="BoxCollider.cpp">
       <Filter>Object\Component\Collider</Filter>
     </ClCompile>
   </ItemGroup>
@@ -359,10 +356,7 @@
     <ClInclude Include="SphereCollider.h">
       <Filter>Object\Component\Collider</Filter>
     </ClInclude>
-    <ClInclude Include="AABBBoxCollider.h">
-      <Filter>Object\Component\Collider</Filter>
-    </ClInclude>
-    <ClInclude Include="OBBBoxCollider.h">
+    <ClInclude Include="BoxCollider.h">
       <Filter>Object\Component\Collider</Filter>
     </ClInclude>
   </ItemGroup>
