@@ -53,7 +53,7 @@ void TestCameraScript::LateUpdate() {
             _speed = 100.f;
 
         if (INPUT->GetButtonDown(KEY_TYPE::DEL)) {
-            GEngine->SetImguiMode(!GEngine->GetImguiMode());
+            GEngine->SetDebugMode(!GEngine->GetDebugMode());
         }
 
         if (INPUT->GetButtonDown(KEY_TYPE::END)) {

@@ -1,4 +1,4 @@
-﻿﻿﻿// Client.cpp : 애플리케이션에 대한 진입점을 정의합니다.
+﻿﻿// Client.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 
 #include "pch.h"
 #include "framework.h"
@@ -26,9 +26,9 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
-    _In_opt_ HINSTANCE hPrevInstance,
-    _In_ LPWSTR    lpCmdLine,
-    _In_ int       nCmdShow) {
+                      _In_opt_ HINSTANCE hPrevInstance,
+                      _In_ LPWSTR    lpCmdLine,
+                      _In_ int       nCmdShow) {
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
@@ -124,8 +124,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
     AdjustWindowRect(&rect, style, FALSE);
 
     HWND hWnd = CreateWindowW(szWindowClass, szTitle, style,
-        CW_USEDEFAULT, 0, rect.right - rect.left, rect.bottom - rect.top,
-        nullptr, nullptr, hInstance, nullptr);
+                              CW_USEDEFAULT, 0, rect.right - rect.left, rect.bottom - rect.top,
+                              nullptr, nullptr, hInstance, nullptr);
 
     if (!hWnd) {
         return FALSE;

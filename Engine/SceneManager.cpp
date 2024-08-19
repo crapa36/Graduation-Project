@@ -3,7 +3,6 @@
 #include "Scene.h"
 
 #include "Engine.h"
-#include "Shader.h"
 #include "Material.h"
 #include "GameObject.h"
 #include "MeshRenderer.h"
@@ -19,8 +18,6 @@
 #include "Resources.h"
 #include "Terrain.h"
 #include "SphereCollider.h"
-#include "AABBBoxCollider.h"
-#include "OBBBoxCollider.h"
 #include "MeshData.h"
 
 void SceneManager::Update() {
@@ -42,6 +39,7 @@ void SceneManager::SaveScene(wstring sceneName) {
     ofstream fout(sceneName, std::ios::binary);
 
     string str;
+    str = "<Scene>";
     fout.write(str.c_str(), str.size());
 
     for (auto& obj : _activeScene->GetGameObjects()) {
@@ -52,9 +50,12 @@ void SceneManager::SaveScene(wstring sceneName) {
 
         if (obj->GetTransform()) {
             fout << "<Transform>" << endl;
+            fout << "<Position>" << endl;
             fout.write(reinterpret_cast<const char*>(&obj->GetTransform()->GetLocalPosition()), sizeof(Vec3));
+            fout << "<Rotate>" << endl;
             fout.write(reinterpret_cast<const char*>(&obj->GetTransform()->GetLocalRotation()), sizeof(Vec3));
-            fout.write(reinterpret_cast<const char*>(&obj->GetTransform()->GetLocalScale()), sizeof(Vec3)) << endl;
+            fout << "<Scale>" << endl;
+            fout.write(reinterpret_cast<const char*>(&obj->GetTransform()->GetLocalScale()), sizeof(Vec3));
         }
 
         if (obj->GetCamera()) {
@@ -69,144 +70,13 @@ void SceneManager::SaveScene(wstring sceneName) {
 
         if (obj->GetMeshRenderer()) {
             fout << "<MeshRenderer>" << endl;
-
-            fout << "<Mesh>" << endl;
-
-
-            fout << "<Vertex>" << endl;
-            uint32 _vertexCount = obj->GetMeshRenderer()->GetMesh()->GetVertexCount();
-            uint32 bufferSize = _vertexCount * sizeof(Vertex);
-            fout << _vertexCount << endl;
-
-            Vertex* vertex = new Vertex[_vertexCount];
-
-            void* vertexDataBuffer = nullptr;
-            CD3DX12_RANGE readRange(0, 0); // We do not intend to read from this resource on the CPU.
-            obj->GetMeshRenderer()->GetMesh()->GetVertexBuffer()->Map(0, &readRange, &vertexDataBuffer);
-            ::memcpy(&vertex[0], vertexDataBuffer, bufferSize);
-            obj->GetMeshRenderer()->GetMesh()->GetVertexBuffer()->Unmap(0, nullptr);
-
-
-            for (int i = 0; i < _vertexCount; i++) {
-                fout << vertex[i].pos.x << vertex[i].pos.y << vertex[i].pos.z << endl;
-                fout << vertex[i].normal.x << vertex[i].normal.y << vertex[i].normal.z << endl;
+            if (obj->GetPath() != L"") {
+                fout << "<Path>" << endl;
+                fout << ws2s(obj->GetPath()) << endl;
             }
-
-            fout << "</Vertex>" << endl;
-
-            delete[] vertex;
-
-
-            for (int i = 0; i < obj->GetMeshRenderer()->GetMesh()->GetIndexBuffer().size(); i++) {
-                fout << "<Index>" << endl;
-
-                uint32 _indexCount = obj->GetMeshRenderer()->GetMesh()->GetIndexBuffer().at(i).count;
-                bufferSize = _indexCount * sizeof(uint32);
-                fout << _indexCount << endl;
-
-                uint32* index = new uint32[_indexCount];
-
-                void* indexDataBuffer = nullptr;
-                CD3DX12_RANGE readRange(0, 0); // We do not intend to read from this resource on the CPU.
-                obj->GetMeshRenderer()->GetMesh()->GetIndexBuffer().at(i).buffer->Map(0, &readRange, &indexDataBuffer);
-                ::memcpy(&index[0], indexDataBuffer, bufferSize);
-                obj->GetMeshRenderer()->GetMesh()->GetIndexBuffer().at(i).buffer->Unmap(0, nullptr);
-                for (int j = 0; j < _indexCount; j++) {
-                    fout << index[j];
-                }
-
-                delete[] index;
+            else {
+                fout << "<Mesh>" << endl;
             }
-            fout << "</Mesh>" << endl;
-            fout << "<Material>" << endl;
-            shared_ptr<Material> material = obj->GetMeshRenderer()->GetMaterial();
-            
-            if (material->GetShader()->GetVsBlob()) {
-                void* pVSData = material->GetShader()->GetVsBlob()->GetBufferPointer();
-                size_t VSDataSize = material->GetShader()->GetVsBlob()->GetBufferSize();
-                fout << VSDataSize;
-                vector<char> vsData(VSDataSize);
-                copy(static_cast<char*>(pVSData), static_cast<char*>(pVSData) + VSDataSize, vsData.begin());
-                fout << vsData.size();
-                for (int i = 0; i < vsData.size(); i++) {
-                    fout << vsData.at(i) << endl;
-                }
-            }
-            if (material->GetShader()->GetHsBlob()) {
-                void* pVSData = material->GetShader()->GetHsBlob()->GetBufferPointer();
-                size_t VSDataSize = material->GetShader()->GetHsBlob()->GetBufferSize();
-                fout << VSDataSize;
-                vector<char> vsData(VSDataSize);
-                copy(static_cast<char*>(pVSData), static_cast<char*>(pVSData) + VSDataSize, vsData.begin());
-                fout << vsData.size();
-                for (int i = 0; i < vsData.size(); i++) {
-                    fout << vsData.at(i) << endl;
-                }
-            }
-            if (material->GetShader()->GetDsBlob()) {
-                void* pVSData = material->GetShader()->GetDsBlob()->GetBufferPointer();
-                size_t VSDataSize = material->GetShader()->GetDsBlob()->GetBufferSize();
-                fout << VSDataSize;
-                vector<char> vsData(VSDataSize);
-                copy(static_cast<char*>(pVSData), static_cast<char*>(pVSData) + VSDataSize, vsData.begin());
-                fout << vsData.size();
-                for (int i = 0; i < vsData.size(); i++) {
-                    fout << vsData.at(i) << endl;
-                }
-            }
-            if(material->GetShader()->GetGsBlob()) {
-                void* pVSData = material->GetShader()->GetGsBlob()->GetBufferPointer();
-                size_t VSDataSize = material->GetShader()->GetGsBlob()->GetBufferSize();
-                fout << VSDataSize;
-                vector<char> vsData(VSDataSize);
-                copy(static_cast<char*>(pVSData), static_cast<char*>(pVSData) + VSDataSize, vsData.begin());
-                fout << vsData.size();
-                for (int i = 0; i < vsData.size(); i++) {
-                    fout << vsData.at(i) << endl;
-                }
-            }
-            if (material->GetShader()->GetPsBlob()) {
-                void* pVSData = material->GetShader()->GetPsBlob()->GetBufferPointer();
-                size_t VSDataSize = material->GetShader()->GetPsBlob()->GetBufferSize();
-                fout << VSDataSize;
-                vector<char> vsData(VSDataSize);
-                copy(static_cast<char*>(pVSData), static_cast<char*>(pVSData) + VSDataSize, vsData.begin());
-                fout << vsData.size();
-                for (int i = 0; i < vsData.size(); i++) {
-                    fout << vsData.at(i) << endl;
-                }
-            }
-            if (material->GetShader()->GetCsBlob()) {
-                void* pVSData = material->GetShader()->GetCsBlob()->GetBufferPointer();
-                size_t VSDataSize = material->GetShader()->GetCsBlob()->GetBufferSize();
-                fout << VSDataSize;
-                vector<char> vsData(VSDataSize);
-                copy(static_cast<char*>(pVSData), static_cast<char*>(pVSData) + VSDataSize, vsData.begin());
-                fout << vsData.size();
-                for (int i = 0; i < vsData.size(); i++) {
-                    fout << vsData.at(i) << endl;
-                }
-            }
-
-            ShaderInfo shaderInfo = material->GetShader()->GetInfo();
-            fout.write(reinterpret_cast<const char*>(&shaderInfo), sizeof(ShaderInfo));
-
-            //Texture
-            //fout << material->GetTextures().size();
-            //for (int i = 0; i < material->GetTextures().size(); i++) {
-            //        void* mappedData;
-            //        void* binaryData = nullptr;
-            //        shared_ptr<Texture> texture = material->GetTextures().at(i);
-            //        uint64 dataSize = texture->GetWidth() * texture->GetHeight() * texture->GetTexture2D()->GetDesc().DepthOrArraySize * texture->GetTexture2D()->GetDesc().MipLevels * texture->GetTexture2D()->GetDesc().Format;
-            //        fout << dataSize;
-            //        material->GetTextures().at(i)->GetTexture2D()->Map(0, nullptr, &mappedData);
-            //        memcpy(binaryData, mappedData, dataSize);
-            //        
-            //        
-            //        material->GetTextures().at(i)->GetTexture2D()->Unmap(0, nullptr);
-            //        fout.write(reinterpret_cast<const char*>(binaryData), dataSize);
-            //}
-            fout << "</MeshRenderer>" << endl;
         }
 
         /*      if (obj->GetLight()) {
@@ -242,17 +112,20 @@ void SceneManager::SaveScene(wstring sceneName) {
 
 void SceneManager::LoadScene(wstring sceneName) {
 
+    // TODO : ���� Scene ����
+    // TODO : ���Ͽ��� Scene ���� �ε�
+
     _activeScene = LoadTestScene();
 
-    //SaveScene(L"../Resources/main_scene.bin");
+    SaveScene(L"../Resources/main_scene.bin");
 
     _activeScene->Awake();
     _activeScene->Start();
 }
 
-
 void SceneManager::SetLayerName(uint8 index, const wstring& name) {
 
+    // ���� ������ ����
     const wstring& prevName = _layerNames[index];
     _layerIndex.erase(prevName);
 
@@ -269,7 +142,6 @@ uint8 SceneManager::LayerNameToIndex(const wstring& name) {
 }
 
 shared_ptr<Scene> SceneManager::LoadTestScene() {
-   
 #pragma region LayerMask
     SetLayerName(0, L"Default");
     SetLayerName(1, L"UI");
@@ -281,9 +153,9 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 
         // UAV �� Texture ����
         shared_ptr<Texture> texture = GET_SINGLETON(Resources)->CreateTexture(L"UAVTexture",
-            DXGI_FORMAT_R8G8B8A8_UNORM, 1024, 1024,
-            CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-            D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+                                                                              DXGI_FORMAT_R8G8B8A8_UNORM, 1024, 1024,
+                                                                              CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
+                                                                              D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 
         shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"ComputeShader");
         material->SetShader(shader);
@@ -392,7 +264,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         obj->AddComponent(make_shared<Transform>());
         obj->AddComponent(make_shared<SphereCollider>());
         obj->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
-        obj->GetTransform()->SetLocalPosition(Vec3(200, 500.f, 50.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(200, 50.f, 50.f));
 
         obj->SetStatic(false);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
@@ -404,10 +276,9 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
             shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Pebbles");
             meshRenderer->SetMaterial(material->Clone());
         }
-        obj->AddComponent(meshRenderer);
+        dynamic_pointer_cast<SphereCollider>(obj->GetCollider())->SetRadius(1.f);
 
-        dynamic_pointer_cast<SphereCollider>(obj->GetCollider())->SetRadius(0.5f);
-        obj->SetGravity(true);
+        obj->AddComponent(meshRenderer);
         scene->AddGameObject(obj);
     }
 #pragma endregion
@@ -417,16 +288,12 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         shared_ptr<GameObject> obj = make_shared<GameObject>();
         obj->AddComponent(make_shared<Transform>());
         obj->AddComponent(make_shared<Terrain>());
-        obj->AddComponent(make_shared<AABBBoxCollider>());
         obj->AddComponent(make_shared<MeshRenderer>());
 
         obj->GetTransform()->SetLocalScale(Vec3(50.f, 400.f, 50.f));
         obj->GetTransform()->SetLocalPosition(Vec3(-1600.f, -400.f, -1600.f));
         obj->SetStatic(true);
         obj->GetTerrain()->Init(64, 64);
-        BoundingBox& boundingBox = dynamic_pointer_cast<AABBBoxCollider>(obj->GetCollider())->GetBoundingBox();
-        boundingBox.Center = Vec3(0.f, -400.f, 0.f);
-        boundingBox.Extents = Vec3(3200.f, 1.f, 3200.f);
         obj->SetCheckFrustum(false);
 
         scene->AddGameObject(obj);
@@ -528,14 +395,15 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 #pragma endregion
 
 #pragma region ParticleSystem
-    {
+    /*{
         shared_ptr<GameObject> particle = make_shared<GameObject>();
+        particle->SetName(L"ParticleSystem");
         particle->AddComponent(make_shared<Transform>());
         particle->AddComponent(make_shared<ParticleSystem>());
         particle->SetCheckFrustum(false);
         particle->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, -200.f));
         scene->AddGameObject(particle);
-    }
+    }*/
 #pragma endregion
 
 #pragma region FBX

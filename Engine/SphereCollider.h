@@ -13,6 +13,9 @@ public:
     // 이 구체 충돌 감지기의 경계 구체를 반환
     BoundingSphere& GetBoundingSphere() { return _boundingSphere; }
 
+    virtual void CreateMesh() override;
+    virtual void Render() override;
+
     void SetRadius(float radius) { _radius = radius; }
     void SetCenter(Vec3 center) { _center = center; }
 
@@ -22,5 +25,9 @@ private:
     float		_radius = 1.f;
     Vec3		_center = Vec3(0, 0, 0);
 
+    shared_ptr<class Mesh> _mesh;
+    shared_ptr<class Material> _material;
+
+    shared_ptr<class MeshRenderer> _meshRenderer;
     BoundingSphere _boundingSphere;
 };

@@ -16,6 +16,12 @@ public:
 
     virtual bool Intersects(const shared_ptr<BaseCollider>& other) = 0;
     ColliderType GetColliderType() { return _colliderType; }
+
+#ifdef _DEBUG
+    virtual void CreateMesh() = 0;
+    virtual void Render() = 0;
+#endif
+
 private:
     ColliderType _colliderType = {};
 };
