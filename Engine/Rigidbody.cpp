@@ -58,5 +58,6 @@ void Rigidbody::OnCollisionEnter(const shared_ptr<BaseCollider>& other) {
 
     // TODO : 面倒 贸府 内靛
 
-    _velocity = Vec4(0, 0, 0, 0);
+    _velocity = _velocity * -1.f;
+    GetTransform()->SetLocalPosition(GetTransform()->GetLocalPosition() + _velocity * DELTA_TIME);
 }

@@ -33,7 +33,7 @@ public:
 
 private:
     float _mass = 1.f;
-    float _drag = 0.1f;
+    float _drag = 0.0005f;
     float _angularDrag = 0.05f;
     bool _useGravity = true;
     bool _isKinematic = false;

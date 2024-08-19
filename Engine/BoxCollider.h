@@ -18,6 +18,8 @@ public:
     void SetCenter(Vec3 center) { _center = center; }
     void SetExtents(Vec3 extents) { _extents = extents; }
 
+    Vec3 GetCenter() const { return _center; }
+    Vec3 GetExtents() const { return _extents; }
 private:
 
     Vec3		_extents = Vec3(0, 0, 0);
