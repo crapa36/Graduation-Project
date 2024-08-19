@@ -20,6 +20,7 @@
 #include "Terrain.h"
 #include "SphereCollider.h"
 #include "BoxCollider.h"
+#include "Rigidbody.h"
 
 #include "MeshData.h"
 
@@ -266,6 +267,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         shared_ptr<GameObject> obj = make_shared<GameObject>();
         obj->AddComponent(make_shared<Transform>());
         obj->AddComponent(make_shared<SphereCollider>());
+        obj->AddComponent(make_shared<Rigidbody>());
         obj->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
         obj->GetTransform()->SetLocalPosition(Vec3(200, 50.f, 50.f));
 
@@ -282,7 +284,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         obj->AddComponent(meshRenderer);
 
         dynamic_pointer_cast<SphereCollider>(obj->GetCollider())->SetRadius(0.5f);
-        obj->SetGravity(true);
+        obj->GetRigidbody()->SetUseGravity(true);
         scene->AddGameObject(obj);
     }
 #pragma endregion

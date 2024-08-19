@@ -9,6 +9,7 @@ enum class COMPONENT_TYPE : uint8 {
     PARTICLE_SYSTEM,
     TERRAIN,
     COLLIDER,
+    RIGIDBODY,
     ANIMATOR,
 
     // ...

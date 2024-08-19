@@ -8,6 +8,7 @@
 #include "Transform.h"
 #include "Scene.h"
 #include "BaseCollider.h"
+#include "Rigidbody.h"
 
 shared_ptr<GameObject> PhysicsManager::Pick(int32 screenX, int32 screenY) {
     shared_ptr<Camera> camera = GET_SINGLETON(SceneManager)->GetActiveScene()->GetMainCamera();
@@ -57,43 +58,9 @@ shared_ptr<GameObject> PhysicsManager::Pick(int32 screenX, int32 screenY) {
 }
 
 void PhysicsManager::Update() {
-    Gravity();
-}
-void PhysicsManager::FinalUpdate() {
     Collision();
 }
-
-void PhysicsManager::Gravity() {
-    auto& gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
-
-    Vec3 gravity = { 0.0f, -9.8f, 0.0f };
-
-    vector<shared_ptr<GameObject>> Terrains;
-
-    for (auto& gameObject : gameObjects) {
-        if (gameObject->GetTerrain()) {
-            Terrains.push_back(gameObject);
-        }
-    }
-
-    for (auto& gameObject : gameObjects) {
-        if (gameObject->IsGravity()) {
-            Vec3 acceleration = gameObject->GetTransform()->GetAcceleration();
-            Vec3 velocity = gameObject->GetTransform()->GetVelocity();
-            acceleration = gravity;
-
-            for (auto& terrain : Terrains) {
-                if (gameObject->GetCollider()->Intersects(terrain->GetCollider())) {
-                    acceleration.y = 0.f;
-                    velocity.y = 0.f;
-                    break;
-                }
-            }
-
-            gameObject->GetTransform()->SetAcceleration(acceleration);
-            gameObject->GetTransform()->SetVelocity(velocity);
-        }
-    }
+void PhysicsManager::FinalUpdate() {
 }
 
 void PhysicsManager::Collision() {
@@ -101,10 +68,15 @@ void PhysicsManager::Collision() {
     for (auto& gameObject : gameObjects) {
         if (gameObject->GetCollider()) {
             for (const shared_ptr<GameObject>& otherGameObject : gameObjects) {
-                if (otherGameObject->GetCollider() && gameObject != otherGameObject && !otherGameObject->GetTerrain()) {
+                if (otherGameObject->GetCollider() && gameObject != otherGameObject) {
                     if (gameObject->GetCollider()->Intersects(otherGameObject->GetCollider())) {
+                        if (gameObject->GetRigidbody()) {
+                            gameObject->GetRigidbody()->OnCollisionEnter(otherGameObject->GetCollider());
+                        }
 
-                        //TODO : 面倒 贸府 包访 内靛
+                        if (otherGameObject->GetRigidbody()) {
+                            otherGameObject->GetRigidbody()->OnCollisionEnter(gameObject->GetCollider());
+                        }
                     }
                 }
             }
