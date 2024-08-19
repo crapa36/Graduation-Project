@@ -6,6 +6,7 @@
 #include "Input.h"
 #include "Engine.h"
 #include "Transform.h"
+#include "Terrain.h"
 #include "Scene.h"
 #include "BaseCollider.h"
 
@@ -77,10 +78,22 @@ void PhysicsManager::Gravity()
             acceleration = gravity;
 
             for (auto& terrain : Terrains) {
-                if (gameObject->GetCollider()->Intersects(terrain->GetCollider())) {
-                    acceleration.y = 0.f;
-                    velocity.y = 0.f;
-                    break;
+                Vec3 position = gameObject->GetTransform()->GetLocalPosition();
+                Vec3 terrainPosition = terrain->GetTransform()->GetLocalPosition();
+                Vec3 terrainScale = terrain->GetTransform()->GetLocalScale();
+                Vec4 rayOrigin = Vec4(position.x, position.y, position.z, 1.0f);
+                Vec4 rayDir = Vec4(0.0f, -1.0f, 0.0f, 0.0f);
+                float height = terrain->GetTerrain()->GetHeightAtPosition(position.x, position.z);
+                float heightValue = terrainScale.y * height + terrainPosition.y;    
+                float distance = 0.f;
+                if (terrain->GetCollider()->Intersects(rayOrigin, rayDir, OUT distance)) {
+                    if (heightValue - terrainPosition.y > distance) {
+                        acceleration.y = 0.f;
+                        velocity.y = 0.f;
+                        position.y = heightValue;
+                        gameObject->GetTransform()->SetLocalPosition(position);
+                        break;
+                    }
                 }
             }
 
