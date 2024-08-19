@@ -16,15 +16,16 @@ void Rigidbody::init() {
 void Rigidbody::Update() {
 
     // 중력을 적용합니다.
-    if (_useGravity) {
-        AddForce(Vec4(0, -9.8f, 0, 0));
+    if (_useGravity && !_isGrounded) {
+        _velocity += Vec4(0.f, -9.8f, 0.f, 0.f) * DELTA_TIME * 2;
     }
 
     // 선형 감쇠를 적용합니다.
-    _velocity *= (1.0f - _drag);
+    _velocity *= pow(1.0f - _drag, DELTA_TIME);
 
     // 각 감쇠를 적용합니다.
-    _angularVelocity *= (1.0f - _angularDrag);
+    _angularVelocity *= pow(1.0f - _angularDrag, DELTA_TIME);
+    _isGrounded = false;
 }
 
 void Rigidbody::LastUpdate() {
@@ -33,6 +34,7 @@ void Rigidbody::LastUpdate() {
 void Rigidbody::FinalUpdate() {
 
     // 속도에 따라 위치를 변경합니다.
+
     GetTransform()->SetLocalPosition(GetTransform()->GetLocalPosition() + _velocity * DELTA_TIME);
 
     // 각속도에 따라 회전을 변경합니다.
@@ -57,7 +59,14 @@ void Rigidbody::AddTorque(Vec4 torque) {
 void Rigidbody::OnCollisionEnter(const shared_ptr<BaseCollider>& other) {
 
     // TODO : 충돌 처리 코드
+    //if (_isKinematic == false) {
+    //    Vec4 normal = other->GetNormal();
+    //    Vec4 velocity = _velocity;
+    //    float dot = normal.Dot(velocity);
+    //    Vec4 reflect = velocity - 2 * dot * normal;
+    //    _velocity = reflect * _elasticity;
+    //}
 
-    _velocity = _velocity * -1.f;
-    GetTransform()->SetLocalPosition(GetTransform()->GetLocalPosition() + _velocity * DELTA_TIME);
+    _velocity = _velocity * -_elasticity;
+    _isGrounded = true;
 }

@@ -32,11 +32,14 @@ public:
     void OnCollisionEnter(const shared_ptr<class BaseCollider>& other); // 함수 선언 수정
 
 private:
-    float _mass = 1.f;
-    float _drag = 0.0005f;
+    float _mass = 0.5f;
+    float _drag = 0.05f;
     float _angularDrag = 0.05f;
     bool _useGravity = true;
     bool _isKinematic = false;
+    bool _isGrounded = false;
+
+    float _elasticity = 0.9f; // 기본 탄성 계수
 
     Vec4 _velocity = Vec4(0.f, 0.f, 0.f, 0.f);
     Vec4 _angularVelocity = Vec4(0.f, 0.f, 0.f, 0.f);
