@@ -27,6 +27,7 @@ void Scene::Start() {
 void Scene::Update() {
     for (const shared_ptr<GameObject>& gameObject : _gameObjects) {
         gameObject->Update();
+        GET_SINGLETON(PhysicsManager)->Update();
     }
 }
 

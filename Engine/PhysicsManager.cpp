@@ -56,9 +56,10 @@ shared_ptr<GameObject> PhysicsManager::Pick(int32 screenX, int32 screenY) {
     return picked;
 }
 
+void PhysicsManager::Update() {
+    Gravity();
+}
 void PhysicsManager::FinalUpdate() {
-
-    //Gravity();
     Collision();
 }
 
@@ -104,8 +105,6 @@ void PhysicsManager::Collision() {
                     if (gameObject->GetCollider()->Intersects(otherGameObject->GetCollider())) {
 
                         //TODO : 面倒 贸府 包访 内靛
-
-                        int a = 10;
                     }
                 }
             }
