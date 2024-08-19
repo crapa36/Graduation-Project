@@ -27,28 +27,18 @@ void Scene::Start() {
 void Scene::Update() {
     for (const shared_ptr<GameObject>& gameObject : _gameObjects) {
         gameObject->Update();
-        GET_SINGLETON(PhysicsManager)->Gravity();
     }
 }
 
 void Scene::LateUpdate() {
     for (const shared_ptr<GameObject>& gameObject : _gameObjects) {
         gameObject->LateUpdate();
-        if (gameObject->GetCollider()) {
-            for (const shared_ptr<GameObject>& otherGameObject : _gameObjects) {
-                if (otherGameObject->GetCollider() && gameObject != otherGameObject) {
-                    if (gameObject->GetCollider()->Intersects(otherGameObject->GetCollider())) {
-
-                        //TODO : 面倒 贸府 包访 内靛
-                    }
-                }
-            }
-        }
     }
 }
 void Scene::FinalUpdate() {
     for (const shared_ptr<GameObject>& gameObject : _gameObjects) {
         gameObject->FinalUpdate();
+        GET_SINGLETON(PhysicsManager)->FinalUpdate();
     }
 }
 
@@ -197,12 +187,10 @@ void Scene::RemoveGameObject(shared_ptr<GameObject> gameObject) {
         _gameObjects.erase(findIt);
 }
 
-void Scene::SaveScene(wstring path)
-{
+void Scene::SaveScene(wstring path) {
 }
 
-void Scene::LoadScene(wstring path)
-{
+void Scene::LoadScene(wstring path) {
     string str;
 
     ifstream in(path, std::ios::binary);
@@ -294,6 +282,7 @@ void Scene::LoadScene(wstring path)
                         vector<char> Data;
                         int size;
                         size_t DataSize;
+
                         //Shader
                         {
                             in >> DataSize;
@@ -304,8 +293,7 @@ void Scene::LoadScene(wstring path)
                             }
                             ComPtr<ID3DBlob> pBlob;
                             HRESULT hr = D3DCreateBlob(DataSize, &pBlob);
-                            if (SUCCEEDED(hr))
-                            {
+                            if (SUCCEEDED(hr)) {
                                 memcpy(pBlob->GetBufferPointer(), Data.data(), DataSize);
                             }
                             material->GetShader()->SetVsBlob(pBlob);
@@ -319,8 +307,7 @@ void Scene::LoadScene(wstring path)
                             }
                             ComPtr<ID3DBlob> pBlob;
                             HRESULT hr = D3DCreateBlob(DataSize, &pBlob);
-                            if (SUCCEEDED(hr))
-                            {
+                            if (SUCCEEDED(hr)) {
                                 memcpy(pBlob->GetBufferPointer(), Data.data(), DataSize);
                             }
                             material->GetShader()->SetHsBlob(pBlob);
@@ -334,8 +321,7 @@ void Scene::LoadScene(wstring path)
                             }
                             ComPtr<ID3DBlob> pBlob;
                             HRESULT hr = D3DCreateBlob(DataSize, &pBlob);
-                            if (SUCCEEDED(hr))
-                            {
+                            if (SUCCEEDED(hr)) {
                                 memcpy(pBlob->GetBufferPointer(), Data.data(), DataSize);
                             }
                             material->GetShader()->SetDsBlob(pBlob);
@@ -349,8 +335,7 @@ void Scene::LoadScene(wstring path)
                             }
                             ComPtr<ID3DBlob> pBlob;
                             HRESULT hr = D3DCreateBlob(DataSize, &pBlob);
-                            if (SUCCEEDED(hr))
-                            {
+                            if (SUCCEEDED(hr)) {
                                 memcpy(pBlob->GetBufferPointer(), Data.data(), DataSize);
                             }
                             material->GetShader()->SetGsBlob(pBlob);
@@ -364,8 +349,7 @@ void Scene::LoadScene(wstring path)
                             }
                             ComPtr<ID3DBlob> pBlob;
                             HRESULT hr = D3DCreateBlob(DataSize, &pBlob);
-                            if (SUCCEEDED(hr))
-                            {
+                            if (SUCCEEDED(hr)) {
                                 memcpy(pBlob->GetBufferPointer(), Data.data(), DataSize);
                             }
                             material->GetShader()->SetPsBlob(pBlob);
@@ -379,16 +363,15 @@ void Scene::LoadScene(wstring path)
                             }
                             ComPtr<ID3DBlob> pBlob;
                             HRESULT hr = D3DCreateBlob(DataSize, &pBlob);
-                            if (SUCCEEDED(hr))
-                            {
+                            if (SUCCEEDED(hr)) {
                                 memcpy(pBlob->GetBufferPointer(), Data.data(), DataSize);
                             }
                             material->GetShader()->SetCsBlob(pBlob);
                         }
-                        
+
                         ShaderInfo shaderInfo;
                         in.read(reinterpret_cast<char*>(&shaderInfo), sizeof(shaderInfo));
-                        
+
                         material->GetShader()->CreateGraphicsShader(shaderInfo);
                         material->GetShader()->CreateComputeShader();
 
@@ -404,7 +387,6 @@ void Scene::LoadScene(wstring path)
                             material->GetTextures().at(i)->GetTexture2D()->Map(0, nullptr, &mappedData);
                             memcpy(mappedData, binaryData, dataSize);
                             material->GetTextures().at(i)->GetTexture2D()->Unmap(0, nullptr);
-
                         }
                     }
                     if (str == "</MeshRenderer>") {
@@ -419,7 +401,6 @@ void Scene::LoadScene(wstring path)
                     XMFLOAT4 diffuse, ambient, specular;
                 }
             }
-
         }
     }
 }

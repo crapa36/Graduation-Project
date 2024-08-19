@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "SphereCollider.h"
-#include "AABBBoxCollider.h"
-#include "OBBBoxCollider.h"
+#include "BoxCollider.h"
 #include "GameObject.h"
 #include "Transform.h"
 #include "Mesh.h"
@@ -27,28 +26,18 @@ bool SphereCollider::Intersects(Vec4 rayOrigin, Vec4 rayDir, OUT float& distance
 }
 
 bool SphereCollider::Intersects(const shared_ptr<BaseCollider>& other) {
-
-    // �ٸ� �浹 �������� Ÿ���� ������
     ColliderType type = other->GetColliderType();
 
-    // Ÿ�Կ� ���� ������ ���� �Ǵ� ���� ����
     switch (type) {
     case ColliderType::Sphere:
 
-        // �ٸ� �浹 �����Ⱑ ��ü�� ���
         return _boundingSphere.Intersects(dynamic_pointer_cast<SphereCollider>(other)->GetBoundingSphere());
 
-    case ColliderType::AABB:
+    case ColliderType::Box:
 
-        // �ٸ� �浹 �����Ⱑ AABB�� ���
-        return _boundingSphere.Intersects(dynamic_pointer_cast<AABBBoxCollider>(other)->GetBoundingBox());
-    case ColliderType::OBB:
-
-        // �ٸ� �浹 �����Ⱑ OBB�� ���
-        return _boundingSphere.Intersects(dynamic_pointer_cast<OBBBoxCollider>(other)->GetBoundingBox());
+        return _boundingSphere.Intersects(dynamic_pointer_cast<BoxCollider>(other)->GetBoundingBox());
     }
 
-    // ���� ��쿡 �ش����� �ʴ� ���, �������� �ʴ� ������ ó��
     return false;
 }
 
@@ -59,7 +48,7 @@ void SphereCollider::CreateMesh() {
 }
 
 void SphereCollider::Render() {
-    if (_meshRenderer == nullptr)
+    if (_mesh == nullptr || _material == nullptr)
         CreateMesh();
 
     GetTransform()->PushData();

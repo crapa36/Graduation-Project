@@ -56,8 +56,13 @@ shared_ptr<GameObject> PhysicsManager::Pick(int32 screenX, int32 screenY) {
     return picked;
 }
 
-void PhysicsManager::Gravity()
-{
+void PhysicsManager::FinalUpdate() {
+
+    //Gravity();
+    Collision();
+}
+
+void PhysicsManager::Gravity() {
     auto& gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
 
     Vec3 gravity = { 0.0f, -9.8f, 0.0f };
@@ -77,17 +82,33 @@ void PhysicsManager::Gravity()
             acceleration = gravity;
 
             for (auto& terrain : Terrains) {
-                if (gameObject->GetCollider()->Intersects(terrain)) {
+                if (gameObject->GetCollider()->Intersects(terrain->GetCollider())) {
                     acceleration.y = 0.f;
                     velocity.y = 0.f;
                     break;
                 }
             }
 
-        gameObject->GetTransform()->SetAcceleration(acceleration);
-        gameObject->GetTransform()->SetVelocity(velocity);
+            gameObject->GetTransform()->SetAcceleration(acceleration);
+            gameObject->GetTransform()->SetVelocity(velocity);
         }
     }
+}
 
+void PhysicsManager::Collision() {
+    auto& gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
+    for (auto& gameObject : gameObjects) {
+        if (gameObject->GetCollider()) {
+            for (const shared_ptr<GameObject>& otherGameObject : gameObjects) {
+                if (otherGameObject->GetCollider() && gameObject != otherGameObject && !otherGameObject->GetTerrain()) {
+                    if (gameObject->GetCollider()->Intersects(otherGameObject->GetCollider())) {
 
+                        //TODO : 面倒 贸府 包访 内靛
+
+                        int a = 10;
+                    }
+                }
+            }
+        }
+    }
 }

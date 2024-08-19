@@ -20,6 +20,7 @@
 #include "Terrain.h"
 #include "SphereCollider.h"
 #include "BoxCollider.h"
+
 #include "MeshData.h"
 
 void SceneManager::Update() {
@@ -127,9 +128,9 @@ void SceneManager::LoadScene(wstring sceneName) {
 
         // UAV �� Texture ����
         shared_ptr<Texture> texture = GET_SINGLETON(Resources)->CreateTexture(L"UAVTexture",
-            DXGI_FORMAT_R8G8B8A8_UNORM, 1024, 1024,
-            CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-            D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+                                                                              DXGI_FORMAT_R8G8B8A8_UNORM, 1024, 1024,
+                                                                              CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
+                                                                              D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 
         shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"ComputeShader");
         material->SetShader(shader);
@@ -154,7 +155,6 @@ void SceneManager::LoadScene(wstring sceneName) {
 }
 
 void SceneManager::SetLayerName(uint8 index, const wstring& name) {
-
     const wstring& prevName = _layerNames[index];
     _layerIndex.erase(prevName);
 
@@ -171,7 +171,6 @@ uint8 SceneManager::LayerNameToIndex(const wstring& name) {
 }
 
 shared_ptr<Scene> SceneManager::LoadTestScene() {
-   
     shared_ptr<Scene> scene = make_shared<Scene>();
 
 #pragma region Camera
@@ -194,7 +193,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
             player->SetName(L"Player");
             player->AddComponent(make_shared<Transform>());
 
-            player->AddComponent(make_shared<SphereCollider>());
+            player->AddComponent(make_shared<BoxCollider>());
 
             player->GetTransform()->SetLocalScale(Vec3(50.f, 50.f, 50.f));
 
@@ -215,7 +214,6 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 
             player->GetTransform()->SetInheritRotation(false);
             player->GetTransform()->SetInheritScale(false);
-            dynamic_pointer_cast<SphereCollider>(player->GetCollider())->SetRadius(0.5f);
 
             player->AddComponent(meshRenderer);
             scene->AddGameObject(player);
