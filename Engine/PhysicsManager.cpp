@@ -6,6 +6,7 @@
 #include "Input.h"
 #include "Engine.h"
 #include "Transform.h"
+#include "Terrain.h"
 #include "Scene.h"
 #include "BaseCollider.h"
 #include "Rigidbody.h"
@@ -18,7 +19,7 @@ shared_ptr<GameObject> PhysicsManager::Pick(int32 screenX, int32 screenY) {
 
     Matrix projectionMatrix = camera->GetProjectionMatrix();
 
-    // ViewSpace¿¡¼­ Picking ÁøÇà
+    // ViewSpaceï¿½ï¿½ï¿½ï¿½ Picking ï¿½ï¿½ï¿½ï¿½
     float viewX = (+2.0f * screenX / width - 1.0f) / projectionMatrix(0, 0);
     float viewY = (-2.0f * screenY / height + 1.0f) / projectionMatrix(1, 1);
 
@@ -34,16 +35,16 @@ shared_ptr<GameObject> PhysicsManager::Pick(int32 screenX, int32 screenY) {
         if (gameObject->GetCollider() == nullptr)
             continue;
 
-        // ViewSpace¿¡¼­ÀÇ Ray Á¤ÀÇ
+        // ViewSpaceï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ray ï¿½ï¿½ï¿½ï¿½
         Vec4 rayOrigin = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
         Vec4 rayDir = Vec4(viewX, viewY, 1.0f, 0.0f);
 
-        // WorldSpace¿¡¼­ÀÇ Ray Á¤ÀÇ
+        // WorldSpaceï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ray ï¿½ï¿½ï¿½ï¿½
         rayOrigin = XMVector3TransformCoord(rayOrigin, viewMatrixInv);
         rayDir = XMVector3TransformNormal(rayDir, viewMatrixInv);
         rayDir.Normalize();
 
-        // WorldSpace¿¡¼­ ¿¬»ê
+        // WorldSpaceï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         float distance = 0.f;
         if (gameObject->GetCollider()->Intersects(rayOrigin, rayDir, OUT distance) == false)
             continue;
