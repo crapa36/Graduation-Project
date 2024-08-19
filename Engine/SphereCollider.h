@@ -10,7 +10,7 @@ public:
     virtual bool Intersects(Vec4 rayOrigin, Vec4 rayDir, OUT float& distance) override;
     virtual bool Intersects(const shared_ptr<BaseCollider>& other) override;
 
-    // ÀÌ ±¸Ã¼ Ãæµ¹ °¨Áö±âÀÇ °æ°è ±¸Ã¼¸¦ ¹ÝÈ¯
+    // ï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½æµ¹ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½È¯
     BoundingSphere& GetBoundingSphere() { return _boundingSphere; }
 
     virtual void CreateMesh() override;
@@ -19,9 +19,11 @@ public:
     void SetRadius(float radius) { _radius = radius; }
     void SetCenter(Vec3 center) { _center = center; }
 
+	BoundingSphere GetBoundingSphere() { return _boundingSphere; }
+
 private:
 
-    // Local ±âÁØ
+    // Local ï¿½ï¿½ï¿½ï¿½
     float		_radius = 1.f;
     Vec3		_center = Vec3(0, 0, 0);
 

@@ -56,13 +56,31 @@ public:
     virtual ~Shader();
 
     void CreateGraphicsShader(const wstring& path, ShaderInfo info = ShaderInfo(), ShaderArg arg = ShaderArg());
+    void CreateGraphicsShader(ShaderInfo info = ShaderInfo());
     void CreateComputeShader(const wstring& path, const string& name, const string& version);
+    void CreateComputeShader();
 
     void Update();
 
     SHADER_TYPE GetShaderType() { return _info.shaderType; }
 
     static D3D12_PRIMITIVE_TOPOLOGY_TYPE GetTopologyType(D3D_PRIMITIVE_TOPOLOGY topology);
+
+    void SetVsBlob(ComPtr<ID3DBlob> Blob) { _vsBlob = Blob; }
+    void SetHsBlob(ComPtr<ID3DBlob> Blob) { _hsBlob = Blob; }
+    void SetDsBlob(ComPtr<ID3DBlob> Blob) { _dsBlob = Blob; }
+    void SetGsBlob(ComPtr<ID3DBlob> Blob) { _gsBlob = Blob; }
+    void SetPsBlob(ComPtr<ID3DBlob> Blob) { _psBlob = Blob; }
+    void SetCsBlob(ComPtr<ID3DBlob> Blob){ _csBlob = Blob; }
+
+    ComPtr<ID3DBlob> GetVsBlob() { return _vsBlob; }
+    ComPtr<ID3DBlob> GetHsBlob() { return _hsBlob; }
+    ComPtr<ID3DBlob> GetDsBlob() { return _dsBlob; }
+    ComPtr<ID3DBlob> GetGsBlob() { return _gsBlob; }
+    ComPtr<ID3DBlob> GetPsBlob() { return _psBlob; }
+    ComPtr<ID3DBlob> GetCsBlob() { return _csBlob; }
+
+    ShaderInfo GetInfo() { return _info; }
 
 private:
     void CreateShader(const wstring& path, const string& name, const string& version, ComPtr<ID3DBlob>& blob, D3D12_SHADER_BYTECODE& shaderByteCode);

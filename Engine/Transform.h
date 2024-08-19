@@ -39,6 +39,12 @@ public:
     static bool CloseEnough(const float& a, const float& b, const float& epsilon = std::numeric_limits<float>::epsilon());
     static Vec3 DecomposeRotationMatrix(const Matrix& rotation);
 
+    void SetAcceleration(Vec3 acceleration) { _acceleration = acceleration; }
+    Vec3 GetAcceleration() { return _acceleration; }
+
+    void SetVelocity(Vec3 velocity) { _velocity = velocity; }
+    Vec3 GetVelocity() { return _velocity; }
+
 public:
     void SetParent(shared_ptr<Transform> parent) { _parent = parent; }
     weak_ptr<Transform> GetParent() { return _parent; }
@@ -58,4 +64,7 @@ private:
     Matrix _matWorld = {};
 
     weak_ptr<Transform> _parent;
+
+    Vec3 _acceleration;
+    Vec3 _velocity;
 };

@@ -40,12 +40,14 @@ public:
     virtual ~Mesh();
 
     void Create(const vector<Vertex>& vertexBuffer, const vector<uint32>& indexbuffer);
+    void Create(const vector<Vertex>& vertexBuffer, const vector<vector<uint32>>& indexbuffer);
     void Render(uint32 instanceCount = 1, uint32 idx = 0);
     void Render(shared_ptr<class InstancingBuffer>& buffer, uint32 idx = 0);
 
 
     static shared_ptr<Mesh> CreateFromFBX(const struct FbxMeshInfo* meshInfo, class FBXLoader& loader);
     static shared_ptr<Mesh> CreateFromBIN(const struct CMeshInfo* meshInfo, class CMeshLoader& loader);
+ 
 
     void SetTransform(shared_ptr<Transform> v) { _transform = v; };
     shared_ptr<Transform> GetTransform() { return _transform; };
@@ -64,6 +66,12 @@ public:
     bool							IsAnimMesh() { return !_animClips.empty(); }
     shared_ptr<StructuredBuffer>	GetBoneFrameDataBuffer(int32 index = 0) { return _frameBuffer[index]; } // 전체 본 프레임 정보
     shared_ptr<StructuredBuffer>	GetBoneOffsetBuffer() { return  _offsetBuffer; }
+
+public:
+
+    ComPtr<ID3D12Resource> GetVertexBuffer() { return _vertexBuffer; }
+    uint32 GetVertexCount() { return _vertexCount; }
+    vector<IndexBufferInfo> GetIndexBuffer() { return _vecIndexInfo; }
 
 private:
     ComPtr<ID3D12Resource>		_vertexBuffer;

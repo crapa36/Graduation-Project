@@ -28,27 +28,27 @@ bool SphereCollider::Intersects(Vec4 rayOrigin, Vec4 rayDir, OUT float& distance
 
 bool SphereCollider::Intersects(const shared_ptr<BaseCollider>& other) {
 
-    // ´Ù¸¥ Ãæµ¹ °¨Áö±âÀÇ Å¸ÀÔÀ» °¡Á®¿È
+    // ï¿½Ù¸ï¿½ ï¿½æµ¹ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     ColliderType type = other->GetColliderType();
 
-    // Å¸ÀÔ¿¡ µû¶ó ÀûÀýÇÑ ±³Â÷ ÆÇ´Ü ·ÎÁ÷ ¼öÇà
+    // Å¸ï¿½Ô¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     switch (type) {
     case ColliderType::Sphere:
 
-        // ´Ù¸¥ Ãæµ¹ °¨Áö±â°¡ ±¸Ã¼ÀÎ °æ¿ì
+        // ï¿½Ù¸ï¿½ ï¿½æµ¹ ï¿½ï¿½ï¿½ï¿½ï¿½â°¡ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½
         return _boundingSphere.Intersects(dynamic_pointer_cast<SphereCollider>(other)->GetBoundingSphere());
 
     case ColliderType::AABB:
 
-        // ´Ù¸¥ Ãæµ¹ °¨Áö±â°¡ AABBÀÎ °æ¿ì
+        // ï¿½Ù¸ï¿½ ï¿½æµ¹ ï¿½ï¿½ï¿½ï¿½ï¿½â°¡ AABBï¿½ï¿½ ï¿½ï¿½ï¿½
         return _boundingSphere.Intersects(dynamic_pointer_cast<AABBBoxCollider>(other)->GetBoundingBox());
     case ColliderType::OBB:
 
-        // ´Ù¸¥ Ãæµ¹ °¨Áö±â°¡ OBBÀÎ °æ¿ì
+        // ï¿½Ù¸ï¿½ ï¿½æµ¹ ï¿½ï¿½ï¿½ï¿½ï¿½â°¡ OBBï¿½ï¿½ ï¿½ï¿½ï¿½
         return _boundingSphere.Intersects(dynamic_pointer_cast<OBBBoxCollider>(other)->GetBoundingBox());
     }
 
-    // À§ÀÇ °æ¿ì¿¡ ÇØ´çÇÏÁö ¾Ê´Â °æ¿ì, ±³Â÷ÇÏÁö ¾Ê´Â °ÍÀ¸·Î Ã³¸®
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ì¿¡ ï¿½Ø´ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´ï¿½ ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
     return false;
 }
 

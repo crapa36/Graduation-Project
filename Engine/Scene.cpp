@@ -4,6 +4,9 @@
 #include "Camera.h"
 #include "Engine.h"
 #include "ConstantBuffer.h"
+#include "MeshRenderer.h"
+#include "PhysicsManager.h"
+#include "Timer.h"
 #include "Light.h"
 #include "Engine.h"
 #include "Resources.h"
@@ -24,6 +27,7 @@ void Scene::Start() {
 void Scene::Update() {
     for (const shared_ptr<GameObject>& gameObject : _gameObjects) {
         gameObject->Update();
+        GET_SINGLETON(PhysicsManager)->Gravity();
     }
 }
 
@@ -191,4 +195,231 @@ void Scene::RemoveGameObject(shared_ptr<GameObject> gameObject) {
     auto findIt = std::find(_gameObjects.begin(), _gameObjects.end(), gameObject);
     if (findIt != _gameObjects.end())
         _gameObjects.erase(findIt);
+}
+
+void Scene::SaveScene(wstring path)
+{
+}
+
+void Scene::LoadScene(wstring path)
+{
+    string str;
+
+    ifstream in(path, std::ios::binary);
+
+    while (!in.eof()) {
+        getline(in, str);
+        if (str == "<Object>") {
+            while (1) {
+                shared_ptr<GameObject> obj = make_shared<GameObject>();
+                getline(in, str);
+                if (str == "<Name>") {
+                    string name;
+                    in >> name;
+                    obj->SetName(s2ws(name));
+                }
+                if (str == "<Transform>") {
+                    shared_ptr<Transform> transform = make_shared<Transform>();
+                    XMFLOAT3 position;
+                    in >> position.x >> position.y >> position.z;
+                    transform->SetLocalPosition(position);
+                    in >> position.x >> position.y >> position.z;
+                    transform->SetLocalRotation(position);
+                    in >> position.x >> position.y >> position.z;
+                    transform->SetLocalScale(position);
+                    obj->AddComponent(transform);
+                }
+                if (str == "<Camera>") {
+                    shared_ptr<Camera> camera = make_shared<Camera>();
+                    float n;
+                    in >> n;
+                    camera->SetNear(n);
+                    in >> n;
+                    camera->SetFar(n);
+                    in >> n;
+                    camera->SetFOV(n);
+                    in >> n;
+                    camera->SetScale(n);
+                    in >> n;
+                    camera->SetWidth(n);
+                    in >> n;
+                    camera->SetHeight(n);
+                    obj->AddComponent(camera);
+                }
+                if (str == "<MeshRenderer>") {
+                    shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+
+                    shared_ptr<Mesh> mesh = make_shared<Mesh>();
+                    shared_ptr<Material> material = make_shared<Material>();
+
+                    vector<Vertex> vertexes;
+                    vector<vector<uint32>> indexes;
+                    getline(in, str);
+                    if (str == "<Mesh>") {
+                        while (1) {
+                            getline(in, str);
+                            if (str == "<Vertex>") {
+                                uint32 count;
+                                in >> count;
+
+                                Vertex vertex;
+                                XMFLOAT3 position;
+                                XMFLOAT3 normal;
+                                for (int i = 0; i < count; i++) {
+                                    in >> position.x >> position.y >> position.z;
+                                    in >> normal.x >> normal.y >> normal.z;
+                                    vertex.pos = position;
+                                    vertex.normal = normal;
+                                    vertexes.push_back(vertex);
+                                }
+                            }
+                            if (str == "<Index>") {
+                                vector<uint32> index;
+                                uint32 indexCount, _index;
+                                in >> indexCount;
+
+                                for (int i = 0; i < indexCount; i++) {
+                                    in >> _index;
+                                    index.push_back(_index);
+                                }
+                                indexes.push_back(index);
+                            }
+                            if (str == "</Mesh>") {
+                                mesh->Create(vertexes, indexes);
+                                break;
+                            }
+                        }
+                    }
+                    if (str == "<Material>") {
+                        vector<char> Data;
+                        int size;
+                        size_t DataSize;
+                        //Shader
+                        {
+                            in >> DataSize;
+                            in >> size;
+                            for (int i = 0; i < size; i++) {
+                                Data.push_back(NULL);
+                                in >> Data.back();
+                            }
+                            ComPtr<ID3DBlob> pBlob;
+                            HRESULT hr = D3DCreateBlob(DataSize, &pBlob);
+                            if (SUCCEEDED(hr))
+                            {
+                                memcpy(pBlob->GetBufferPointer(), Data.data(), DataSize);
+                            }
+                            material->GetShader()->SetVsBlob(pBlob);
+                        }
+                        {
+                            in >> DataSize;
+                            in >> size;
+                            for (int i = 0; i < size; i++) {
+                                Data.push_back(NULL);
+                                in >> Data.back();
+                            }
+                            ComPtr<ID3DBlob> pBlob;
+                            HRESULT hr = D3DCreateBlob(DataSize, &pBlob);
+                            if (SUCCEEDED(hr))
+                            {
+                                memcpy(pBlob->GetBufferPointer(), Data.data(), DataSize);
+                            }
+                            material->GetShader()->SetHsBlob(pBlob);
+                        }
+                        {
+                            in >> DataSize;
+                            in >> size;
+                            for (int i = 0; i < size; i++) {
+                                Data.push_back(NULL);
+                                in >> Data.back();
+                            }
+                            ComPtr<ID3DBlob> pBlob;
+                            HRESULT hr = D3DCreateBlob(DataSize, &pBlob);
+                            if (SUCCEEDED(hr))
+                            {
+                                memcpy(pBlob->GetBufferPointer(), Data.data(), DataSize);
+                            }
+                            material->GetShader()->SetDsBlob(pBlob);
+                        }
+                        {
+                            in >> DataSize;
+                            in >> size;
+                            for (int i = 0; i < size; i++) {
+                                Data.push_back(NULL);
+                                in >> Data.back();
+                            }
+                            ComPtr<ID3DBlob> pBlob;
+                            HRESULT hr = D3DCreateBlob(DataSize, &pBlob);
+                            if (SUCCEEDED(hr))
+                            {
+                                memcpy(pBlob->GetBufferPointer(), Data.data(), DataSize);
+                            }
+                            material->GetShader()->SetGsBlob(pBlob);
+                        }
+                        {
+                            in >> DataSize;
+                            in >> size;
+                            for (int i = 0; i < size; i++) {
+                                Data.push_back(NULL);
+                                in >> Data.back();
+                            }
+                            ComPtr<ID3DBlob> pBlob;
+                            HRESULT hr = D3DCreateBlob(DataSize, &pBlob);
+                            if (SUCCEEDED(hr))
+                            {
+                                memcpy(pBlob->GetBufferPointer(), Data.data(), DataSize);
+                            }
+                            material->GetShader()->SetPsBlob(pBlob);
+                        }
+                        {
+                            in >> DataSize;
+                            in >> size;
+                            for (int i = 0; i < size; i++) {
+                                Data.push_back(NULL);
+                                in >> Data.back();
+                            }
+                            ComPtr<ID3DBlob> pBlob;
+                            HRESULT hr = D3DCreateBlob(DataSize, &pBlob);
+                            if (SUCCEEDED(hr))
+                            {
+                                memcpy(pBlob->GetBufferPointer(), Data.data(), DataSize);
+                            }
+                            material->GetShader()->SetCsBlob(pBlob);
+                        }
+                        
+                        ShaderInfo shaderInfo;
+                        in.read(reinterpret_cast<char*>(&shaderInfo), sizeof(shaderInfo));
+                        
+                        material->GetShader()->CreateGraphicsShader(shaderInfo);
+                        material->GetShader()->CreateComputeShader();
+
+                        //Texture
+                        in >> size;
+                        string path;
+                        for (int i = 0; i < size; i++) {
+                            uint64 dataSize;
+                            void* binaryData = nullptr;
+                            void* mappedData;
+                            in >> dataSize;
+                            in.read(reinterpret_cast<char*>(binaryData), dataSize);
+                            material->GetTextures().at(i)->GetTexture2D()->Map(0, nullptr, &mappedData);
+                            memcpy(mappedData, binaryData, dataSize);
+                            material->GetTextures().at(i)->GetTexture2D()->Unmap(0, nullptr);
+
+                        }
+                    }
+                    if (str == "</MeshRenderer>") {
+                        break;
+                    }
+                    meshRenderer->SetMesh(mesh);
+                    meshRenderer->SetMaterial(material);
+                }
+                if (str == "<Light>") {
+                    shared_ptr<Light> light = make_shared<Light>();
+                    XMFLOAT3 lightDirection;
+                    XMFLOAT4 diffuse, ambient, specular;
+                }
+            }
+
+        }
+    }
 }
