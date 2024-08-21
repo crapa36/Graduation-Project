@@ -89,6 +89,27 @@ void PhysicsManager::HandleCollision(std::shared_ptr<GameObject> objA, std::shar
         }
     }
 
+    // 충돌이 발생하지 않도록 위치 조정
+    auto colliderA = objA->GetCollider();
+    auto colliderB = objB->GetCollider();
+    Vec4 collisionNormal = colliderA->GetCollisionNormal(colliderB);
+    float collisionDepth = colliderA->GetCollisionDepth(colliderB);
+
+    if (collisionDepth > 0.0f) {
+        auto transformA = objA->GetTransform();
+        auto transformB = objB->GetTransform();
+        auto positionA = transformA->GetLocalPosition();
+        auto positionB = transformB->GetLocalPosition();
+
+        Vec3 adjustment = Vec3(collisionNormal.x, collisionNormal.y, collisionNormal.z) * (collisionDepth / 2.0f);
+
+        positionA -= adjustment;
+        positionB += adjustment;
+
+        transformA->SetLocalPosition(positionA);
+        transformB->SetLocalPosition(positionB);
+    }
+
     // 충돌 처리 로직
     if (auto Rigidbody = objA->GetRigidbody()) {
         Rigidbody->OnCollisionEnter(objB->GetCollider());

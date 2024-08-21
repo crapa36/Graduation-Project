@@ -73,7 +73,6 @@ void SceneManager::SaveScene(wstring sceneName) {
 
             fout << "<Mesh>" << endl;
 
-
             fout << "<Vertex>" << endl;
             uint32 _vertexCount = obj->GetMeshRenderer()->GetMesh()->GetVertexCount();
             uint32 bufferSize = _vertexCount * sizeof(Vertex);
@@ -87,7 +86,6 @@ void SceneManager::SaveScene(wstring sceneName) {
             ::memcpy(&vertex[0], vertexDataBuffer, bufferSize);
             obj->GetMeshRenderer()->GetMesh()->GetVertexBuffer()->Unmap(0, nullptr);
 
-
             for (int i = 0; i < _vertexCount; i++) {
                 fout << vertex[i].pos.x << vertex[i].pos.y << vertex[i].pos.z << endl;
                 fout << vertex[i].normal.x << vertex[i].normal.y << vertex[i].normal.z << endl;
@@ -96,7 +94,6 @@ void SceneManager::SaveScene(wstring sceneName) {
             fout << "</Vertex>" << endl;
 
             delete[] vertex;
-
 
             for (int i = 0; i < obj->GetMeshRenderer()->GetMesh()->GetIndexBuffer().size(); i++) {
                 fout << "<Index>" << endl;
@@ -202,8 +199,8 @@ void SceneManager::SaveScene(wstring sceneName) {
             //        fout << dataSize;
             //        material->GetTextures().at(i)->GetTexture2D()->Map(0, nullptr, &mappedData);
             //        memcpy(binaryData, mappedData, dataSize);
-            //        
-            //        
+            //
+            //
             //        material->GetTextures().at(i)->GetTexture2D()->Unmap(0, nullptr);
             //        fout.write(reinterpret_cast<const char*>(binaryData), dataSize);
             //}
@@ -340,6 +337,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
             player->GetTransform()->SetInheritRotation(false);
             player->GetTransform()->SetInheritScale(false);
 
+            player->GetCollider()->SetExtents(Vec3(50.f, 50.f, 50.f));
             player->AddComponent(meshRenderer);
             scene->AddGameObject(player);
         }
