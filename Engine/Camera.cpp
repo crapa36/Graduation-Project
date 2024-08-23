@@ -49,13 +49,7 @@ void Camera::SortGameObject() {
     for (auto& gameObject : gameObjects) {
         if (IsCulled(gameObject->GetLayerIndex()))
             continue;
-#ifdef _DEBUG
-        if (GEngine->GetDebugMode()) {
-            if (gameObject->GetCollider()) {
-                _vecDebug.push_back(gameObject);
-            }
-        }
-#endif
+
         if (gameObject->GetMeshRenderer() == nullptr && gameObject->GetParticleSystem() == nullptr)
             continue;
 
@@ -78,7 +72,13 @@ void Camera::SortGameObject() {
                 break;
             }
         }
-
+#ifdef _DEBUG
+        if (GEngine->GetDebugMode()) {
+            if (gameObject->GetCollider()) {
+                _vecDebug.push_back(gameObject);
+            }
+        }
+#endif
         if (gameObject->GetParticleSystem()) {
             _vecParticle.push_back(gameObject);
         }

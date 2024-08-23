@@ -34,8 +34,11 @@ private:
     float		_radius = 1.f;
     Vec3		_center = Vec3(0, 0, 0);
 
+    BoundingSphere _boundingSphere;
+
+#ifdef _DEBUG
     shared_ptr<class Mesh> _mesh;
     shared_ptr<class Material> _material;
-
-    BoundingSphere _boundingSphere;
+    shared_ptr<GameObject> _DebugObject;
+#endif // DEBUG
 };

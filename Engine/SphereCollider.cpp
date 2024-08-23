@@ -13,6 +13,7 @@
 using namespace DirectX;
 
 SphereCollider::SphereCollider() : BaseCollider(ColliderType::Sphere) {
+    CreateMesh();
 }
 
 SphereCollider::~SphereCollider() {
@@ -21,8 +22,7 @@ SphereCollider::~SphereCollider() {
 void SphereCollider::FinalUpdate() {
     _boundingSphere.Center = GetGameObject()->GetTransform()->GetWorldPosition();
 
-    Vec3 scale = GetGameObject()->GetTransform()->GetLocalScale();
-    _boundingSphere.Radius = _radius * max(max(scale.x, scale.y), scale.z);
+    _boundingSphere.Radius = _radius / 2;
 }
 
 bool SphereCollider::Intersects(Vec4 rayOrigin, Vec4 rayDir, OUT float& distance) {
@@ -151,14 +151,25 @@ float SphereCollider::GetCollisionDepth(const shared_ptr<BaseCollider>& other) {
 void SphereCollider::CreateMesh() {
     _mesh = GET_SINGLETON(Resources)->LoadSphereMesh();
     _material = GET_SINGLETON(Resources)->Get<Material>(L"Collider")->Clone();
+
+    _DebugObject = make_shared<GameObject>();
+    _DebugObject->AddComponent(make_shared<Transform>());
+
+    shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+
+    meshRenderer->SetMesh(_mesh);
+    meshRenderer->SetMaterial(_material);
+
+    _DebugObject->AddComponent(meshRenderer);
 }
 
 void SphereCollider::Render() {
-    if (_mesh == nullptr || _material == nullptr)
+    if (_DebugObject == nullptr)
         CreateMesh();
-
-    GetTransform()->PushData();
-    _material->PushGraphicsData();
-    _mesh->Render();
+    _DebugObject->GetTransform()->SetLocalPosition(_boundingSphere.Center);
+    Vec3 scale = _radius * Vec3(1, 1, 1);
+    _DebugObject->GetTransform()->SetLocalScale(scale);
+    _DebugObject->GetTransform()->FinalUpdate();
+    _DebugObject->GetMeshRenderer()->Render();
 }
 #endif

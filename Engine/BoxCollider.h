@@ -43,5 +43,7 @@ private:
     shared_ptr<class Mesh> _mesh;
     shared_ptr<class Material> _material;
 
+    shared_ptr<class GameObject> _DebugObject;
+
     BoundingOrientedBox _boundingBox;
 };

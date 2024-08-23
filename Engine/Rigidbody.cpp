@@ -66,7 +66,9 @@ void Rigidbody::OnCollisionEnter(const shared_ptr<BaseCollider>& other) {
     //    Vec4 reflect = velocity - 2 * dot * normal;
     //    _velocity = reflect * _elasticity;
     //}
-
+    Vec4 collisionNormal = GetCollider()->GetCollisionNormal(other);
+    float collisionDepth = GetCollider()->GetCollisionDepth(other);
     _velocity = _velocity * -_elasticity;
+    AddForce(collisionNormal * collisionDepth);
     _isGrounded = true;
 }

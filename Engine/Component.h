@@ -25,6 +25,7 @@ class GameObject;
 class Transform;
 class MeshRenderer;
 class Animator;
+class BaseCollider;
 
 class Component :public Object {
 public:
@@ -46,6 +47,7 @@ public:
     shared_ptr<Transform> GetTransform();
     shared_ptr<MeshRenderer> GetMeshRenderer();
     shared_ptr<Animator> GetAnimator();
+    shared_ptr<BaseCollider> GetCollider();
 
 private:
     friend class GameObject;

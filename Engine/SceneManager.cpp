@@ -338,6 +338,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
             player->GetTransform()->SetInheritScale(false);
 
             player->GetCollider()->SetExtents(Vec3(50.f, 50.f, 50.f));
+
             player->AddComponent(meshRenderer);
             scene->AddGameObject(player);
         }
@@ -405,7 +406,8 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         }
         obj->AddComponent(meshRenderer);
 
-        dynamic_pointer_cast<SphereCollider>(obj->GetCollider())->SetRadius(0.5f);
+        obj->GetCollider()->SetRadius(100.f);
+
         obj->GetRigidbody()->SetUseGravity(true);
         scene->AddGameObject(obj);
     }
@@ -526,7 +528,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 #pragma endregion
 
 #pragma region ParticleSystem
-    /*{
+    {
         shared_ptr<GameObject> particle = make_shared<GameObject>();
         particle->SetName(L"ParticleSystem");
         particle->AddComponent(make_shared<Transform>());
@@ -534,7 +536,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         particle->SetCheckFrustum(false);
         particle->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, -200.f));
         scene->AddGameObject(particle);
-    }*/
+    }
 #pragma endregion
 
 #pragma region FBX

@@ -17,7 +17,7 @@ BoxCollider::~BoxCollider() {
 
 void BoxCollider::FinalUpdate() {
     _boundingBox.Center = GetGameObject()->GetTransform()->GetWorldPosition();
-    _boundingBox.Extents = _extents;
+    _boundingBox.Extents = _extents / 2;
     _boundingBox.Orientation = _orientation;
 }
 
@@ -89,7 +89,7 @@ Vec4 BoxCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
     }
     else if (otherType == ColliderType::Box) {
 
-        // Box-Box 충돌 (AABB로 단순화)
+        // Box-Box 충돌
         auto otherBox = dynamic_pointer_cast<BoxCollider>(other);
         Vec3 otherCenter = otherBox->GetBoundingBox().Center;
         Vec3 thisCenter = _boundingBox.Center;
@@ -166,14 +166,21 @@ float BoxCollider::GetCollisionDepth(const shared_ptr<BaseCollider>& other) {
 void BoxCollider::CreateMesh() {
     _mesh = GET_SINGLETON(Resources)->LoadCubeMesh();
     _material = GET_SINGLETON(Resources)->Get<Material>(L"Collider")->Clone();
+    _DebugObject = make_shared<GameObject>();
+    _DebugObject->AddComponent(make_shared<Transform>());
+    shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+    meshRenderer->SetMesh(_mesh);
+    meshRenderer->SetMaterial(_material);
+    _DebugObject->AddComponent(meshRenderer);
 }
 
 void BoxCollider::Render() {
-    if (_mesh == nullptr || _material == nullptr)
+    if (_DebugObject == nullptr)
         CreateMesh();
 
-    GetTransform()->PushData();
-    _material->PushGraphicsData();
-    _mesh->Render();
+    _DebugObject->GetTransform()->SetLocalPosition(_boundingBox.Center);
+    _DebugObject->GetTransform()->SetLocalScale(_extents);
+    _DebugObject->GetTransform()->FinalUpdate();
+    _DebugObject->GetMeshRenderer()->Render();
 }
 #endif
