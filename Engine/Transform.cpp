@@ -11,10 +11,6 @@ Transform::~Transform() {
 }
 
 void Transform::FinalUpdate() {
-
-    _velocity += _acceleration * DELTA_TIME;
-    _localPosition += _velocity * DELTA_TIME;
-
     Matrix matScale = Matrix::CreateScale(_localScale);
     Matrix matRotation = Matrix::CreateRotationX(_localRotation.x);
     matRotation *= Matrix::CreateRotationY(_localRotation.y);
@@ -26,7 +22,6 @@ void Transform::FinalUpdate() {
 
     _matLocal = matScale * matRotation * matTranslation * matRevolution;
     _matWorld = _matLocal;
-
 
     shared_ptr<Transform> parent = GetParent().lock();
     if (parent != nullptr) {

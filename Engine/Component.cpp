@@ -26,3 +26,7 @@ shared_ptr<MeshRenderer> Component::GetMeshRenderer() {
 shared_ptr<Animator> Component::GetAnimator() {
     return _gameObject.lock()->GetAnimator();
 }
+
+shared_ptr<BaseCollider> Component::GetCollider() {
+    return _gameObject.lock()->GetCollider();
+}

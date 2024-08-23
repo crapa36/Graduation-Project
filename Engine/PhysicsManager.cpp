@@ -1,3 +1,5 @@
+// PhysicsManager.cpp
+
 #include "pch.h"
 #include "PhysicsManager.h"
 #include "SceneManager.h"
@@ -9,6 +11,8 @@
 #include "Terrain.h"
 #include "Scene.h"
 #include "BaseCollider.h"
+#include "Rigidbody.h"
+#include "Timer.h"
 
 shared_ptr<GameObject> PhysicsManager::Pick(int32 screenX, int32 screenY) {
     shared_ptr<Camera> camera = GET_SINGLETON(SceneManager)->GetActiveScene()->GetMainCamera();
@@ -18,7 +22,7 @@ shared_ptr<GameObject> PhysicsManager::Pick(int32 screenX, int32 screenY) {
 
     Matrix projectionMatrix = camera->GetProjectionMatrix();
 
-    // ViewSpace���� Picking ����
+    // ViewSpace에서 Picking 수행
     float viewX = (+2.0f * screenX / width - 1.0f) / projectionMatrix(0, 0);
     float viewY = (-2.0f * screenY / height + 1.0f) / projectionMatrix(1, 1);
 
@@ -34,16 +38,16 @@ shared_ptr<GameObject> PhysicsManager::Pick(int32 screenX, int32 screenY) {
         if (gameObject->GetCollider() == nullptr)
             continue;
 
-        // ViewSpace������ Ray ����
+        // ViewSpace에서 Ray 생성
         Vec4 rayOrigin = Vec4(0.0f, 0.0f, 0.0f, 1.0f);
         Vec4 rayDir = Vec4(viewX, viewY, 1.0f, 0.0f);
 
-        // WorldSpace������ Ray ����
+        // WorldSpace에서 Ray 생성
         rayOrigin = XMVector3TransformCoord(rayOrigin, viewMatrixInv);
         rayDir = XMVector3TransformNormal(rayDir, viewMatrixInv);
         rayDir.Normalize();
 
-        // WorldSpace���� ����
+        // WorldSpace에서 충돌 검사
         float distance = 0.f;
         if (gameObject->GetCollider()->Intersects(rayOrigin, rayDir, OUT distance) == false)
             continue;
@@ -58,68 +62,125 @@ shared_ptr<GameObject> PhysicsManager::Pick(int32 screenX, int32 screenY) {
 }
 
 void PhysicsManager::Update() {
-    Gravity();
+
+    // 쿨타임 업데이트
+    for (auto& [key, cooldown] : _collisionCooldowns) {
+        if (cooldown > 0.0f) {
+            cooldown -= DELTA_TIME;
+        }
+    }
+    UpdatePhysics();
+}
+void PhysicsManager::LateUpdate() {
 }
 void PhysicsManager::FinalUpdate() {
-    Collision();
 }
 
-void PhysicsManager::Gravity()
-{
-    auto& gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
+void PhysicsManager::HandleCollision(std::shared_ptr<GameObject> objA, std::shared_ptr<GameObject> objB) {
+    auto collisionPair = std::make_tuple(objA, objB);
 
-    Vec3 gravity = { 0.0f, -9.8f, 0.0f };
+    // 충돌 쿨타임 체크
+    if (_collisionCooldowns.find(collisionPair) != _collisionCooldowns.end()) {
+        float& cooldown = _collisionCooldowns[collisionPair];
+        if (cooldown > 0.0f) {
 
-    vector<shared_ptr<GameObject>> Terrains;
-
-    for (auto& gameObject : gameObjects) {
-        if (gameObject->GetTerrain()) {
-            Terrains.push_back(gameObject);
+            // 쿨타임이 지나지 않았으므로 충돌 무시
+            return;
         }
     }
 
-    for (auto& gameObject : gameObjects) {
-        if (gameObject->IsGravity()) {
-            Vec3 acceleration = gameObject->GetTransform()->GetAcceleration();
-            Vec3 velocity = gameObject->GetTransform()->GetVelocity();
-            acceleration = gravity;
+    // 충돌이 발생하지 않도록 위치 조정
+    auto colliderA = objA->GetCollider();
+    auto colliderB = objB->GetCollider();
+    Vec4 collisionNormal = colliderA->GetCollisionNormal(colliderB);
+    float collisionDepth = colliderA->GetCollisionDepth(colliderB);
 
-            for (auto& terrain : Terrains) {
-                Vec3 position = gameObject->GetTransform()->GetLocalPosition();
-                Vec3 terrainPosition = terrain->GetTransform()->GetLocalPosition();
-                Vec3 terrainScale = terrain->GetTransform()->GetLocalScale();
-                Vec4 rayOrigin = Vec4(position.x, position.y, position.z, 1.0f);
-                Vec4 rayDir = Vec4(0.0f, -1.0f, 0.0f, 0.0f);
-                float height = terrain->GetTerrain()->GetHeightAtPosition(position.x - terrainPosition.x, position.z - terrainPosition.z);
-                float heightValue = terrainScale.y * height + terrainPosition.y;    
-                float distance = 0.f;
-                if (terrain->GetCollider()->Intersects(rayOrigin, rayDir, OUT distance)) {
-                    if (heightValue - terrainPosition.y > distance) {
-                        acceleration.y = 0.f;
-                        velocity.y = 0.f;
-                        position.y = heightValue;
-                        gameObject->GetTransform()->SetLocalPosition(position);
-                        break;
-                    }
+    if (collisionDepth > 0.0f) {
+        auto transformA = objA->GetTransform();
+        auto transformB = objB->GetTransform();
+        auto positionA = transformA->GetLocalPosition();
+        auto positionB = transformB->GetLocalPosition();
+
+        Vec3 adjustment = Vec3(collisionNormal.x, collisionNormal.y, collisionNormal.z) * (collisionDepth / 2.0f);
+
+        positionA -= adjustment;
+        positionB += adjustment;
+
+        transformA->SetLocalPosition(positionA);
+        transformB->SetLocalPosition(positionB);
+    }
+
+    // 충돌 처리 로직
+    if (auto Rigidbody = objA->GetRigidbody()) {
+        Rigidbody->OnCollisionEnter(objB->GetCollider());
+    }
+
+    if (auto otherRigidbody = objB->GetRigidbody()) {
+        otherRigidbody->OnCollisionEnter(objA->GetCollider());
+    }
+
+    // 충돌 시간 업데이트
+    _collisionCooldowns[collisionPair] = _cooldownDuration;
+}
+
+void PhysicsManager::UpdatePhysics() {
+    auto& gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
+    std::vector<shared_ptr<GameObject>> terrains;
+
+    // Terrain 객체를 미리 필터링하여 저장
+    for (const auto& gameObject : gameObjects) {
+        if (gameObject->GetTerrain()) {
+            terrains.push_back(gameObject);
+        }
+    }
+
+    size_t gameObjectCount = gameObjects.size();
+
+    for (size_t i = 0; i < gameObjectCount; ++i) {
+        const auto& gameObject = gameObjects[i];
+        auto collider = gameObject->GetCollider();
+        auto rigidbody = gameObject->GetRigidbody();
+
+        // Rigidbody와 Collider가 모두 없는 경우, 처리를 생략
+        if (!collider)
+            continue;
+
+        // 충돌 검사
+        if (collider && !gameObject->GetTerrain()) {
+            for (size_t j = i + 1; j < gameObjectCount; ++j) {
+                const auto& otherGameObject = gameObjects[j];
+                auto otherCollider = otherGameObject->GetCollider();
+
+                if (!otherCollider || otherGameObject->GetTerrain())
+                    continue;
+
+                if (collider->Intersects(otherCollider)) {
+                    HandleCollision(gameObject, otherGameObject);
                 }
             }
-
-        gameObject->GetTransform()->SetAcceleration(acceleration);
-        gameObject->GetTransform()->SetVelocity(velocity);
         }
-    }
-}
 
-void PhysicsManager::Collision() {
-    auto& gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
-    for (auto& gameObject : gameObjects) {
-        if (gameObject->GetCollider()) {
-            for (const shared_ptr<GameObject>& otherGameObject : gameObjects) {
-                if (otherGameObject->GetCollider() && gameObject != otherGameObject && !otherGameObject->GetTerrain()) {
-                    if (gameObject->GetCollider()->Intersects(otherGameObject->GetCollider())) {
+        // 중력 적용 및 Terrain 충돌 검사
+        if (rigidbody) {
+            const auto& transform = gameObject->GetTransform();
+            const auto& position = transform->GetLocalPosition();
+            Vec4 rayOrigin(position.x, position.y, position.z, 1.0f);
+            Vec4 rayDir(0.0f, -1.0f, 0.0f, 0.0f);
 
-                        //TODO : �浹 ó�� ���� �ڵ�
-                    }
+            // WorldSpace에서 충돌 검사
+            for (const auto& terrain : terrains) {
+                const auto& terrainTransform = terrain->GetTransform();
+                const auto& terrainPosition = terrainTransform->GetLocalPosition();
+                const auto& terrainScale = terrainTransform->GetLocalScale();
+
+                float height = terrain->GetTerrain()->GetHeightAtPosition(position.x - terrainPosition.x, position.z - terrainPosition.z);
+                float heightValue = terrainScale.y * height + terrainPosition.y;
+                float distance = 0.f;
+
+                auto terrainCollider = terrain->GetCollider();
+                if (terrainCollider->Intersects(rayOrigin, rayDir, OUT distance) && (heightValue - terrainPosition.y > distance)) {
+                    HandleCollision(gameObject, terrain);
+                    break;  // 한 Terrain과 충돌 시 나머지 Terrain 검사는 필요 없음
                 }
             }
         }

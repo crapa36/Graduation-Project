@@ -11,6 +11,7 @@ class ParticleSystem;
 class Terrain;
 class BaseCollider;
 class Animator;
+class Rigidbody;
 
 class GameObject :public Object, public enable_shared_from_this<GameObject> {
 public:
@@ -33,6 +34,7 @@ public:
     shared_ptr<Terrain> GetTerrain();
     shared_ptr<BaseCollider> GetCollider();
     shared_ptr<Animator> GetAnimator();
+    shared_ptr<Rigidbody> GetRigidbody();
 
     wstring GetPath() { return _path; }
 
@@ -46,9 +48,6 @@ public:
 
     void SetStatic(bool isStatic) { _isStatic = isStatic; }
     bool IsStatic() { return _isStatic; }
-    
-    void SetGravity(bool isGravity) { _isGravity = isGravity; }
-    bool IsGravity() { return _isGravity; }
 
 private:
     array<shared_ptr<Component>, FIXED_COMPONENT_COUNT> _components;
@@ -61,7 +60,4 @@ private:
     bool _checkFrustum = true;
     uint8 _layerIndex = 0;
     bool _isStatic = true;
-    bool _isGravity = false;
-
-
 };

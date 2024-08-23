@@ -20,6 +20,7 @@
 #include "Terrain.h"
 #include "SphereCollider.h"
 #include "BoxCollider.h"
+#include "Rigidbody.h"
 
 #include "MeshData.h"
 
@@ -72,7 +73,6 @@ void SceneManager::SaveScene(wstring sceneName) {
 
             fout << "<Mesh>" << endl;
 
-
             fout << "<Vertex>" << endl;
             uint32 _vertexCount = obj->GetMeshRenderer()->GetMesh()->GetVertexCount();
             uint32 bufferSize = _vertexCount * sizeof(Vertex);
@@ -86,7 +86,6 @@ void SceneManager::SaveScene(wstring sceneName) {
             ::memcpy(&vertex[0], vertexDataBuffer, bufferSize);
             obj->GetMeshRenderer()->GetMesh()->GetVertexBuffer()->Unmap(0, nullptr);
 
-
             for (int i = 0; i < _vertexCount; i++) {
                 fout << vertex[i].pos.x << vertex[i].pos.y << vertex[i].pos.z << endl;
                 fout << vertex[i].normal.x << vertex[i].normal.y << vertex[i].normal.z << endl;
@@ -95,7 +94,6 @@ void SceneManager::SaveScene(wstring sceneName) {
             fout << "</Vertex>" << endl;
 
             delete[] vertex;
-
 
             for (int i = 0; i < obj->GetMeshRenderer()->GetMesh()->GetIndexBuffer().size(); i++) {
                 fout << "<Index>" << endl;
@@ -201,8 +199,8 @@ void SceneManager::SaveScene(wstring sceneName) {
             //        fout << dataSize;
             //        material->GetTextures().at(i)->GetTexture2D()->Map(0, nullptr, &mappedData);
             //        memcpy(binaryData, mappedData, dataSize);
-            //        
-            //        
+            //
+            //
             //        material->GetTextures().at(i)->GetTexture2D()->Unmap(0, nullptr);
             //        fout.write(reinterpret_cast<const char*>(binaryData), dataSize);
             //}
@@ -336,25 +334,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
         camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UI�� �� ����
         scene->AddGameObject(camera);
-        }
-#pragma endregion
-    }
-#pragma endregion
-//
-//#pragma region Camera
-//    {
-//        shared_ptr<GameObject> camera = make_shared<GameObject>();
-//        camera->SetName(L"Main_Camera");
-//        camera->AddComponent(make_shared<Transform>());
-//        camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, FOV=45��
-//        camera->GetCamera()->SetFar(10000.f); // Far 10000 ����
-//        camera->AddComponent(make_shared<TestCameraScript>());
-//        camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 0.f));
-//
-//        uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
-//        camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UI�� �� ����
-//        scene->AddGameObject(camera);
-//
+
 //#pragma region Player
 //        {
 //            shared_ptr<GameObject> player = make_shared<GameObject>();
@@ -383,12 +363,14 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 //            player->GetTransform()->SetInheritRotation(false);
 //            player->GetTransform()->SetInheritScale(false);
 //
+//            player->GetCollider()->SetExtents(Vec3(50.f, 50.f, 50.f));
+//
 //            player->AddComponent(meshRenderer);
 //            scene->AddGameObject(player);
 //        }
 //#pragma endregion
-//    }
-//#pragma endregion
+    }
+#pragma endregion
 
 #pragma region UI_Camera
     {
@@ -434,6 +416,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         shared_ptr<GameObject> obj = make_shared<GameObject>();
         obj->AddComponent(make_shared<Transform>());
         obj->AddComponent(make_shared<SphereCollider>());
+        obj->AddComponent(make_shared<Rigidbody>());
         obj->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
         obj->GetTransform()->SetLocalPosition(Vec3(200, 50.f, 50.f));
 
@@ -449,8 +432,9 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         }
         obj->AddComponent(meshRenderer);
 
-        dynamic_pointer_cast<SphereCollider>(obj->GetCollider())->SetRadius(0.5f);
-        obj->SetGravity(true);
+        obj->GetCollider()->SetRadius(100.f);
+
+        obj->GetRigidbody()->SetUseGravity(true);
         scene->AddGameObject(obj);
     }
 #pragma endregion
@@ -570,7 +554,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 #pragma endregion
 
 #pragma region ParticleSystem
-    /*{
+    {
         shared_ptr<GameObject> particle = make_shared<GameObject>();
         particle->SetName(L"ParticleSystem");
         particle->AddComponent(make_shared<Transform>());
@@ -578,7 +562,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         particle->SetCheckFrustum(false);
         particle->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, -200.f));
         scene->AddGameObject(particle);
-    }*/
+    }
 #pragma endregion
 
     //#pragma region BIN
