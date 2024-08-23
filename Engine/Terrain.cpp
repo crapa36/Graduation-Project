@@ -61,7 +61,7 @@ float Terrain::GetHeightAtPosition(float x, float z) const {
 
     // 텍스처 좌표로 변환
     int32 texX = static_cast<int32>(x * width / (_sizeX * 50));
-    int32 texZ = static_cast<int32>(z * height / (_sizeZ * 50));
+    int32 texZ = static_cast<int32>(height - (z * height / (_sizeZ * 50)));
 
     // 텍스처 좌표가 유효한지 확인
     if (texX < 0 || texX >= width || texZ < 0 || texZ >= height)

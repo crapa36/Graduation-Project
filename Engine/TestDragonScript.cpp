@@ -41,41 +41,36 @@ void TestDragonScript::LateUpdate()
         if (INPUT->GetButtonDown(KEY_TYPE::END)) {
             GEngine->SetImguiMode(!GEngine->GetImguiMode());
         }   
-        
-        Vec3 pos = GetTransform()->GetLocalPosition();
-        Vec3 rotate = GetTransform()->GetLocalRotation();
 
-        int32 count = GetAnimator()->GetAnimCount();
-        int32 index = GetAnimator()->GetCurrentClipIndex();
+        //int32 count = GetAnimator()->GetAnimCount();
+        //int32 index = GetAnimator()->GetCurrentClipIndex();
 
-        if (INPUT->GetButton(KEY_TYPE::W)) {
-            if (index != 2) {
-                GetAnimator()->Play(2);
-            }
-        }
-        if (INPUT->GetButton(KEY_TYPE::S)) {
-            if (index != 2) {
-                GetAnimator()->Play(2);
-            }
-        }
-        if (INPUT->GetButton(KEY_TYPE::A)) {
-            if (index != 2) {
-                GetAnimator()->Play(2);
-            }
-        }
-        if (INPUT->GetButton(KEY_TYPE::D)) {
-            if (index != 2) {
-                GetAnimator()->Play(2);
-            }
-        }
+        //if (INPUT->GetButton(KEY_TYPE::W)) {
+        //    if (index != 2) {
+        //        GetAnimator()->Play(2);
+        //    }
+        //}
+        //if (INPUT->GetButton(KEY_TYPE::S)) {
+        //    if (index != 2) {
+        //        GetAnimator()->Play(2);
+        //    }
+        //}
+        //if (INPUT->GetButton(KEY_TYPE::A)) {
+        //    if (index != 2) {
+        //        GetAnimator()->Play(2);
+        //    }
+        //}
+        //if (INPUT->GetButton(KEY_TYPE::D)) {
+        //    if (index != 2) {
+        //        GetAnimator()->Play(2);
+        //    }
+        //}
 
-        if (!INPUT->GetButton(KEY_TYPE::W) && !INPUT->GetButton(KEY_TYPE::S) &&
-            !INPUT->GetButton(KEY_TYPE::A) && !INPUT->GetButton(KEY_TYPE::D)) {
-            if (index != 1)
-                GetAnimator()->Play(1);
-        }
+        //if (!INPUT->GetButton(KEY_TYPE::W) && !INPUT->GetButton(KEY_TYPE::S) &&
+        //    !INPUT->GetButton(KEY_TYPE::A) && !INPUT->GetButton(KEY_TYPE::D)) {
+        //    if (index != 1)
+        //        GetAnimator()->Play(1);
+        //}
 
-        GetTransform()->SetLocalPosition(pos);
-        GetTransform()->SetLocalRotation(rotate);
     }
 }

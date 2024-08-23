@@ -163,7 +163,7 @@ void PhysicsManager::UpdatePhysics() {
         // 중력 적용 및 Terrain 충돌 검사
         if (rigidbody) {
             const auto& transform = gameObject->GetTransform();
-            const auto& position = transform->GetLocalPosition();
+            Vec3 position = transform->GetLocalPosition();
             Vec4 rayOrigin(position.x, position.y, position.z, 1.0f);
 
             rayOrigin.y -= gameObject->GetCollider()->GetHeight();
@@ -176,14 +176,16 @@ void PhysicsManager::UpdatePhysics() {
                 const auto& terrainPosition = terrainTransform->GetLocalPosition();
                 const auto& terrainScale = terrainTransform->GetLocalScale();
 
-                float height = terrain->GetTerrain()->GetHeightAtPosition(position.x - terrainPosition.x, position.z - terrainPosition.z);
+                float height = terrain->GetTerrain()->GetHeightAtPosition(position.x - terrainPosition.x , position.z - terrainPosition.z);
                 float heightValue = terrainScale.y * height + terrainPosition.y;
                 float distance = 0.f;
 
                 auto terrainCollider = terrain->GetCollider();
                 if (terrainCollider->Intersects(rayOrigin, rayDir, OUT distance) && (heightValue - terrainPosition.y > distance)) {
+                    position.y = heightValue;
+                    transform->SetLocalPosition(position);
                     if (gameObject->GetRigidbody()) {
-                        gameObject->GetRigidbody()->OnCollisionEnter(terrainCollider);
+                        //gameObject->GetRigidbody()->OnCollisionEnter(terrainCollider);
                     }
                     break;  // 한 Terrain과 충돌 시 나머지 Terrain 검사는 필요 없음
                 }

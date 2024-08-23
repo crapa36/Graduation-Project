@@ -138,7 +138,7 @@ void FBXLoader::LoadMesh(FbxMesh* mesh) {
     }
 
     // Animation
-    LoadAnimationData(mesh, &meshInfo);
+    //LoadAnimationData(mesh, &meshInfo);
 }
 
 void FBXLoader::LoadMaterial(FbxSurfaceMaterial* surfaceMaterial) {
