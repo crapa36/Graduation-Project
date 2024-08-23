@@ -14,6 +14,7 @@ public:
     // Parent 기준
     const Vec3& GetLocalPosition() { return _localPosition; }
     const Vec3& GetLocalRotation() { return _localRotation; }
+    const Vec3& GetLocalRevolution() { return _localRevolution; }
     const Vec3& GetLocalScale() { return _localScale; }
 
     // TEMP
@@ -28,10 +29,12 @@ public:
 
     void SetLocalPosition(const Vec3& position) { _localPosition = position; }
     void SetLocalRotation(const Vec3& rotation) { _localRotation = rotation; }
+    void SetLocalRevolution(const Vec3& revolution) { _localRevolution = revolution; }
     void SetLocalScale(const Vec3& scale) { _localScale = scale; }
 
     void SetInheritPosition(bool inherit) { _inheritPosition = inherit; }
     void SetInheritRotation(bool inherit) { _inheritRotation = inherit; }
+    void SetInheritRevolution(bool inherit) { _inheritRevolution = inherit; }
     void SetInheritScale(bool inherit) { _inheritScale = inherit; }
 
     void LookAt(const Vec3& dir);
@@ -53,11 +56,13 @@ private:
 
     bool _inheritPosition = true;
     bool _inheritRotation = true;
+    bool _inheritRevolution = true;
     bool _inheritScale = true;
 
     // Parent 기준
     Vec3 _localPosition = {};
     Vec3 _localRotation = {};
+    Vec3 _localRevolution = {};
     Vec3 _localScale = { 1.f, 1.f, 1.f };
 
     Matrix _matLocal = {};
