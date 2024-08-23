@@ -17,6 +17,8 @@ public:
     virtual Vec4 GetCollisionNormal(const shared_ptr<BaseCollider>& other) = 0;
     virtual float GetCollisionDepth(const shared_ptr<BaseCollider>& other) = 0;
 
+    virtual float GetHeight() = 0;
+
     ColliderType GetColliderType() { return _colliderType; }
 
 public:

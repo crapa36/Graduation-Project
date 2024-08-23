@@ -158,7 +158,8 @@ float BoxCollider::GetCollisionDepth(const shared_ptr<BaseCollider>& other) {
         // 가장 작은 축을 따라 충돌 깊이 결정
         depth = (((overlap.x) < (overlap.y)) ? (overlap.x) : (overlap.y));
     }
-
+    if (depth < 0.0f)
+        depth = 0.0f;
     return depth;
 }
 

@@ -165,6 +165,9 @@ void PhysicsManager::UpdatePhysics() {
             const auto& transform = gameObject->GetTransform();
             const auto& position = transform->GetLocalPosition();
             Vec4 rayOrigin(position.x, position.y, position.z, 1.0f);
+
+            rayOrigin.y -= gameObject->GetCollider()->GetHeight();
+
             Vec4 rayDir(0.0f, -1.0f, 0.0f, 0.0f);
 
             // WorldSpace에서 충돌 검사
@@ -179,7 +182,9 @@ void PhysicsManager::UpdatePhysics() {
 
                 auto terrainCollider = terrain->GetCollider();
                 if (terrainCollider->Intersects(rayOrigin, rayDir, OUT distance) && (heightValue - terrainPosition.y > distance)) {
-                    HandleCollision(gameObject, terrain);
+                    if (gameObject->GetRigidbody()) {
+                        gameObject->GetRigidbody()->OnCollisionEnter(terrainCollider);
+                    }
                     break;  // 한 Terrain과 충돌 시 나머지 Terrain 검사는 필요 없음
                 }
             }

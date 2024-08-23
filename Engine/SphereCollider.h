@@ -15,6 +15,8 @@ public:
 
     BoundingSphere& GetBoundingSphere() { return _boundingSphere; }
 
+    virtual float GetHeight() override { return _radius / 2; }
+
     virtual void CreateMesh() override;
     virtual void Render() override;
 
