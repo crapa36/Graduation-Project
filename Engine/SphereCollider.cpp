@@ -144,7 +144,8 @@ float SphereCollider::GetCollisionDepth(const shared_ptr<BaseCollider>& other) {
         float distance = XMVectorGetX(XMVector3Length(XMVectorSubtract(closestPointVec, localSphereCenter)));
         depth = _boundingSphere.Radius - distance;
     }
-
+    if (depth < 0.0f)
+        depth = 0.0f;
     return depth;
 }
 #ifdef _DEBUG

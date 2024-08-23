@@ -59,16 +59,15 @@ void Rigidbody::AddTorque(Vec4 torque) {
 void Rigidbody::OnCollisionEnter(const shared_ptr<BaseCollider>& other) {
 
     // TODO : 충돌 처리 코드
-    //if (_isKinematic == false) {
-    //    Vec4 normal = other->GetNormal();
-    //    Vec4 velocity = _velocity;
-    //    float dot = normal.Dot(velocity);
-    //    Vec4 reflect = velocity - 2 * dot * normal;
-    //    _velocity = reflect * _elasticity;
-    //}
+
     Vec4 collisionNormal = GetCollider()->GetCollisionNormal(other);
     float collisionDepth = GetCollider()->GetCollisionDepth(other);
-    _velocity = _velocity * -_elasticity;
+    _velocity *= _elasticity;
+
+    // Vec4 객체를 생성하여 Dot 메서드를 호출
+    float velocityDotNormal = _velocity.Dot(collisionNormal);
+    _velocity = _velocity - 2 * velocityDotNormal * collisionNormal;
+
     AddForce(collisionNormal * collisionDepth);
     _isGrounded = true;
 }
