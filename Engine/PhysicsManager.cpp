@@ -1,4 +1,5 @@
-// PhysicsManager.cpp
+//TODO : 충돌 오브젝트 리스트를 추가해 성능 최적화
+//       추가적인 성능 최적화 알고리즘 도입 필요
 
 #include "pch.h"
 #include "PhysicsManager.h"
@@ -89,10 +90,19 @@ void PhysicsManager::HandleCollision(std::shared_ptr<GameObject> objA, std::shar
         }
     }
 
+    // 충돌 처리 로직
+    if (auto Rigidbody = objA->GetRigidbody()) {
+        Rigidbody->OnCollisionEnter(objB);
+    }
+
+    if (auto otherRigidbody = objB->GetRigidbody()) {
+        otherRigidbody->OnCollisionEnter(objA);
+    }
+
     // 충돌이 발생하지 않도록 위치 조정
     auto colliderA = objA->GetCollider();
     auto colliderB = objB->GetCollider();
-    Vec4 collisionNormal = colliderA->GetCollisionNormal(colliderB);
+    Vec3 collisionNormal = colliderA->GetCollisionNormal(colliderB);
     float collisionDepth = colliderA->GetCollisionDepth(colliderB);
 
     if (collisionDepth > 0.0f) {
@@ -108,15 +118,6 @@ void PhysicsManager::HandleCollision(std::shared_ptr<GameObject> objA, std::shar
 
         transformA->SetLocalPosition(positionA);
         transformB->SetLocalPosition(positionB);
-    }
-
-    // 충돌 처리 로직
-    if (auto Rigidbody = objA->GetRigidbody()) {
-        Rigidbody->OnCollisionEnter(objB->GetCollider());
-    }
-
-    if (auto otherRigidbody = objB->GetRigidbody()) {
-        otherRigidbody->OnCollisionEnter(objA->GetCollider());
     }
 
     // 충돌 시간 업데이트
@@ -180,10 +181,9 @@ void PhysicsManager::UpdatePhysics() {
                 float heightValue = terrainScale.y * height + terrainPosition.y;
                 float distance = 0.f;
 
-                auto terrainCollider = terrain->GetCollider();
-                if (terrainCollider->Intersects(rayOrigin, rayDir, OUT distance) && (heightValue - terrainPosition.y > distance)) {
+                if (terrain->GetCollider()->Intersects(rayOrigin, rayDir, OUT distance) && (heightValue - terrainPosition.y > distance)) {
                     if (gameObject->GetRigidbody()) {
-                        gameObject->GetRigidbody()->OnCollisionEnter(terrainCollider);
+                        gameObject->GetRigidbody()->OnCollisionEnter(terrain);
                     }
                     break;  // 한 Terrain과 충돌 시 나머지 Terrain 검사는 필요 없음
                 }

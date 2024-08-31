@@ -7,6 +7,7 @@
 #include "Timer.h"
 #include "PhysicsManager.h"
 #include "Engine.h"
+#include "Rigidbody.h"
 
 TestPlayerScript::TestPlayerScript() {
 }

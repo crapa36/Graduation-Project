@@ -11,8 +11,8 @@ public:
     void LastUpdate();
     void FinalUpdate();
 
-    void AddForce(Vec4 force);
-    void AddTorque(Vec4 torque);
+    void AddForce(Vec3 force);
+    void AddTorque(Vec3 torque);
 
     void SetMass(float mass) { _mass = mass; }
     void SetDrag(float drag) { _drag = drag; }
@@ -20,8 +20,8 @@ public:
     void SetUseGravity(bool useGravity) { _useGravity = useGravity; }
     void SetIsKinematic(bool isKinematic) { _isKinematic = isKinematic; }
 
-    Vec4 GetVelocity() { return _velocity; }
-    Vec4 GetAngularVelocity() { return _angularVelocity; }
+    Vec3 GetVelocity() { return _velocity; }
+    Vec3 GetAngularVelocity() { return _angularVelocity; }
 
     float GetMass() { return _mass; }
     float GetDrag() { return _drag; }
@@ -29,7 +29,7 @@ public:
     bool GetUseGravity() { return _useGravity; }
     bool GetIsKinematic() { return _isKinematic; }
 
-    void OnCollisionEnter(const shared_ptr<class BaseCollider>& other); // 함수 선언 수정
+    void OnCollisionEnter(const shared_ptr<class GameObject>& other); // 함수 선언 수정
 
 private:
     float _mass = 0.5f;
@@ -41,6 +41,6 @@ private:
 
     float _elasticity = 0.9f; // 기본 탄성 계수
 
-    Vec4 _velocity = Vec4(0.f, 0.f, 0.f, 0.f);
-    Vec4 _angularVelocity = Vec4(0.f, 0.f, 0.f, 0.f);
+    Vec3 _velocity = Vec3(0.f, 0.f, 0.f);
+    Vec3 _angularVelocity = Vec3(0.f, 0.f, 0.f);
 };

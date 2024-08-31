@@ -32,5 +32,5 @@ private:
 
     // 충돌 정보를 저장할 자료구조
     std::unordered_map<std::tuple<std::shared_ptr<GameObject>, std::shared_ptr<GameObject>>, float, TupleHash, TupleEqual> _collisionCooldowns;
-    const float _cooldownDuration = 0.1f; // 쿨타임 1초
+    const float _cooldownDuration = 0.01f; // 쿨타임 1초
 };

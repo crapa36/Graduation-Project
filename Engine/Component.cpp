@@ -4,6 +4,8 @@
 #include "Transform.h"
 #include "MeshRenderer.h"
 #include "Animator.h"
+#include "BaseCollider.h"
+#include "Rigidbody.h"
 
 Component::Component(COMPONENT_TYPE type) : Object(OBJECT_TYPE::COMPONENT), _type(type) {
 }
@@ -29,4 +31,8 @@ shared_ptr<Animator> Component::GetAnimator() {
 
 shared_ptr<BaseCollider> Component::GetCollider() {
     return _gameObject.lock()->GetCollider();
+}
+
+shared_ptr<Rigidbody> Component::GetRigidbody() {
+    return _gameObject.lock()->GetRigidbody();
 }

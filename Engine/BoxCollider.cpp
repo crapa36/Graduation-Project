@@ -40,8 +40,9 @@ bool BoxCollider::Intersects(const shared_ptr<BaseCollider>& other) {
 
     return false;
 }
-Vec4 BoxCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
-    Vec4 normal;
+
+Vec3 BoxCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
+    Vec3 normal;
 
     ColliderType otherType = other->GetColliderType();
     if (otherType == ColliderType::Sphere) {
@@ -85,7 +86,7 @@ Vec4 BoxCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
 
         // 월드 좌표계로 변환
         XMVECTOR worldNormal = XMVector3TransformNormal(localNormal, boxRotation);
-        XMStoreFloat4(&normal, worldNormal);
+        XMStoreFloat3(&normal, worldNormal);
     }
     else if (otherType == ColliderType::Box) {
 
@@ -97,13 +98,13 @@ Vec4 BoxCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
 
         // 가장 큰 축을 따라 법선 결정
         if (abs(delta.x) > abs(delta.y) && abs(delta.x) > abs(delta.z)) {
-            normal = Vec4((delta.x > 0) ? 1.0f : -1.0f, 0.0f, 0.0f, 0.0f);
+            normal = Vec3((delta.x > 0) ? 1.0f : -1.0f, 0.0f, 0.0f);
         }
         else if (abs(delta.y) > abs(delta.x) && abs(delta.y) > abs(delta.z)) {
-            normal = Vec4(0.0f, (delta.y > 0) ? 1.0f : -1.0f, 0.0f, 0.0f);
+            normal = Vec3(0.0f, (delta.y > 0) ? 1.0f : -1.0f, 0.0f);
         }
         else {
-            normal = Vec4(0.0f, 0.0f, (delta.z > 0) ? 1.0f : -1.0f, 0.0f);
+            normal = Vec3(0.0f, 0.0f, (delta.z > 0) ? 1.0f : -1.0f);
         }
     }
 
