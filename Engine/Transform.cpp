@@ -16,8 +16,11 @@ void Transform::FinalUpdate() {
     matRotation *= Matrix::CreateRotationY(_localRotation.y);
     matRotation *= Matrix::CreateRotationZ(_localRotation.z);
     Matrix matTranslation = Matrix::CreateTranslation(_localPosition);
+    Matrix matRevolution = Matrix::CreateRotationX(_localRevolution.x);
+    matRevolution *= Matrix::CreateRotationY(_localRevolution.y);
+    matRevolution *= Matrix::CreateRotationZ(_localRevolution.z);
 
-    _matLocal = matScale * matRotation * matTranslation;
+    _matLocal = matScale * matRotation * matTranslation * matRevolution;
     _matWorld = _matLocal;
 
     shared_ptr<Transform> parent = GetParent().lock();
@@ -35,6 +38,12 @@ void Transform::FinalUpdate() {
         if (_inheritPosition) {
             Matrix parentMatTranslation = Matrix::CreateTranslation(parent->GetLocalPosition());
             _matWorld *= parentMatTranslation;
+        }
+        if (_inheritRevolution) {
+            Matrix parentMatRevolution = Matrix::CreateRotationX(parent->GetLocalRevolution().x);
+            parentMatRevolution *= Matrix::CreateRotationY(parent->GetLocalRevolution().y);
+            parentMatRevolution *= Matrix::CreateRotationZ(parent->GetLocalRevolution().z);
+            _matWorld *= parentMatRevolution;
         }
     }
 }

@@ -5,14 +5,14 @@ struct TupleHash {
     std::size_t operator()(const std::tuple<std::shared_ptr<T1>, std::shared_ptr<T2>>& tuple) const {
         auto h1 = std::hash<std::shared_ptr<T1>>{}(std::get<0>(tuple));
         auto h2 = std::hash<std::shared_ptr<T2>>{}(std::get<1>(tuple));
-        return h1 ^ (h2 << 1); // °£´ÜÇÑ ÇØ½Ã Á¶ÇÕ
+        return h1 ^ (h2 << 1); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½ ï¿½ï¿½ï¿½ï¿½
     }
 };
 
 struct TupleEqual {
     template <typename T1, typename T2>
     bool operator()(const std::tuple<std::shared_ptr<T1>, std::shared_ptr<T2>>& lhs,
-                    const std::tuple<std::shared_ptr<T1>, std::shared_ptr<T2>>& rhs) const {
+        const std::tuple<std::shared_ptr<T1>, std::shared_ptr<T2>>& rhs) const {
         return std::get<0>(lhs) == std::get<0>(rhs) && std::get<1>(lhs) == std::get<1>(rhs);
     }
 };
@@ -30,7 +30,7 @@ private:
     void HandleCollision(shared_ptr<GameObject> objA, shared_ptr<GameObject> objB);
     void UpdatePhysics();
 
-    // Ãæµ¹ Á¤º¸¸¦ ÀúÀåÇÒ ÀÚ·á±¸Á¶
+    // ï¿½æµ¹ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ú·á±¸ï¿½ï¿½
     std::unordered_map<std::tuple<std::shared_ptr<GameObject>, std::shared_ptr<GameObject>>, float, TupleHash, TupleEqual> _collisionCooldowns;
-    const float _cooldownDuration = 0.01f; // ÄðÅ¸ÀÓ 1ÃÊ
+    const float _cooldownDuration = 0.01f; // ï¿½ï¿½Å¸ï¿½ï¿½ 1ï¿½ï¿½
 };

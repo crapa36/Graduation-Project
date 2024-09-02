@@ -381,14 +381,7 @@ void Scene::LoadScene(wstring path) {
                         in >> size;
                         string path;
                         for (int i = 0; i < size; i++) {
-                            uint64 dataSize;
-                            void* binaryData = nullptr;
-                            void* mappedData;
-                            in >> dataSize;
-                            in.read(reinterpret_cast<char*>(binaryData), dataSize);
-                            material->GetTextures().at(i)->GetTexture2D()->Map(0, nullptr, &mappedData);
-                            memcpy(mappedData, binaryData, dataSize);
-                            material->GetTextures().at(i)->GetTexture2D()->Unmap(0, nullptr);
+                            
                         }
                     }
                     if (str == "</MeshRenderer>") {
