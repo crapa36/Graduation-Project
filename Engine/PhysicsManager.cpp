@@ -177,7 +177,7 @@ void PhysicsManager::UpdatePhysics() {
                 const auto& terrainPosition = terrainTransform->GetLocalPosition();
                 const auto& terrainScale = terrainTransform->GetLocalScale();
 
-                float height = terrain->GetTerrain()->GetHeightAtPosition(position.x - terrainPosition.x , position.z - terrainPosition.z);
+                float height = terrain->GetTerrain()->GetHeightAtPosition(position.x - terrainPosition.x, position.z - terrainPosition.z);
                 float heightValue = terrainScale.y * height + terrainPosition.y;
                 float distance = 0.f;
 
@@ -186,7 +186,7 @@ void PhysicsManager::UpdatePhysics() {
                     position.y = heightValue;
                     transform->SetLocalPosition(position);
                     if (gameObject->GetRigidbody()) {
-                        //gameObject->GetRigidbody()->OnCollisionEnter(terrainCollider);
+                        gameObject->GetRigidbody()->OnCollisionEnter(terrain);
                     }
                     break;  // 한 Terrain과 충돌 시 나머지 Terrain 검사는 필요 없음
                 }

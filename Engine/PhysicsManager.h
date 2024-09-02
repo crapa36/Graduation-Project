@@ -12,7 +12,7 @@ struct TupleHash {
 struct TupleEqual {
     template <typename T1, typename T2>
     bool operator()(const std::tuple<std::shared_ptr<T1>, std::shared_ptr<T2>>& lhs,
-        const std::tuple<std::shared_ptr<T1>, std::shared_ptr<T2>>& rhs) const {
+                    const std::tuple<std::shared_ptr<T1>, std::shared_ptr<T2>>& rhs) const {
         return std::get<0>(lhs) == std::get<0>(rhs) && std::get<1>(lhs) == std::get<1>(rhs);
     }
 };
@@ -32,5 +32,5 @@ private:
 
     // �浹 ������ ������ �ڷᱸ��
     std::unordered_map<std::tuple<std::shared_ptr<GameObject>, std::shared_ptr<GameObject>>, float, TupleHash, TupleEqual> _collisionCooldowns;
-    const float _cooldownDuration = 0.01f; // ��Ÿ�� 1��
+    const float _cooldownDuration = 0.0001f; // ��Ÿ�� 1��
 };
