@@ -16,6 +16,8 @@ void Engine::Init(const WindowInfo& info) {
     _viewport = { 0, 0, static_cast<FLOAT>(info.width), static_cast<FLOAT>(info.height), 0.0f, 1.0f };
     _scissorRect = CD3DX12_RECT(0, 0, info.width, info.height);
 
+    
+
     _device->Init();
     _graphicsCmdQueue->Init(_device->GetDevice(), _swapChain);
     _computeCmdQueue->Init(_device->GetDevice());
