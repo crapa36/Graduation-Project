@@ -75,6 +75,7 @@ public:
 			secters[old_secter_y][old_secter_x].removePlayer(player_id);
 			secters[new_secter_y][new_secter_x].addPlayer(player_id);
 		}
+
 	}
 
 	std::vector<int> getNearbyPlayers(int x, int y) {
@@ -277,8 +278,14 @@ void process_packet(int c_id, char* packet)
 		clients[c_id].y = new_y;
 
 		game_world.updatePlayerPosition(c_id, old_x, old_y, new_x, new_y);
-
+		std::vector<int> nearby_players_old = game_world.getNearbyPlayers(old_x, old_y);
 		std::vector<int> nearby_players = game_world.getNearbyPlayers(new_x, new_y);
+		for (int player_id : nearby_players_old) {
+			if (player_id != c_id && clients[player_id]._state == ST_INGAME) {
+				clients[player_id].send_move_packet(c_id);
+			}
+		}
+
 		for (int player_id : nearby_players) {
 			if (player_id != c_id && clients[player_id]._state == ST_INGAME) {
 				clients[player_id].send_move_packet(c_id);
@@ -402,7 +409,13 @@ int main()
 	CreateIoCompletionPort(reinterpret_cast<HANDLE>(g_s_socket), h_iocp, 9999, 0);
 	g_c_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 	g_a_over._comp_type = OP_ACCEPT;
-	AcceptEx(g_s_socket, g_c_socket, g_a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &g_a_over._over);
+	DWORD bytes_received;
+	bool result = AcceptEx(g_s_socket, g_c_socket, g_a_over._send_buf, 0, addr_size + 16, addr_size + 16, &bytes_received, &g_a_over._over);
+	if (result == FALSE && WSAGetLastError() != ERROR_IO_PENDING) {
+		// 에러 처리
+		std::cerr << "AcceptEx failed with error: " << WSAGetLastError() << std::endl;
+		// 적절한 에러 처리 로직 추가
+	}
 
 	vector <thread> worker_threads;
 	int num_threads = std::thread::hardware_concurrency();
