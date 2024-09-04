@@ -46,23 +46,6 @@ void Light::FinalUpdate() {
             _shadowCamera->GetTransform()->SetLocalScale(Vec3(1, 1, 1));
         }
     }
-    else if (static_cast<LIGHT_TYPE>(_lightInfo.lightType) == LIGHT_TYPE::SPOT) {
-
-        // 원근 투영을 위한 설정 (스팟 라이트의 경우)
-        _shadowCamera->GetCamera()->SetProjectionType(PROJECTION_TYPE::PERSPECTIVE);
-
-        // 원근 투영을 위한 설정
-        _shadowCamera->GetCamera()->SetFOV(45.0f); // 스팟 라이트의 FOV 설정
-        _shadowCamera->GetCamera()->SetFar(_lightInfo.range); // 스팟 라이트의 범위 설정
-        _shadowCamera->GetCamera()->SetNear(1.0f); // 가까운 클리핑 거리 설정
-
-        _shadowCamera->GetCamera()->SetWidth(4096); // 그림자 맵의 해상도 설정
-        _shadowCamera->GetCamera()->SetHeight(4096);
-
-        _shadowCamera->GetTransform()->SetLocalPosition(GetTransform()->GetLocalPosition());
-        _shadowCamera->GetTransform()->SetLocalRotation(GetTransform()->GetLocalRotation());
-        _shadowCamera->GetTransform()->SetLocalScale(GetTransform()->GetLocalScale());
-    }
     else {
 
         // 비방향성 라이트와 그림자 카메라를 동기화
@@ -81,13 +64,6 @@ void Light::Render() {
     GetTransform()->PushData();
 
     if (static_cast<LIGHT_TYPE>(_lightInfo.lightType) == LIGHT_TYPE::DIRECTIONAL) {
-        shared_ptr<Texture> shadowTex = GET_SINGLETON(Resources)->Get<Texture>(L"ShadowTarget");
-        _lightMaterial->SetTexture(2, shadowTex);
-
-        Matrix matVP = _shadowCamera->GetCamera()->GetViewMatrix() * _shadowCamera->GetCamera()->GetProjectionMatrix();
-        _lightMaterial->SetMatrix(0, matVP);
-    }
-    else if (static_cast<LIGHT_TYPE>(_lightInfo.lightType) == LIGHT_TYPE::SPOT) {
         shared_ptr<Texture> shadowTex = GET_SINGLETON(Resources)->Get<Texture>(L"ShadowTarget");
         _lightMaterial->SetTexture(2, shadowTex);
 
@@ -126,20 +102,23 @@ void Light::SetLightType(LIGHT_TYPE type) {
         _volumeMesh = GET_SINGLETON(Resources)->Get<Mesh>(L"Rectangle");
         _lightMaterial = GET_SINGLETON(Resources)->Get<Material>(L"DirLight");
 
+        _shadowCamera->GetCamera()->SetProjectionType(PROJECTION_TYPE::ORTHOGRAPHIC);
+
         // 직교 투영을 위한 설정
-        _shadowCamera->GetCamera()->SetFar(5000.f);
-        _shadowCamera->GetCamera()->SetNear(-500.f);
+        _shadowCamera->GetCamera()->SetFar(5000.f); // 뷰 프러스텀의 먼 거리 설정
+        _shadowCamera->GetCamera()->SetNear(-500.f); // 뷰 프러스텀의 가까운 거리 설정
 
         _shadowCamera->GetCamera()->SetScale(0.2f);
         _shadowCamera->GetCamera()->SetWidth(4096);
         _shadowCamera->GetCamera()->SetHeight(4096);
+
         break;
     case LIGHT_TYPE::POINT:
         _volumeMesh = GET_SINGLETON(Resources)->Get<Mesh>(L"Sphere");
         _lightMaterial = GET_SINGLETON(Resources)->Get<Material>(L"PointLight");
         break;
     case LIGHT_TYPE::SPOT:
-        _volumeMesh = GET_SINGLETON(Resources)->Get<Mesh>(L"Sphere"); // 원추형 메시
+        _volumeMesh = GET_SINGLETON(Resources)->Get<Mesh>(L"Sphere");
         _lightMaterial = GET_SINGLETON(Resources)->Get<Material>(L"PointLight");
         break;
     }
