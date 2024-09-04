@@ -16,7 +16,7 @@ BoxCollider::~BoxCollider() {
 }
 
 void BoxCollider::FinalUpdate() {
-    _boundingBox.Center = GetGameObject()->GetTransform()->GetWorldPosition();
+    _boundingBox.Center = GetGameObject()->GetTransform()->GetWorldPosition()+_center;
     _boundingBox.Extents = _extents / 2;
     _boundingBox.Orientation = _orientation;
 }

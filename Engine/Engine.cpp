@@ -80,7 +80,7 @@ void Engine::ResizeWindow(int32 width, int32 height) {
 }
 
 void Engine::ShowFps() {
-    uint32 fps = GET_SINGLETON(Timer)->GetFps();
+    uint32 fps = GET_SINGLETON(Timer)->GetFPS();
 
     WCHAR text[100] = L"";
     ::wsprintf(text, L"FPS : %d", fps);

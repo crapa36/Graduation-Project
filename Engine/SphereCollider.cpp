@@ -20,7 +20,7 @@ SphereCollider::~SphereCollider() {
 }
 
 void SphereCollider::FinalUpdate() {
-    _boundingSphere.Center = GetGameObject()->GetTransform()->GetWorldPosition();
+    _boundingSphere.Center = GetGameObject()->GetTransform()->GetWorldPosition()+_center;
 
     _boundingSphere.Radius = _radius / 2;
 }

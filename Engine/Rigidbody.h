@@ -19,6 +19,7 @@ public:
     void SetAngularDrag(float angularDrag) { _angularDrag = angularDrag; }
     void SetUseGravity(bool useGravity) { _useGravity = useGravity; }
     void SetIsKinematic(bool isKinematic) { _isKinematic = isKinematic; }
+    void SetElasticity(float elasticity) { _elasticity = elasticity; }
 
     Vec3 GetVelocity() { return _velocity; }
     Vec3 GetAngularVelocity() { return _angularVelocity; }
@@ -35,11 +36,11 @@ private:
     float _mass = 0.5f;
     float _drag = 0.05f;
     float _angularDrag = 0.05f;
+    float _elasticity = 0.9f; // 기본 탄성 계수
     bool _useGravity = true;
     bool _isKinematic = false;
-    bool _isGrounded = false;
 
-    float _elasticity = 0.9f; // 기본 탄성 계수
+    bool _isGrounded = false;
 
     Vec3 _velocity = Vec3(0.f, 0.f, 0.f);
     Vec3 _angularVelocity = Vec3(0.f, 0.f, 0.f);

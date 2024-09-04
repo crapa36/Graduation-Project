@@ -18,6 +18,7 @@ public:
     virtual float GetCollisionDepth(const shared_ptr<BaseCollider>& other) = 0;
 
     virtual float GetHeight() = 0;
+    virtual Vec3 GetCenter() = 0;
 
     ColliderType GetColliderType() { return _colliderType; }
 

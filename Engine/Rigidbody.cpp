@@ -68,7 +68,7 @@ void Rigidbody::OnCollisionEnter(const shared_ptr<GameObject>& other) {
     float velocityDotNormal = _velocity.Dot(collisionNormal);
     _velocity = (_velocity - 2 * velocityDotNormal * collisionNormal) * _elasticity;
 
-    AddForce(collisionNormal * collisionDepth * 5);
+    AddForce(collisionNormal * collisionDepth * 2);
 
     if (other->GetRigidbody()) {
         float velocityDotNormal = _velocity.Dot(collisionNormal);

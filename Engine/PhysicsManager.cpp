@@ -166,7 +166,10 @@ void PhysicsManager::UpdatePhysics() {
             const auto& transform = gameObject->GetTransform();
             Vec3 position = transform->GetLocalPosition();
             Vec4 rayOrigin(position.x, position.y, position.z, 1.0f);
-
+            Vec3 colliderCenter = gameObject->GetCollider()->GetCenter();
+            rayOrigin.x += colliderCenter.x;
+            rayOrigin.y += colliderCenter.y;
+            rayOrigin.z += colliderCenter.z;
             rayOrigin.y -= gameObject->GetCollider()->GetHeight();
 
             Vec4 rayDir(0.0f, -1.0f, 0.0f, 0.0f);
@@ -177,13 +180,13 @@ void PhysicsManager::UpdatePhysics() {
                 const auto& terrainPosition = terrainTransform->GetLocalPosition();
                 const auto& terrainScale = terrainTransform->GetLocalScale();
 
-                float height = terrain->GetTerrain()->GetHeightAtPosition(position.x - terrainPosition.x, position.z - terrainPosition.z);
+                float height = terrain->GetTerrain()->GetHeightAtPosition(rayOrigin.x - terrainPosition.x, rayOrigin.z - terrainPosition.z);
                 float heightValue = terrainScale.y * height + terrainPosition.y;
-                float distance = 0.f;
+                float distance = 0.0f;
 
                 auto terrainCollider = terrain->GetCollider();
                 if (terrainCollider->Intersects(rayOrigin, rayDir, OUT distance) && (heightValue - terrainPosition.y > distance)) {
-                    position.y = heightValue;
+                    position.y = heightValue+ gameObject->GetCollider()->GetHeight()-colliderCenter.y;
                     transform->SetLocalPosition(position);
                     if (gameObject->GetRigidbody()) {
                         gameObject->GetRigidbody()->OnCollisionEnter(terrain);

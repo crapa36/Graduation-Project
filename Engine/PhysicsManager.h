@@ -30,7 +30,7 @@ private:
     void HandleCollision(shared_ptr<GameObject> objA, shared_ptr<GameObject> objB);
     void UpdatePhysics();
 
-    // �浹 ������ ������ �ڷᱸ��
+
     std::unordered_map<std::tuple<std::shared_ptr<GameObject>, std::shared_ptr<GameObject>>, float, TupleHash, TupleEqual> _collisionCooldowns;
-    const float _cooldownDuration = 0.0001f; // ��Ÿ�� 1��
+    const float _cooldownDuration = 0.00001f; 
 };

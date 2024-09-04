@@ -266,7 +266,6 @@ void SceneManager::LoadScene(wstring sceneName) {
 
     shared_ptr<Scene> scene = make_shared<Scene>();
 
-
     _activeScene = LoadTestScene();
 
     //SaveScene(L"../Resources/main_scene.bin");
@@ -275,8 +274,7 @@ void SceneManager::LoadScene(wstring sceneName) {
     _activeScene->Start();
 }
 
-void SceneManager::ChangeScene(wstring sceneName)
-{
+void SceneManager::ChangeScene(wstring sceneName) {
     //_beforeScene = _activeScene;
     //_activeScene = Scenes.at(sceneName);
 }
@@ -308,13 +306,15 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         for (auto& gameObject : gameObjects) {
             gameObject->SetName(L"Dragon");
             gameObject->SetCheckFrustum(false);
-            gameObject->AddComponent(make_shared<SphereCollider>());
+            gameObject->AddComponent(make_shared<BoxCollider>());
             gameObject->AddComponent(make_shared<TestDragonScript>());
             gameObject->AddComponent(make_shared<Rigidbody>());
-            dynamic_pointer_cast<SphereCollider>(gameObject->GetCollider())->SetRadius(0.5f);
-            gameObject->GetTransform()->SetLocalPosition(Vec3(0.f, 500.f, -1600.f));
+            dynamic_pointer_cast<BoxCollider>(gameObject->GetCollider())->SetExtents(Vec3(40.f, 30.f, 40.f));
+            dynamic_pointer_cast<BoxCollider>(gameObject->GetCollider())->SetCenter(Vec3(0.f, 10.f, 0.f));
+            gameObject->GetTransform()->SetLocalPosition(Vec3(0.f, 500.f, 0.f));
             gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
             gameObject->GetRigidbody()->SetUseGravity(true);
+            gameObject->GetRigidbody()->SetElasticity(0.0f);
 
             gameObject->SetStatic(false);
             scene->AddGameObject(gameObject);
@@ -422,7 +422,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         obj->AddComponent(make_shared<SphereCollider>());
         obj->AddComponent(make_shared<Rigidbody>());
         obj->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
-        obj->GetTransform()->SetLocalPosition(Vec3(200, 300.f, 50.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(200, 2000.f, 50.f));
 
         obj->SetStatic(false);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
@@ -452,11 +452,11 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         obj->AddComponent(make_shared<MeshRenderer>());
 
         obj->GetTransform()->SetLocalScale(Vec3(50.f, 400.f, 50.f));
-        obj->GetTransform()->SetLocalPosition(Vec3(-1600.f, -400.f, -1600.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(-1600.f, -200.f, -1600.f));
         obj->SetStatic(true);
         obj->GetTerrain()->Init(64, 64);
-        dynamic_pointer_cast<BoxCollider>(obj->GetCollider())->SetCenter(Vec3(0.f, -400.f, 0.f));
-        dynamic_pointer_cast<BoxCollider>(obj->GetCollider())->SetExtents(Vec3(6400.f, 1.f, 6400.f));
+        dynamic_pointer_cast<BoxCollider>(obj->GetCollider())->SetCenter(Vec3(1600.f, 0.f, 1600.f));
+        dynamic_pointer_cast<BoxCollider>(obj->GetCollider())->SetExtents(Vec3(3200.f, 1.f, 3200.f));
 
         obj->SetCheckFrustum(false);
 

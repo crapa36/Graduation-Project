@@ -1,21 +1,21 @@
 #pragma once
+#include <chrono>
 
 class Timer {
     DECLARE_SINGLETON(Timer);
 public:
     void Init();
     void Update();
-
-    uint32 GetFps() { return _fps; }
-    float GetDeltaTime() { return _deltaTime; }
-
-private:
-    uint64	_frequency = 0;
-    uint64	_prevCount = 0;
-    float	_deltaTime = 0.f;
+    float GetDeltaTime() const { return _deltaTime; }
+    int32_t GetFPS() const { return _fps; }
 
 private:
-    uint32	_frameCount = 0;
-    float	_frameTime = 0.f;
-    uint32	_fps = 0;
+    using Clock = std::chrono::high_resolution_clock;
+    using TimePoint = std::chrono::time_point<Clock>;
+    
+    TimePoint _prevTime;
+    float _deltaTime=0.0f;
+    int32_t _frameCount=0;
+    int32_t _fps=0;
+    float _elapsedTime=0.0;
 };
