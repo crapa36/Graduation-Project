@@ -124,7 +124,6 @@ void Light::SetLightType(LIGHT_TYPE type) {
     }
 }
 
-const Vec3& Light::GetLightDirection()
-{
+const Vec3& Light::GetLightDirection() {
     return GetTransform()->GetLook();
 }

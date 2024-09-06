@@ -20,7 +20,7 @@ SphereCollider::~SphereCollider() {
 }
 
 void SphereCollider::FinalUpdate() {
-    _boundingSphere.Center = GetGameObject()->GetTransform()->GetWorldPosition();
+    _boundingSphere.Center = GetGameObject()->GetTransform()->GetWorldPosition()+_center;
 
     _boundingSphere.Radius = _radius / 2;
 }
@@ -43,8 +43,8 @@ bool SphereCollider::Intersects(const shared_ptr<BaseCollider>& other) {
     return false;
 }
 
-Vec4 SphereCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
-    Vec4 normal;
+Vec3 SphereCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
+    Vec3 normal;
 
     ColliderType otherType = other->GetColliderType();
     if (otherType == ColliderType::Sphere) {
@@ -55,7 +55,7 @@ Vec4 SphereCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
         XMVECTOR thisCenter = XMLoadFloat3(&_boundingSphere.Center);
         XMVECTOR normalVec = XMVectorSubtract(otherCenter, thisCenter);
         normalVec = XMVector3Normalize(normalVec);
-        XMStoreFloat4(&normal, normalVec);
+        XMStoreFloat3(&normal, normalVec);
     }
     else if (otherType == ColliderType::Box) {
 
@@ -98,7 +98,7 @@ Vec4 SphereCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
 
         // 월드 좌표계로 변환
         XMVECTOR worldNormal = XMVector3TransformNormal(localNormal, boxRotation);
-        XMStoreFloat4(&normal, worldNormal);
+        XMStoreFloat3(&normal, worldNormal);
     }
 
     return normal;

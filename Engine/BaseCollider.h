@@ -14,10 +14,11 @@ public:
     virtual bool Intersects(Vec4 rayOrigin, Vec4 rayDir, OUT float& distance) = 0;
     virtual bool Intersects(const shared_ptr<BaseCollider>& other) = 0;
 
-    virtual Vec4 GetCollisionNormal(const shared_ptr<BaseCollider>& other) = 0;
+    virtual Vec3 GetCollisionNormal(const shared_ptr<BaseCollider>& other) = 0;
     virtual float GetCollisionDepth(const shared_ptr<BaseCollider>& other) = 0;
 
     virtual float GetHeight() = 0;
+    virtual Vec3 GetCenter() = 0;
 
     ColliderType GetColliderType() { return _colliderType; }
 

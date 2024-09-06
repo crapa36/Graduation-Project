@@ -116,8 +116,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
     DWORD style = WS_OVERLAPPEDWINDOW;
 
     // 원하는 클라이언트 영역 크기
-    GwindowInfo.width = 1920;
-    GwindowInfo.height = 1080;
+    GwindowInfo.width = 960;
+    GwindowInfo.height = 540;
 
     // 윈도우 크기를 조정하여 클라이언트 영역이 원하는 크기가 되도록 합니다.
     RECT rect = { 0, 0, GwindowInfo.width, GwindowInfo.height };
@@ -152,44 +152,42 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
         return true;
     switch (message) {
-        case WM_COMMAND:
-        {
-
-            // 메뉴 선택을 구문 분석합니다:
-            switch (wmId) {
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
-            }
+    case WM_COMMAND:
+    {
+        // 메뉴 선택을 구문 분석합니다:
+        switch (wmId) {
+        case IDM_ABOUT:
+            DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+            break;
+        case IDM_EXIT:
+            DestroyWindow(hWnd);
+            break;
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
         }
-        break;
-        case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
+    }
+    break;
+    case WM_PAINT:
+    {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(hWnd, &ps);
 
-
-            // 메뉴 선택을 구문 분석합니다:
-            switch (wmId) {
-            case WM_SIZE:
-                if (wParam != SIZE_MINIMIZED) {
-                }
-                break;
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
+        // 메뉴 선택을 구문 분석합니다:
+        switch (wmId) {
+        case WM_SIZE:
+            if (wParam != SIZE_MINIMIZED) {
             }
+            break;
+        case IDM_ABOUT:
+            DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+            break;
+        case IDM_EXIT:
+            DestroyWindow(hWnd);
+            break;
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
         }
+    }
     break;
     case WM_DESTROY:
         ImGui_ImplDX12_Shutdown();
