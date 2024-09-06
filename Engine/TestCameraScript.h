@@ -1,6 +1,13 @@
 #pragma once
 #include "MonoBehaviour.h"
 
+enum Dir {
+    FRONT,
+    BACK,
+    LEFT,
+    RIGHT,
+};
+
 class TestCameraScript : public MonoBehaviour {
 public:
     TestCameraScript();
@@ -14,4 +21,6 @@ private:
     bool        _isMouseLock = true;
     POINT       _centerPos;
     POINT       _centerScreenPos;
+
 };
+    

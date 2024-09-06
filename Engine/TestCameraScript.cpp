@@ -58,25 +58,36 @@ void TestCameraScript::LateUpdate() {
         shared_ptr<Transform> parent = GetTransform()->GetParent().lock();
         Vec3 parentRotate = parent->GetLocalRotation();
         Vec3 parentPos = parent->GetLocalPosition();
-        if (INPUT->GetButton(KEY_TYPE::W)) {
-            parentRotate.y = revolution.y + PIE;
-            parent->SetLocalRotation(parentRotate);
-            parentPos -= parent->GetLook() * _speed * DELTA_TIME;
-        }
-        if (INPUT->GetButton(KEY_TYPE::S)) {
-            parentRotate.y = revolution.y;
-            parent->SetLocalRotation(parentRotate);
-            parentPos -= parent->GetLook() * _speed * DELTA_TIME;
-        }
-        if (INPUT->GetButton(KEY_TYPE::A)) {
-            parentRotate.y = revolution.y + (0.5f * PIE);
-            parent->SetLocalRotation(parentRotate);
-            parentPos -= parent->GetLook() * _speed * DELTA_TIME;
-        }
-        if (INPUT->GetButton(KEY_TYPE::D)) {
-            parentRotate.y = revolution.y - (0.5f * PIE);
-            parent->SetLocalRotation(parentRotate);
-            parentPos -= parent->GetLook() * _speed * DELTA_TIME;
+
+        if (INPUT->GetButton(KEY_TYPE::W) || INPUT->GetButton(KEY_TYPE::S) ||
+            INPUT->GetButton(KEY_TYPE::A) || INPUT->GetButton(KEY_TYPE::D)) {
+            
+            Vec3 _dir = { 0.f, 0.f, 0.f };
+
+            if (INPUT->GetButton(KEY_TYPE::W)) {
+                _dir -= GetTransform()->GetLook();
+            }
+            if (INPUT->GetButton(KEY_TYPE::S)) {
+                _dir += GetTransform()->GetLook();
+            }
+            if (INPUT->GetButton(KEY_TYPE::A)) {
+                _dir += GetTransform()->GetRight();
+            }
+            if (INPUT->GetButton(KEY_TYPE::D)) {
+                _dir -= GetTransform()->GetRight();
+            }
+            Vec3 dir = GetTransform()->GetLook();
+            dir.Normalize();
+            _dir.Normalize();
+            float dirAngle = acos(dir.Dot(_dir));
+            Vec3 crossProduct = dir.Cross(_dir);
+            float dirAnglePM = crossProduct.Dot({ 0.f, 1.f, 0.f });
+
+            if (dirAnglePM < 0) {
+                dirAngle = -dirAngle;
+            }
+          
+            parentRotate.y = revolution.y + dirAngle;
         }
         if (INPUT->GetButton(KEY_TYPE::SPACE))
             parentPos += parent->GetUp() * _speed * DELTA_TIME;
@@ -90,6 +101,12 @@ void TestCameraScript::LateUpdate() {
         if (INPUT->GetButtonUp(KEY_TYPE::SHIFT))
             _speed = 100.f;
 
+        parent->SetLocalRotation(parentRotate);
+
+        if (INPUT->GetButton(KEY_TYPE::W) || INPUT->GetButton(KEY_TYPE::S) ||
+            INPUT->GetButton(KEY_TYPE::A) || INPUT->GetButton(KEY_TYPE::D)) {
+            parentPos -= parent->GetLook() * _speed * DELTA_TIME;
+        }
         parent->SetLocalPosition(parentPos);
     }
 }
