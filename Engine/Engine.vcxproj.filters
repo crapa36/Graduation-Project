@@ -370,7 +370,6 @@
     <None Include="SimpleMath.inl">
       <Filter>Utils</Filter>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Resources\Shader\forward.fx">

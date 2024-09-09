@@ -27,6 +27,19 @@ void Rigidbody::Update() {
     // 각 감쇠를 적용합니다.
     _angularVelocity *= pow(1.0f - _angularDrag, DELTA_TIME);
     _isGrounded = false;
+
+    //캐릭터의 방향을 조정합니다.
+    if (_direction.y != GetTransform()->GetLocalRotation().y) { // 캐릭터의 방향이 목표 방향과 다르다면
+        if (_direction.y - GetTransform()->GetLocalRotation().y > 0) {
+            _angularVelocity = { 0.f, 0.01f, 0.f };
+        }
+        else {
+            _angularVelocity = { 0.f, -0.01f, 0.f };
+        }
+    }
+    else {
+        _angularVelocity = { 0.f, 0.f, 0.f };
+    }
 }
 
 void Rigidbody::LastUpdate() {
