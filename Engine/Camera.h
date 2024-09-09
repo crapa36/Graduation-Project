@@ -75,7 +75,7 @@ private:
     vector<shared_ptr<GameObject>>	_vecForward;
     vector<shared_ptr<GameObject>>	_vecParticle;
     vector<shared_ptr<GameObject>>	_vecShadow;
-
+    vector<shared_ptr<GameObject>>	_vecDebug;
 public:
 
     // TEMP

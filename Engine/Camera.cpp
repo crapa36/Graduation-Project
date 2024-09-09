@@ -10,7 +10,7 @@
 #include "Shader.h"
 #include "ParticleSystem.h"
 #include "InstancingManager.h"
-
+#include "BaseCollider.h"
 Matrix Camera::S_MatView;
 Matrix Camera::S_MatProjection;
 
@@ -41,12 +41,16 @@ void Camera::SortGameObject() {
     _vecForward.clear();
     _vecDeferred.clear();
     _vecParticle.clear();
+#ifdef _DEBUG
+    if (GEngine->GetDebugMode())
+        _vecDebug.clear();
+#endif
 
     for (auto& gameObject : gameObjects) {
-        if (gameObject->GetMeshRenderer() == nullptr && gameObject->GetParticleSystem() == nullptr)
+        if (IsCulled(gameObject->GetLayerIndex()))
             continue;
 
-        if (IsCulled(gameObject->GetLayerIndex()))
+        if (gameObject->GetMeshRenderer() == nullptr && gameObject->GetParticleSystem() == nullptr)
             continue;
 
         if (gameObject->GetCheckFrustum()) {
@@ -68,7 +72,14 @@ void Camera::SortGameObject() {
                 break;
             }
         }
-        else {
+#ifdef _DEBUG
+        if (GEngine->GetDebugMode()) {
+            if (gameObject->GetCollider()) {
+                _vecDebug.push_back(gameObject);
+            }
+        }
+#endif
+        if (gameObject->GetParticleSystem()) {
             _vecParticle.push_back(gameObject);
         }
     }
@@ -118,6 +129,13 @@ void Camera::Render_Forward() {
     for (auto& gameObject : _vecParticle) {
         gameObject->GetParticleSystem()->Render();
     }
+#ifdef _DEBUG
+    if (GEngine->GetDebugMode()) {
+        for (auto& gameObject : _vecDebug) {
+            gameObject->GetCollider()->Render();
+        }
+    }
+#endif
 }
 
 void Camera::Render_Shadow() {

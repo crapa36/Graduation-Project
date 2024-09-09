@@ -9,6 +9,7 @@ enum class COMPONENT_TYPE : uint8 {
     PARTICLE_SYSTEM,
     TERRAIN,
     COLLIDER,
+    RIGIDBODY,
     ANIMATOR,
 
     // ...
@@ -24,6 +25,8 @@ class GameObject;
 class Transform;
 class MeshRenderer;
 class Animator;
+class BaseCollider;
+class Rigidbody;
 
 class Component :public Object {
 public:
@@ -45,6 +48,8 @@ public:
     shared_ptr<Transform> GetTransform();
     shared_ptr<MeshRenderer> GetMeshRenderer();
     shared_ptr<Animator> GetAnimator();
+    shared_ptr<BaseCollider> GetCollider();
+    shared_ptr<Rigidbody> GetRigidbody();
 
 private:
     friend class GameObject;

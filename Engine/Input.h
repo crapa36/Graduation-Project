@@ -98,6 +98,7 @@ class Input {
     DECLARE_SINGLETON(Input);
 public:
     void Init(HWND hwnd);
+
     void Update();
 
     // 누르고 있을 때

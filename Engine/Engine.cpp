@@ -16,6 +16,8 @@ void Engine::Init(const WindowInfo& info) {
     _viewport = { 0, 0, static_cast<FLOAT>(info.width), static_cast<FLOAT>(info.height), 0.0f, 1.0f };
     _scissorRect = CD3DX12_RECT(0, 0, info.width, info.height);
 
+    
+
     _device->Init();
     _graphicsCmdQueue->Init(_device->GetDevice(), _swapChain);
     _computeCmdQueue->Init(_device->GetDevice());
@@ -80,7 +82,7 @@ void Engine::ResizeWindow(int32 width, int32 height) {
 }
 
 void Engine::ShowFps() {
-    uint32 fps = GET_SINGLETON(Timer)->GetFps();
+    uint32 fps = GET_SINGLETON(Timer)->GetFPS();
 
     WCHAR text[100] = L"";
     ::wsprintf(text, L"FPS : %d", fps);

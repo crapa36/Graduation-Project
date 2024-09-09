@@ -9,6 +9,7 @@ Texture::~Texture() {
 }
 
 void Texture::Load(const wstring& path) {
+    _path = path;
 
     // 파일 확장자 얻기
     wstring ext = fs::path(path).extension();

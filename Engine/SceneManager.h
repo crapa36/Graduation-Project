@@ -15,6 +15,7 @@ public:
 
     void SaveScene(wstring sceneName);
     void LoadScene(wstring sceneName);
+    void ChangeScene(wstring sceneName);
 
     void SetLayerName(uint8 index, const wstring& name);
     const wstring& IndexToLayerName(uint8 index) { return _layerNames[index]; }
@@ -27,6 +28,8 @@ private:
     shared_ptr<Scene> LoadTestScene();
 
 private:
+    map<wstring, shared_ptr<Scene>> Scenes;
+    shared_ptr<Scene> _beforeScene;
     shared_ptr<Scene> _activeScene;
 
     array<wstring, MAX_LAYER> _layerNames;
