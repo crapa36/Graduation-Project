@@ -10,8 +10,6 @@
 #include <DirectXMath.h>
 #include <algorithm>
 
-using namespace DirectX;
-
 SphereCollider::SphereCollider() : BaseCollider(ColliderType::Sphere) {
     CreateMesh();
 }
@@ -20,7 +18,7 @@ SphereCollider::~SphereCollider() {
 }
 
 void SphereCollider::FinalUpdate() {
-    _boundingSphere.Center = GetGameObject()->GetTransform()->GetWorldPosition()+_center;
+    _boundingSphere.Center = GetGameObject()->GetTransform()->GetWorldPosition() + _center;
 
     _boundingSphere.Radius = _radius / 2;
 }
