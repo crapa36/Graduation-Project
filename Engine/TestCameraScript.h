@@ -22,5 +22,6 @@ private:
     POINT       _centerPos;
     POINT       _centerScreenPos;
 
+    Vec3 _dir;
 };
     

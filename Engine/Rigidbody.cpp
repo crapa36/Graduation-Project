@@ -22,7 +22,6 @@ Rigidbody::~Rigidbody() {
 }
 
 void Rigidbody::init() {
-
     // 초기화 코드 (필요 시)
 }
 
@@ -41,22 +40,10 @@ void Rigidbody::Update() {
 
     _isGrounded = false;
 
-    //캐릭터의 방향을 조정합니다.
-    if (_direction.y != GetTransform()->GetLocalRotation().y) { // 캐릭터의 방향이 목표 방향과 다르다면
-        if (_direction.y - GetTransform()->GetLocalRotation().y > 0) {
-            _angularVelocity = { 0.f, 0.01f, 0.f };
-        }
-        else {
-            _angularVelocity = { 0.f, -0.01f, 0.f };
-        }
-    }
-    else {
-        _angularVelocity = { 0.f, 0.f, 0.f };
-    }
+    
 }
 
 void Rigidbody::LastUpdate() {
-
     // 현재는 구현하지 않음
 }
 

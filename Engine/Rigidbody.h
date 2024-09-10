@@ -24,6 +24,7 @@ public:
     void SetUseGravity(bool useGravity) { _useGravity = useGravity; }
     void SetIsKinematic(bool isKinematic) { _isKinematic = isKinematic; }
     void SetElasticity(float elasticity) { _elasticity = elasticity; }
+    void SetDirection(Vec3 direction) { _direction = direction; }
 
     Vec3 GetVelocity() const { return _velocity; }
     Vec3 GetAngularVelocity() const { return _angularVelocity; }
@@ -49,4 +50,6 @@ private:
 
     Vec3 _velocity = Vec3(0.f, 0.f, 0.f);          // 선형 속도
     Vec3 _angularVelocity = Vec3(0.f, 0.f, 0.f);   // 각속도
+
+    Vec3 _direction; // 방향
 };

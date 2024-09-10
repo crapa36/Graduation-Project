@@ -6,6 +6,7 @@
 #include "Input.h"
 #include "Timer.h"
 #include "PhysicsManager.h"
+#include "Rigidbody.h"
 #include "Engine.h"
 
 TestCameraScript::TestCameraScript() {
@@ -65,38 +66,69 @@ void TestCameraScript::LateUpdate() {
         }
 
         // 부모 객체(카메라)의 회전과 이동 처리
-        shared_ptr<Transform> parent = GetTransform()->GetParent().lock();
-        Vec3 parentRotate = parent->GetLocalRotation();
-        Vec3 parentPos = parent->GetLocalPosition();
+        shared_ptr<GameObject> parent = GetGameObject()->GetParent().lock();
+        shared_ptr<Transform> parentTransform = parent->GetTransform();
+        Vec3 parentRotate = parentTransform->GetLocalRotation();
+        Vec3 parentPos = parentTransform->GetLocalPosition();
 
-        // W, A, S, D 키를 사용한 이동 처리
-        if (INPUT->IsKeyPressed(DIK_W)) {
-            parentRotate.y = revolution.y + XM_PI;
-            parent->SetLocalRotation(parentRotate);
-            parentPos -= parent->GetLook() * _speed * DELTA_TIME;
+        Vec3 dir;
+        Vec3 look;
+
+        if (INPUT->IsKeyPressed(DIK_W) || INPUT->IsKeyPressed(DIK_S) ||
+            INPUT->IsKeyPressed(DIK_A) || INPUT->IsKeyPressed(DIK_D)) {
+
+            dir = { 0.f, 0.f, 0.f };
+            look = parentTransform->GetLook();
+            
+            //방향벡터 구하기
+            if (INPUT->IsKeyPressed(DIK_W)) {
+                dir -= GetTransform()->GetLook();
+            }
+            if (INPUT->IsKeyPressed(DIK_S)) {
+                dir += GetTransform()->GetLook();
+            }
+            if (INPUT->IsKeyPressed(DIK_A)) {
+                dir += GetTransform()->GetRight();
+            }
+            if (INPUT->IsKeyPressed(DIK_D)) {
+                dir -= GetTransform()->GetRight();
+            }
+
+            Vec3 look = GetTransform()->GetLook(); //카메라가 바라보는 벡터
+            look.Normalize();
+            dir.Normalize();
+            //외적과 내적으로 두 벡터 사이의 각 구하기
+            float dirAngle = acos(look.Dot(dir));
+            Vec3 crossProduct = look.Cross(dir);
+            float dirAnglePM = crossProduct.Dot({ 0.f, 1.f, 0.f });
+
+            if (dirAnglePM < 0) {
+                dirAngle = -dirAngle;
+            }
+
+            _dir.y = revolution.y + dirAngle; // 최종회전값
         }
-        if (INPUT->IsKeyPressed(DIK_S)) {
-            parentRotate.y = revolution.y;
-            parent->SetLocalRotation(parentRotate);
-            parentPos -= parent->GetLook() * _speed * DELTA_TIME;
-        }
-        if (INPUT->IsKeyPressed(DIK_A)) {
-            parentRotate.y = revolution.y + (0.5f * XM_PI);
-            parent->SetLocalRotation(parentRotate);
-            parentPos -= parent->GetLook() * _speed * DELTA_TIME;
-        }
-        if (INPUT->IsKeyPressed(DIK_D)) {
-            parentRotate.y = revolution.y - (0.5f * XM_PI);
-            parent->SetLocalRotation(parentRotate);
-            parentPos -= parent->GetLook() * _speed * DELTA_TIME;
+        //회전보간
+        Vec3 result;
+        result.x = 0.f;
+        result.y = parentRotate.y + (DELTA_TIME * 10) * (_dir.y - parentRotate.y);
+        result.z = 0.f;
+
+        parentTransform->SetLocalRotation(result);
+
+
+        //WASD 입력시 캐릭터가 바라보는 방향으로 이동
+        if (INPUT->IsKeyPressed(DIK_W) || INPUT->IsKeyPressed(DIK_S) ||
+            INPUT->IsKeyPressed(DIK_A) || INPUT->IsKeyPressed(DIK_D)) { 
+            parentPos -= parentTransform->GetLook() * _speed * DELTA_TIME;
         }
 
         // 스페이스바로 위쪽 이동, Ctrl로 아래쪽 이동
         if (INPUT->IsKeyPressed(DIK_SPACE)) {
-            parentPos += parent->GetUp() * _speed * DELTA_TIME;
+            parentPos += parentTransform->GetUp() * _speed * DELTA_TIME;
         }
         if (INPUT->IsKeyPressed(DIK_LCONTROL)) {
-            parentPos -= parent->GetUp() * _speed * DELTA_TIME;
+            parentPos -= parentTransform->GetUp() * _speed * DELTA_TIME;
         }
 
         // Shift 키로 이동 속도 변경
@@ -107,15 +139,15 @@ void TestCameraScript::LateUpdate() {
             _speed = 100.f;
         }
 
-        // 부모 객체 위치 적용
-        parent->SetLocalPosition(parentPos);
 
         // 마우스 휠로 줌 기능 추가
         int mouseWheel = INPUT->GetMouseWheel();
         if (mouseWheel != 0) {
             float zoomSpeed = 5.0f;
-            parentPos += parent->GetLook() * zoomSpeed * mouseWheel * DELTA_TIME;
-            parent->SetLocalPosition(parentPos);
+            parentPos += parentTransform->GetLook() * zoomSpeed * mouseWheel * DELTA_TIME;
         }
+
+        // 부모 객체 위치 적용
+        parentTransform->SetLocalPosition(parentPos);
     }
 }

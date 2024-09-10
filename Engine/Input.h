@@ -1,5 +1,6 @@
 #pragma once
 #include <dinput.h>
+
 class Input {
 public:
     DECLARE_SINGLETON(Input);

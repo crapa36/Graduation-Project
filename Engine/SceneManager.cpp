@@ -329,7 +329,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
             camera->GetCamera()->SetFar(10000.f); // Far 10000 ����
             camera->GetTransform()->SetLocalPosition(Vec3(0.f, 70.f, -200.f));
 
-            camera->GetTransform()->SetParent(gameObjects.front()->GetTransform());
+            camera->SetParent(gameObjects.front());
             camera->GetTransform()->SetInheritRotation(false);
             camera->GetTransform()->SetInheritScale(false);
 

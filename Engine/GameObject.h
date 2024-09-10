@@ -49,12 +49,14 @@ public:
     void SetStatic(bool isStatic) { _isStatic = isStatic; }
     bool IsStatic() { return _isStatic; }
 
+    void SetParent(shared_ptr<GameObject> parent);
+    weak_ptr<GameObject> GetParent() { return _parent; }
+
 private:
     array<shared_ptr<Component>, FIXED_COMPONENT_COUNT> _components;
     vector<shared_ptr<MonoBehaviour>> _scripts;
 
-    shared_ptr<GameObject>          _parentsObject;
-    vector<shared_ptr<GameObject>> _childObject;
+    weak_ptr<GameObject>          _parent;
 
     wstring _path = L"";
     bool _checkFrustum = true;
