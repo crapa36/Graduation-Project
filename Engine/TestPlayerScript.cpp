@@ -18,15 +18,18 @@ TestPlayerScript::~TestPlayerScript() {
 void TestPlayerScript::LateUpdate() {
     if (GetForegroundWindow() == GEngine->GetWindow().hwnd) {
         Vec3 rotation = GetTransform()->GetLocalRotation();
-        if (INPUT->GetButton(KEY_TYPE::UP))
+
+        // 방향키 입력에 따른 회전 처리
+        if (INPUT->IsKeyPressed(DIK_UP))  // 위쪽 방향키
             rotation.x += DELTA_TIME * 1.f;
-        if (INPUT->GetButton(KEY_TYPE::DOWN))
+        if (INPUT->IsKeyPressed(DIK_DOWN))  // 아래쪽 방향키
             rotation.x -= DELTA_TIME * 1.f;
-        if (INPUT->GetButton(KEY_TYPE::LEFT))
+        if (INPUT->IsKeyPressed(DIK_LEFT))  // 왼쪽 방향키
             rotation.y += DELTA_TIME * 1.f;
-        if (INPUT->GetButton(KEY_TYPE::RIGHT))
+        if (INPUT->IsKeyPressed(DIK_RIGHT))  // 오른쪽 방향키
             rotation.y -= DELTA_TIME * 1.f;
 
+        // 변환된 회전값을 적용
         GetTransform()->SetLocalRotation(rotation);
     }
 }

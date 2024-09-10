@@ -44,6 +44,7 @@ using namespace Microsoft::WRL;
 #pragma comment(lib, "dxgi")
 #pragma comment(lib, "dxguid")
 #pragma comment(lib, "d3dcompiler")
+#pragma comment(lib, "dinput8")
 
 #ifdef _DEBUG
 #pragma comment(lib, "DirectXTex\\DirectXTex_debug.lib")
@@ -124,6 +125,7 @@ struct WindowInfo {
     int32	width; // 너비
     int32	height; // 높이
     bool	windowed; // 창모드 or 전체화면
+    HINSTANCE hInstance; // 인스턴스
 };
 
 struct Vertex {

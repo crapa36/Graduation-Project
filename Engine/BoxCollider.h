@@ -16,7 +16,7 @@ public:
 
     BoundingOrientedBox GetBoundingBox() const { return _boundingBox; }
 
-    virtual float GetHeight() override { return _extents.y/2; }
+    virtual float GetHeight() override { return _extents.y / 2; }
     virtual Vec3 GetCenter() override { return _center; }
 
     virtual void CreateMesh() override;

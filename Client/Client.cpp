@@ -49,7 +49,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     MSG msg;
 
     // 클라이언트 영역의 크기를 가져옵니다.
-
+    GwindowInfo.hInstance = hInstance;
     GwindowInfo.windowed = true;
 
     unique_ptr<Game> game = make_unique<Game>();
@@ -116,8 +116,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
     DWORD style = WS_OVERLAPPEDWINDOW;
 
     // 원하는 클라이언트 영역 크기
-    GwindowInfo.width = 960;
-    GwindowInfo.height = 540;
+    GwindowInfo.width = 1920;
+    GwindowInfo.height = 1080;
 
     // 윈도우 크기를 조정하여 클라이언트 영역이 원하는 크기가 되도록 합니다.
     RECT rect = { 0, 0, GwindowInfo.width, GwindowInfo.height };

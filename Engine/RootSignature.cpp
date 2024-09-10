@@ -8,7 +8,16 @@ void RootSignature::Init() {
 }
 
 void RootSignature::CreateGraphicsRootSignature() {
-    _samplerDesc = CD3DX12_STATIC_SAMPLER_DESC(0);
+
+    //_samplerDesc = CD3DX12_STATIC_SAMPLER_DESC(0);
+
+    // 이등방성 필터링을 적용한 샘플러 TODO: 마테리얼로 옮겨서 필요할때만 적용하게 수정
+    _samplerDesc = CD3DX12_STATIC_SAMPLER_DESC(0, D3D12_FILTER_ANISOTROPIC,
+                                               D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+                                               D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+                                               D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+                                               0.0f, 16);
+
 
     CD3DX12_DESCRIPTOR_RANGE ranges[] =
     {

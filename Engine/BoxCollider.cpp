@@ -9,14 +9,12 @@
 #include "Resources.h"
 #include <algorithm>
 
-BoxCollider::BoxCollider() : BaseCollider(ColliderType::Box) {
-}
+BoxCollider::BoxCollider() : BaseCollider(ColliderType::Box) {}
 
-BoxCollider::~BoxCollider() {
-}
+BoxCollider::~BoxCollider() {}
 
 void BoxCollider::FinalUpdate() {
-    _boundingBox.Center = GetGameObject()->GetTransform()->GetWorldPosition()+_center;
+    _boundingBox.Center = GetGameObject()->GetTransform()->GetWorldPosition() + _center;
     _boundingBox.Extents = _extents / 2;
     _boundingBox.Orientation = _orientation;
 }
@@ -26,19 +24,16 @@ bool BoxCollider::Intersects(Vec4 rayOrigin, Vec4 rayDir, OUT float& distance) {
 }
 
 bool BoxCollider::Intersects(const shared_ptr<BaseCollider>& other) {
-    ColliderType type = other->GetColliderType();
+    if (!other) return false;
 
-    switch (type) {
+    switch (other->GetColliderType()) {
     case ColliderType::Sphere:
-
         return _boundingBox.Intersects(dynamic_pointer_cast<SphereCollider>(other)->GetBoundingSphere());
-
     case ColliderType::Box:
-
         return _boundingBox.Intersects(dynamic_pointer_cast<BoxCollider>(other)->GetBoundingBox());
+    default:
+        return false;
     }
-
-    return false;
 }
 
 Vec3 BoxCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
@@ -46,15 +41,13 @@ Vec3 BoxCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
 
     ColliderType otherType = other->GetColliderType();
     if (otherType == ColliderType::Sphere) {
-
-        // Box-Sphere 충돌
         auto otherSphere = dynamic_pointer_cast<SphereCollider>(other);
         Vec3 sphereCenter = otherSphere->GetBoundingSphere().Center;
         Vec3 boxCenter = _boundingBox.Center;
         Vec3 boxExtents = _boundingBox.Extents;
         XMMATRIX boxRotation = GetRotationMatrix();
 
-        // 박스의 로컬 좌표계로 스피어 중심 변환
+        // 박스 로컬 좌표계로 스피어 중심 변환
         XMVECTOR sphereCenterVec = XMLoadFloat3(&sphereCenter);
         XMVECTOR boxCenterVec = XMLoadFloat3(&boxCenter);
         XMVECTOR localSphereCenter = XMVector3Transform(sphereCenterVec - boxCenterVec, XMMatrixInverse(nullptr, boxRotation));
@@ -89,8 +82,6 @@ Vec3 BoxCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
         XMStoreFloat3(&normal, worldNormal);
     }
     else if (otherType == ColliderType::Box) {
-
-        // Box-Box 충돌
         auto otherBox = dynamic_pointer_cast<BoxCollider>(other);
         Vec3 otherCenter = otherBox->GetBoundingBox().Center;
         Vec3 thisCenter = _boundingBox.Center;
@@ -116,8 +107,6 @@ float BoxCollider::GetCollisionDepth(const shared_ptr<BaseCollider>& other) {
 
     ColliderType otherType = other->GetColliderType();
     if (otherType == ColliderType::Sphere) {
-
-        // Box-Sphere 충돌 깊이
         auto otherSphere = dynamic_pointer_cast<SphereCollider>(other);
         Vec3 sphereCenter = otherSphere->GetBoundingSphere().Center;
         Vec3 boxCenter = _boundingBox.Center;
@@ -143,8 +132,6 @@ float BoxCollider::GetCollisionDepth(const shared_ptr<BaseCollider>& other) {
         depth = otherSphere->GetBoundingSphere().Radius - distance;
     }
     else if (otherType == ColliderType::Box) {
-
-        // Box-Box 충돌 깊이 (AABB로 단순화)
         auto otherBox = dynamic_pointer_cast<BoxCollider>(other);
         Vec3 otherCenter = otherBox->GetBoundingBox().Center;
         Vec3 thisCenter = _boundingBox.Center;
@@ -157,11 +144,10 @@ float BoxCollider::GetCollisionDepth(const shared_ptr<BaseCollider>& other) {
         overlap.z = (thisExtents.z + otherExtents.z) - abs(thisCenter.z - otherCenter.z);
 
         // 가장 작은 축을 따라 충돌 깊이 결정
-        depth = (((overlap.x) < (overlap.y)) ? (overlap.x) : (overlap.y));
+        depth = min(overlap.x, min(overlap.y, overlap.z));
     }
-    if (depth < 0.0f)
-        depth = 0.0f;
-    return depth;
+
+    return depth < 0.0f ? 0.0f : depth;
 }
 
 #ifdef _DEBUG
@@ -170,15 +156,15 @@ void BoxCollider::CreateMesh() {
     _material = GET_SINGLETON(Resources)->Get<Material>(L"Collider")->Clone();
     _DebugObject = make_shared<GameObject>();
     _DebugObject->AddComponent(make_shared<Transform>());
-    shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+
+    auto meshRenderer = make_shared<MeshRenderer>();
     meshRenderer->SetMesh(_mesh);
     meshRenderer->SetMaterial(_material);
     _DebugObject->AddComponent(meshRenderer);
 }
 
 void BoxCollider::Render() {
-    if (_DebugObject == nullptr)
-        CreateMesh();
+    if (!_DebugObject) CreateMesh();
 
     _DebugObject->GetTransform()->SetLocalPosition(_boundingBox.Center);
     _DebugObject->GetTransform()->SetLocalScale(_extents);
