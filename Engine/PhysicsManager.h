@@ -32,5 +32,5 @@ private:
 
 
     std::unordered_map<std::tuple<std::shared_ptr<GameObject>, std::shared_ptr<GameObject>>, float, TupleHash, TupleEqual> _collisionCooldowns;
-    const float _cooldownDuration = 0.00001f; 
+    const float _cooldownDuration = 0.001f; 
 };

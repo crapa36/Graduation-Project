@@ -49,7 +49,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     MSG msg;
 
     // 클라이언트 영역의 크기를 가져옵니다.
-
+    GwindowInfo.hInstance = hInstance;
     GwindowInfo.windowed = true;
 
     unique_ptr<Game> game = make_unique<Game>();

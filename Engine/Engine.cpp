@@ -36,7 +36,7 @@ void Engine::Init(const WindowInfo& info) {
 
     //ResizeWindow(info.width, info.height); 윈도우 창크기와 렌더타겟 크기가 다른 현상으로 임시 주석처리
 
-    GET_SINGLETON(Input)->Init(info.hwnd);
+    GET_SINGLETON(Input)->Init(info);
     GET_SINGLETON(Timer)->Init();
     GET_SINGLETON(Resources)->Init();
     GET_SINGLETON(ImguiManager)->Init(info.hwnd, _device->GetDevice(), *_imguiDescriptorHeap.get());
