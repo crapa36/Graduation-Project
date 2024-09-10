@@ -6,87 +6,72 @@
 #include "GameObject.h"
 
 Rigidbody::Rigidbody() : Component(COMPONENT_TYPE::RIGIDBODY) {
-
 }
 
 Rigidbody::~Rigidbody() {
 }
 
 void Rigidbody::init() {
-
-    // 초기화 코드 (필요 시)
 }
 
 void Rigidbody::Update() {
-    // 중력 적용
+
+    // 중력을 적용합니다.
     if (_useGravity && !_isGrounded) {
-        _velocity += Vec3(0.0f, -20.0f, 0.0f) * DELTA_TIME;
+        _velocity += Vec3(0.f, -9.8f, 0.f) * DELTA_TIME * 2;
     }
 
-    // 선형 감쇠 적용
-    _velocity *= (1.0f - _drag * DELTA_TIME);
+    // 선형 감쇠를 적용합니다.
+    _velocity *= pow(1.0f - _drag, DELTA_TIME);
 
-    // 각 감쇠 적용
-    _angularVelocity *= (1.0f - _angularDrag * DELTA_TIME);
-
+    // 각 감쇠를 적용합니다.
+    _angularVelocity *= pow(1.0f - _angularDrag, DELTA_TIME);
     _isGrounded = false;
-   
 }
 
 void Rigidbody::LastUpdate() {
-   
-   
 }
 
 void Rigidbody::FinalUpdate() {
-    
-    // 속도에 따라 위치 변경
-    auto transform = GetTransform();
-    transform->SetLocalPosition(transform->GetLocalPosition() + _velocity * DELTA_TIME);
 
-    // 각속도에 따라 회전 변경
-    transform->SetLocalRotation(transform->GetLocalRotation() + _angularVelocity * DELTA_TIME);
+    // 속도에 따라 위치를 변경합니다.
+    GetTransform()->SetLocalPosition(GetTransform()->GetLocalPosition() + _velocity * DELTA_TIME);
+
+    // 각속도에 따라 회전을 변경합니다.
+    GetTransform()->SetLocalRotation(GetTransform()->GetLocalRotation() + _angularVelocity * DELTA_TIME);
 }
 
-void Rigidbody::AddForce(const Vec3& force) {
-    if (_mass > 0) {
-        Vec3 acceleration = force / _mass;
-        _velocity += acceleration * DELTA_TIME;  // 시간에 따른 힘의 효과 반영
-    }
+void Rigidbody::AddForce(Vec3 force) {
+    Vec3 acceleration = force / _mass;
+
+    // 가속도를 현재 속도에 더하여 새로운 속도를 계산합니다.
+    _velocity += acceleration;
 }
 
-void Rigidbody::AddTorque(const Vec3& torque) {
-    if (_mass > 0) {
-        Vec3 angularAcceleration = torque / _mass;
-        _angularVelocity += angularAcceleration * DELTA_TIME;  // 시간에 따른 토크의 효과 반영
-    }
+void Rigidbody::AddTorque(Vec3 torque) {
+
+    // 토크를 질량으로 나누어 각가속도를 계산합니다.
+    Vec3 angularAcceleration = torque / _mass;
+
+    // 각가속도를 현재 각속도에 더하여 새로운 각속도를 계산합니다.
+    _angularVelocity += angularAcceleration;
 }
 
-void Rigidbody::OnCollisionEnter(const std::shared_ptr<GameObject>& other, Vec3 collisionNormal, float collisionDepth) {
-    if (!GetCollider() || !other->GetCollider()) {
-        return;
-    }
+void Rigidbody::OnCollisionEnter(const shared_ptr<GameObject>& other) {
 
-    // 물리 반응 적용 (자신의 속도 반영)
+    // TODO : 충돌 처리 코드
+
+    Vec3 collisionNormal = -GetCollider()->GetCollisionNormal(other->GetCollider());
+    float collisionDepth = GetCollider()->GetCollisionDepth(other->GetCollider());
+
+    // Vec3 객체를 생성하여 Dot 메서드를 호출
     float velocityDotNormal = _velocity.Dot(collisionNormal);
-    _velocity = -(_velocity - 2.0f * velocityDotNormal * collisionNormal) * _elasticity;
+    _velocity = (_velocity - 2 * velocityDotNormal * collisionNormal) * _elasticity;
 
-    // 충돌 깊이에 따른 힘 적용
+    AddForce(collisionNormal * collisionDepth * 2);
 
-    AddForce(collisionNormal * collisionDepth * 2.0);
-
-    // 상대방이 리지드바디를 가지고 있다면
-    if (other->GetRigidbody()) {
-        Vec3 otherVelocity = other->GetRigidbody()->GetVelocity();
-
-        // 상대 속도 계산
-        Vec3 relativeVelocity = otherVelocity - _velocity;
-        float relativeVelocityDotNormal = relativeVelocity.Dot(collisionNormal);
-
-        // 상대 속도를 기반으로 힘 적용
-        AddForce(collisionNormal * relativeVelocityDotNormal);
-    }
-
+    /*if (auto otherRigidbody = other->GetRigidbody()) {
+        otherRigidbody->GetVelocity();
+    }*/
     _isGrounded = true;
 }
-
