@@ -7,15 +7,6 @@
 
 Rigidbody::Rigidbody() : Component(COMPONENT_TYPE::RIGIDBODY) {
 
-    // 초기화
-    _mass = 1.0f;  // 기본 질량 설정
-    _drag = 0.0f;  // 기본 선형 감쇠 설정
-    _angularDrag = 0.0f;  // 기본 각 감쇠 설정
-    _elasticity = 0.5f;  // 기본 탄성 계수 설정
-    _useGravity = true;  // 기본 중력 사용 설정
-    _velocity = Vec3(0.0f, 0.0f, 0.0f);
-    _angularVelocity = Vec3(0.0f, 0.0f, 0.0f);
-    _isGrounded = false;
 }
 
 Rigidbody::~Rigidbody() {
@@ -27,10 +18,9 @@ void Rigidbody::init() {
 }
 
 void Rigidbody::Update() {
-
     // 중력 적용
     if (_useGravity && !_isGrounded) {
-        _velocity += Vec3(0.0f, -9.8f, 0.0f) * DELTA_TIME;  // 지구 중력 상수 사용
+        _velocity += Vec3(0.0f, -20.0f, 0.0f) * DELTA_TIME;
     }
 
     // 선형 감쇠 적용
@@ -40,15 +30,16 @@ void Rigidbody::Update() {
     _angularVelocity *= (1.0f - _angularDrag * DELTA_TIME);
 
     _isGrounded = false;
+   
 }
 
 void Rigidbody::LastUpdate() {
-
-    // 현재는 구현하지 않음
+   
+   
 }
 
 void Rigidbody::FinalUpdate() {
-
+    
     // 속도에 따라 위치 변경
     auto transform = GetTransform();
     transform->SetLocalPosition(transform->GetLocalPosition() + _velocity * DELTA_TIME);
@@ -71,23 +62,31 @@ void Rigidbody::AddTorque(const Vec3& torque) {
     }
 }
 
-void Rigidbody::OnCollisionEnter(const std::shared_ptr<GameObject>& other, const Vec3 collisionNormal, const float collisionDepth) {
+void Rigidbody::OnCollisionEnter(const std::shared_ptr<GameObject>& other, Vec3 collisionNormal, float collisionDepth) {
     if (!GetCollider() || !other->GetCollider()) {
         return;
     }
 
-    // 물리 반응 적용
+    // 물리 반응 적용 (자신의 속도 반영)
     float velocityDotNormal = _velocity.Dot(collisionNormal);
-    _velocity = (_velocity - 2.0f * velocityDotNormal * collisionNormal) * _elasticity;
+    _velocity = -(_velocity - 2.0f * velocityDotNormal * collisionNormal) * _elasticity;
 
     // 충돌 깊이에 따른 힘 적용
-    AddForce(collisionNormal * collisionDepth * 2.0f);
 
-    if (auto otherRigidbody = other->GetRigidbody()) {
-        float otherVelocityDotNormal = otherRigidbody->_velocity.Dot(collisionNormal);
-        otherRigidbody->_velocity = (otherRigidbody->_velocity - 2.0f * otherVelocityDotNormal * collisionNormal) * otherRigidbody->_elasticity;
-        otherRigidbody->AddForce(-collisionNormal * otherVelocityDotNormal);
+    AddForce(collisionNormal * collisionDepth * 2.0);
+
+    // 상대방이 리지드바디를 가지고 있다면
+    if (other->GetRigidbody()) {
+        Vec3 otherVelocity = other->GetRigidbody()->GetVelocity();
+
+        // 상대 속도 계산
+        Vec3 relativeVelocity = otherVelocity - _velocity;
+        float relativeVelocityDotNormal = relativeVelocity.Dot(collisionNormal);
+
+        // 상대 속도를 기반으로 힘 적용
+        AddForce(collisionNormal * relativeVelocityDotNormal);
     }
 
     _isGrounded = true;
 }
+

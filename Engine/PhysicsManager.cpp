@@ -75,10 +75,11 @@ void PhysicsManager::Update() {
 void PhysicsManager::LateUpdate() {
 }
 void PhysicsManager::FinalUpdate() {
+  
 }
 
-void PhysicsManager::HandleCollision(std::shared_ptr<GameObject> objA, std::shared_ptr<GameObject> objB) {
-    auto collisionPair = std::make_tuple(objA, objB);
+void PhysicsManager::HandleCollision(shared_ptr<GameObject> objA, shared_ptr<GameObject> objB) {
+    auto collisionPair = make_tuple(objA, objB);
 
     // 충돌 쿨타임 체크
     if (_collisionCooldowns.find(collisionPair) != _collisionCooldowns.end()) {
@@ -95,18 +96,7 @@ void PhysicsManager::HandleCollision(std::shared_ptr<GameObject> objA, std::shar
     Vec3 collisionNormal = colliderA->GetCollisionNormal(colliderB);
     float collisionDepth = colliderA->GetCollisionDepth(colliderB);
 
-    // 충돌 처리 로직
-    if (auto RigidbodyA = objA->GetRigidbody()) {
-
-        // objA의 충돌 노말은 그대로 사용
-        RigidbodyA->OnCollisionEnter(objB, collisionNormal, collisionDepth);
-    }
-
-    if (auto RigidbodyB = objB->GetRigidbody()) {
-
-        // objB의 충돌 노말은 반대 방향으로 적용
-        RigidbodyB->OnCollisionEnter(objA, -collisionNormal, collisionDepth);
-    }
+   
 
     // 충돌이 발생하지 않도록 위치 조정
     if (collisionDepth > 0.0f) {
@@ -124,7 +114,18 @@ void PhysicsManager::HandleCollision(std::shared_ptr<GameObject> objA, std::shar
         transformA->SetLocalPosition(positionA);
         transformB->SetLocalPosition(positionB);
     }
+    // 충돌 처리 로직
+    if (auto RigidbodyA = objA->GetRigidbody()) {
 
+        // objA의 충돌 노말은 그대로 사용
+        RigidbodyA->OnCollisionEnter(objB, -collisionNormal, collisionDepth);
+    }
+
+    if (auto RigidbodyB = objB->GetRigidbody()) {
+
+        // objB의 충돌 노말은 반대 방향으로 적용
+        RigidbodyB->OnCollisionEnter(objA, collisionNormal, collisionDepth);
+    }
     // 충돌 시간 업데이트
     _collisionCooldowns[collisionPair] = _cooldownDuration;
 }

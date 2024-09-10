@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "StructuredBuffer.h"
 #include "Engine.h"
+#include <stdexcept> // std::runtime_error
 
 StructuredBuffer::StructuredBuffer() {
 }
@@ -19,16 +20,20 @@ void StructuredBuffer::Init(uint32 elementSize, uint32 elementCount, void* initi
         D3D12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
         D3D12_HEAP_PROPERTIES heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 
-        DEVICE->CreateCommittedResource(
+        HRESULT hr = DEVICE->CreateCommittedResource(
             &heapProperties,
             D3D12_HEAP_FLAG_NONE,
             &desc,
             _resourceState,
             nullptr,
             IID_PPV_ARGS(&_buffer));
+        if (FAILED(hr)) {
+            throw std::runtime_error("Failed to create committed resource for StructuredBuffer.");
+        }
 
-        if (initialData)
+        if (initialData) {
             CopyInitialData(bufferSize, initialData);
+        }
     }
 
     // SRV
@@ -37,7 +42,10 @@ void StructuredBuffer::Init(uint32 elementSize, uint32 elementCount, void* initi
         srvHeapDesc.NumDescriptors = 1;
         srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
         srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-        DEVICE->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&_srvHeap));
+        HRESULT hr = DEVICE->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&_srvHeap));
+        if (FAILED(hr)) {
+            throw std::runtime_error("Failed to create SRV descriptor heap for StructuredBuffer.");
+        }
 
         _srvHeapBegin = _srvHeap->GetCPUDescriptorHandleForHeapStart();
 
@@ -59,7 +67,10 @@ void StructuredBuffer::Init(uint32 elementSize, uint32 elementCount, void* initi
         uavheapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
         uavheapDesc.NumDescriptors = 1;
         uavheapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-        DEVICE->CreateDescriptorHeap(&uavheapDesc, IID_PPV_ARGS(&_uavHeap));
+        HRESULT hr = DEVICE->CreateDescriptorHeap(&uavheapDesc, IID_PPV_ARGS(&_uavHeap));
+        if (FAILED(hr)) {
+            throw std::runtime_error("Failed to create UAV descriptor heap for StructuredBuffer.");
+        }
 
         _uavHeapBegin = _uavHeap->GetCPUDescriptorHandleForHeapStart();
 
@@ -93,17 +104,23 @@ void StructuredBuffer::CopyInitialData(uint64 bufferSize, void* initialData) {
     D3D12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize, D3D12_RESOURCE_FLAG_NONE);
     D3D12_HEAP_PROPERTIES heapProperties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 
-    DEVICE->CreateCommittedResource(
+    HRESULT hr = DEVICE->CreateCommittedResource(
         &heapProperties,
         D3D12_HEAP_FLAG_NONE,
         &desc,
         D3D12_RESOURCE_STATE_GENERIC_READ,
         nullptr,
         IID_PPV_ARGS(&readBuffer));
+    if (FAILED(hr)) {
+        throw std::runtime_error("Failed to create committed resource for initial data upload.");
+    }
 
     uint8* dataBegin = nullptr;
     D3D12_RANGE readRange{ 0, 0 };
-    readBuffer->Map(0, &readRange, reinterpret_cast<void**>(&dataBegin));
+    hr = readBuffer->Map(0, &readRange, reinterpret_cast<void**>(&dataBegin));
+    if (FAILED(hr)) {
+        throw std::runtime_error("Failed to map read buffer for initial data upload.");
+    }
     memcpy(dataBegin, initialData, bufferSize);
     readBuffer->Unmap(0, nullptr);
 

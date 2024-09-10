@@ -3,53 +3,54 @@
 #include "SwapChain.h"
 #include "Engine.h"
 
+
 // *************************
 // GraphicsCommandQueue
 // *************************
 
 GraphicsCommandQueue::~GraphicsCommandQueue() {
-    ::CloseHandle(_fenceEvent);
+    if (_fenceEvent) {
+        ::CloseHandle(_fenceEvent);
+    }
 }
 
-void GraphicsCommandQueue::Init(ComPtr<ID3D12Device> device, shared_ptr<SwapChain> swapChain) {
+void GraphicsCommandQueue::Init(ComPtr<ID3D12Device> device, std::shared_ptr<SwapChain> swapChain) {
     _swapChain = swapChain;
 
     D3D12_COMMAND_QUEUE_DESC queueDesc = {};
     queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
     queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 
-    device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&_cmdQueue));
+    HRESULT hr = device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&_cmdQueue));
+    if (FAILED(hr)) throw std::runtime_error("Failed to create command queue.");
 
-    device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_cmdAlloc));
-    device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _cmdAlloc.Get(), nullptr, IID_PPV_ARGS(&_cmdList));
+    hr = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_cmdAlloc));
+    if (FAILED(hr)) throw std::runtime_error("Failed to create command allocator.");
+
+    hr = device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _cmdAlloc.Get(), nullptr, IID_PPV_ARGS(&_cmdList));
+    if (FAILED(hr)) throw std::runtime_error("Failed to create command list.");
     _cmdList->Close();
 
-    device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_resCmdAlloc));
-    device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _resCmdAlloc.Get(), nullptr, IID_PPV_ARGS(&_resCmdList));
+    hr = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_resCmdAlloc));
+    if (FAILED(hr)) throw std::runtime_error("Failed to create resource command allocator.");
 
-    // CreateFence
-    // - CPU와 GPU의 동기화 수단으로 쓰인다
-    device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence));
+    hr = device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _resCmdAlloc.Get(), nullptr, IID_PPV_ARGS(&_resCmdList));
+    if (FAILED(hr)) throw std::runtime_error("Failed to create resource command list.");
+
+    hr = device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence));
+    if (FAILED(hr)) throw std::runtime_error("Failed to create fence.");
+
     _fenceEvent = ::CreateEvent(nullptr, FALSE, FALSE, nullptr);
+    if (!_fenceEvent) throw std::runtime_error("Failed to create fence event.");
 }
 
 void GraphicsCommandQueue::WaitSync() {
-
-    // Advance the fence value to mark commands up to this fence point.
     _fenceValue++;
 
-    // Add an instruction to the command queue to set a new fence point.  Because we
-    // are on the GPU timeline, the new fence point won't be set until the GPU finishes
-    // processing all the commands prior to this Signal().
     _cmdQueue->Signal(_fence.Get(), _fenceValue);
 
-    // Wait until the GPU has completed commands up to this fence point.
     if (_fence->GetCompletedValue() < _fenceValue) {
-
-        // Fire event when GPU hits current fence.
         _fence->SetEventOnCompletion(_fenceValue, _fenceEvent);
-
-        // Wait until the GPU hits current fence event is fired.
         ::WaitForSingleObject(_fenceEvent, INFINITE);
     }
 }
@@ -58,7 +59,7 @@ void GraphicsCommandQueue::RenderBegin() {
     _cmdAlloc->Reset();
     _cmdList->Reset(_cmdAlloc.Get(), nullptr);
 
-    int8 backIndex = _swapChain->GetBackBufferIndex();
+    int8_t backIndex = _swapChain->GetBackBufferIndex();
 
     D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
         GEngine->GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN)->GetRTTexture(backIndex)->GetTexture2D().Get(),
@@ -79,7 +80,7 @@ void GraphicsCommandQueue::RenderBegin() {
 }
 
 void GraphicsCommandQueue::RenderEnd() {
-    int8 backIndex = _swapChain->GetBackBufferIndex();
+    int8_t backIndex = _swapChain->GetBackBufferIndex();
 
     D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
         GEngine->GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN)->GetRTTexture(backIndex)->GetTexture2D().Get(),
@@ -89,7 +90,6 @@ void GraphicsCommandQueue::RenderEnd() {
     _cmdList->ResourceBarrier(1, &barrier);
     _cmdList->Close();
 
-    // 커맨드 리스트 수행
     ID3D12CommandList* cmdListArr[] = { _cmdList.Get() };
     _cmdQueue->ExecuteCommandLists(_countof(cmdListArr), cmdListArr);
 
@@ -112,29 +112,37 @@ void GraphicsCommandQueue::FlushResourceCommandQueue() {
     _resCmdList->Reset(_resCmdAlloc.Get(), nullptr);
 }
 
+
+
 // *************************
 // ComputeCommandQueue
 // *************************
 
 ComputeCommandQueue::~ComputeCommandQueue() {
-    ::CloseHandle(_fenceEvent);
+    if (_fenceEvent) {
+        ::CloseHandle(_fenceEvent);
+    }
 }
 
 void ComputeCommandQueue::Init(ComPtr<ID3D12Device> device) {
     D3D12_COMMAND_QUEUE_DESC computeQueueDesc = {};
     computeQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
     computeQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-    device->CreateCommandQueue(&computeQueueDesc, IID_PPV_ARGS(&_cmdQueue));
 
-    device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COMPUTE, IID_PPV_ARGS(&_cmdAlloc));
-    device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COMPUTE, _cmdAlloc.Get(), nullptr, IID_PPV_ARGS(&_cmdList));
+    HRESULT hr = device->CreateCommandQueue(&computeQueueDesc, IID_PPV_ARGS(&_cmdQueue));
+    if (FAILED(hr)) throw std::runtime_error("Failed to create compute command queue.");
 
-    device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence));
+    hr = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COMPUTE, IID_PPV_ARGS(&_cmdAlloc));
+    if (FAILED(hr)) throw std::runtime_error("Failed to create compute command allocator.");
 
-    // CreateFence
-    // - CPU와 GPU의 동기화 수단으로 쓰인다
-    device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence));
+    hr = device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COMPUTE, _cmdAlloc.Get(), nullptr, IID_PPV_ARGS(&_cmdList));
+    if (FAILED(hr)) throw std::runtime_error("Failed to create compute command list.");
+
+    hr = device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence));
+    if (FAILED(hr)) throw std::runtime_error("Failed to create fence.");
+
     _fenceEvent = ::CreateEvent(nullptr, FALSE, FALSE, nullptr);
+    if (!_fenceEvent) throw std::runtime_error("Failed to create fence event.");
 }
 
 void ComputeCommandQueue::WaitSync() {
@@ -152,7 +160,6 @@ void ComputeCommandQueue::FlushComputeCommandQueue() {
     _cmdList->Close();
 
     ID3D12CommandList* cmdListArr[] = { _cmdList.Get() };
-    auto t = _countof(cmdListArr);
     _cmdQueue->ExecuteCommandLists(_countof(cmdListArr), cmdListArr);
 
     WaitSync();

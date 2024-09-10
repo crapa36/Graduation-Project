@@ -418,11 +418,12 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 #pragma region Object
     {
         shared_ptr<GameObject> obj = make_shared<GameObject>();
+        obj->SetName(L"SphereObj");
         obj->AddComponent(make_shared<Transform>());
         obj->AddComponent(make_shared<SphereCollider>());
         obj->AddComponent(make_shared<Rigidbody>());
         obj->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
-        obj->GetTransform()->SetLocalPosition(Vec3(200, 1000.f, 50.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(200, 2000.f, 50.f));
 
         obj->SetStatic(false);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
