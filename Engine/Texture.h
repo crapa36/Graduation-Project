@@ -19,14 +19,9 @@ public:
     // 리소스를 기반으로 텍스처 생성
     void CreateFromResource(ComPtr<ID3D12Resource> tex2D);
 
-    // 큐브맵 텍스처 생성 메서드
-    void CreateCubeMap(ID3D12Device* device, DXGI_FORMAT format, uint32_t width, uint32_t height,
-                       const D3D12_HEAP_PROPERTIES& heapProperty, D3D12_HEAP_FLAGS heapFlags,
-                       D3D12_RESOURCE_FLAGS resFlags = D3D12_RESOURCE_FLAG_NONE, DirectX::XMFLOAT4 clearColor = { 0, 0, 0, 0 });
+    void LoadCubeMap(const std::vector<std::wstring>& paths);
 
-    // 큐브맵 텍스처 로드 메서드
-    void LoadCubeMapFromFiles(ID3D12Device* device, ID3D12GraphicsCommandList* commandList, const std::vector<std::wstring>& filePaths);
-
+   
 public:
     // Getter 함수들
     ComPtr<ID3D12Resource> GetTexture2D() { return _tex2D; }
@@ -42,10 +37,11 @@ public:
     FLOAT GetWidth() { return static_cast<FLOAT>(_desc.Width); }
     FLOAT GetHeight() { return static_cast<FLOAT>(_desc.Height); }
 
+
     // 픽셀 데이터를 반환하는 메서드
     Vec4 GetPixel(uint32 x, uint32 y);
 
-private:
+protected:
     // 멤버 변수들
     std::wstring                    _path = L"";                 // 텍스처 파일 경로
     DirectX::ScratchImage            _image;                     // DirectXTex 이미지 데이터
@@ -57,7 +53,7 @@ private:
     ComPtr<ID3D12DescriptorHeap>     _dsvHeap;                   // Depth Stencil View 힙
     ComPtr<ID3D12DescriptorHeap>     _uavHeap;                   // Unordered Access View 힙
 
-private:
+protected:
     // 힙 핸들
     D3D12_CPU_DESCRIPTOR_HANDLE      _srvHeapBegin = {};
     D3D12_CPU_DESCRIPTOR_HANDLE      _uavHeapBegin = {};

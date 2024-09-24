@@ -189,112 +189,87 @@ void Texture::CreateFromResource(ComPtr<ID3D12Resource> tex2D) {
     }
 }
 
-void Texture::CreateCubeMap(ID3D12Device* device, DXGI_FORMAT format, uint32_t width, uint32_t height,
-                            const D3D12_HEAP_PROPERTIES& heapProperty, D3D12_HEAP_FLAGS heapFlags,
-                            D3D12_RESOURCE_FLAGS resFlags, DirectX::XMFLOAT4 clearColor) {
-    // 큐브맵 텍스처 리소스 생성
-    D3D12_RESOURCE_DESC texDesc = {};
-    texDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-    texDesc.Alignment = 0;
-    texDesc.Width = width;
-    texDesc.Height = height;
-    texDesc.DepthOrArraySize = 6; // 큐브맵은 6개의 면을 가짐
-    texDesc.MipLevels = 1;
-    texDesc.Format = format;
-    texDesc.SampleDesc.Count = 1;
-    texDesc.SampleDesc.Quality = 0;
-    texDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-    texDesc.Flags = resFlags;
+void Texture::LoadCubeMap(const std::vector<std::wstring>& paths) {
+    assert(paths.size() == 6); // 큐브맵은 6개의 이미지로 구성되어야 함
 
-    HRESULT hr = device->CreateCommittedResource(
-        &heapProperty,
-        heapFlags,
-        &texDesc,
-        D3D12_RESOURCE_STATE_COMMON,
-        nullptr,
-        IID_PPV_ARGS(&_tex2D)
-    );
+    std::vector<ScratchImage> cubeImages(6);
 
-    if (FAILED(hr)) {
-        // 오류 처리
-        return;
-    }
-
-    // SRV 디스크립터 힙 생성
-    D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
-    srvHeapDesc.NumDescriptors = 1;
-    srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-    srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-
-    hr = device->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&_srvHeap));
-    if (FAILED(hr)) {
-        // 오류 처리
-        return;
-    }
-
-    // SRV 생성
-    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-    srvDesc.Format = format;
-    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    srvDesc.TextureCube.MostDetailedMip = 0;
-    srvDesc.TextureCube.MipLevels = 1;
-    srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
-
-    device->CreateShaderResourceView(_tex2D.Get(), &srvDesc, _srvHeap->GetCPUDescriptorHandleForHeapStart());
-}
-
-
-void Texture::LoadCubeMapFromFiles(ID3D12Device* device, ID3D12GraphicsCommandList* commandList, const std::vector<std::wstring>& filePaths) {
-    if (filePaths.size() != 6) {
-        throw std::invalid_argument("Cube map requires exactly 6 texture files.");
-    }
-
-    // 큐브맵 텍스처 로드 로직 구현
-    std::vector<DirectX::ScratchImage> images(6);
-    for (size_t i = 0; i < 6; ++i) {
-        HRESULT hr = DirectX::LoadFromWICFile(filePaths[i].c_str(), DirectX::WIC_FLAGS_NONE, nullptr, images[i]);
-        if (FAILED(hr)) {
-            throw std::runtime_error("Failed to load texture file.");
+    // 각 면의 이미지를 로드
+    for (int i = 0; i < 6; ++i) {
+        wstring ext = fs::path(paths[i]).extension();
+        if (ext == L".dds" || ext == L".DDS") {
+            ::LoadFromDDSFile(paths[i].c_str(), DDS_FLAGS_NONE, nullptr, cubeImages[i]);
+        }
+        else if (ext == L".tga" || ext == L".TGA") {
+            ::LoadFromTGAFile(paths[i].c_str(), nullptr, cubeImages[i]);
+        }
+        else {
+            ::LoadFromWICFile(paths[i].c_str(), WIC_FLAGS_NONE, nullptr, cubeImages[i]);
         }
     }
 
-    // 텍스처 데이터를 큐브맵 텍스처에 업로드
-    std::vector<D3D12_SUBRESOURCE_DATA> subresourceData(6);
-    for (size_t i = 0; i < 6; ++i) {
-        const DirectX::Image* img = images[i].GetImage(0, 0, 0);
-        subresourceData[i].pData = img->pixels;
-        subresourceData[i].RowPitch = img->rowPitch;
-        subresourceData[i].SlicePitch = img->slicePitch;
+    // 큐브맵 텍스처 생성
+    HRESULT hr = ::CreateTexture(DEVICE.Get(), cubeImages[0].GetMetadata(), &_tex2D);
+    if (FAILED(hr)) {
+        assert(nullptr);
     }
+
+    _desc = _tex2D->GetDesc();
+    std::vector<D3D12_SUBRESOURCE_DATA> subResources(6);
+
+    // 각 이미지 데이터를 준비
+    for (int i = 0; i < 6; ++i) {
+        subResources[i].pData = cubeImages[i].GetImages()->pixels;
+        subResources[i].RowPitch = cubeImages[i].GetImages()->rowPitch;
+        subResources[i].SlicePitch = cubeImages[i].GetImages()->slicePitch;
+    }
+
+    // 필요한 메모리 크기를 계산
+    const uint64 bufferSize = ::GetRequiredIntermediateSize(_tex2D.Get(), 0, static_cast<uint32>(subResources.size()));
 
     // 업로드 힙 생성
-    const UINT64 uploadBufferSize = GetRequiredIntermediateSize(_tex2D.Get(), 0, static_cast<UINT>(subresourceData.size()));
-
-    Microsoft::WRL::ComPtr<ID3D12Resource> textureUploadHeap;
-    CD3DX12_HEAP_PROPERTIES uploadHeapProperties(D3D12_HEAP_TYPE_UPLOAD);
-    CD3DX12_RESOURCE_DESC bufferDesc = CD3DX12_RESOURCE_DESC::Buffer(uploadBufferSize);
-
-    HRESULT hr = device->CreateCommittedResource(
-        &uploadHeapProperties,
+    D3D12_HEAP_PROPERTIES heapProperty = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+    D3D12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize);
+    ComPtr<ID3D12Resource> textureUploadHeap;
+    hr = DEVICE->CreateCommittedResource(
+        &heapProperty,
         D3D12_HEAP_FLAG_NONE,
-        &bufferDesc,
+        &desc,
         D3D12_RESOURCE_STATE_GENERIC_READ,
         nullptr,
-        IID_PPV_ARGS(&textureUploadHeap)
-    );
+        IID_PPV_ARGS(textureUploadHeap.GetAddressOf()));
 
     if (FAILED(hr)) {
-        throw std::runtime_error("Failed to create upload heap.");
+        assert(nullptr);
     }
 
-    // 텍스처 데이터를 업로드 힙에 복사
-    UpdateSubresources(commandList, _tex2D.Get(), textureUploadHeap.Get(), 0, 0, static_cast<UINT>(subresourceData.size()), subresourceData.data());
+    // 리소스 서브 리소스를 업데이트
+    ::UpdateSubresources(RESOURCE_CMD_LIST.Get(),
+                         _tex2D.Get(),
+                         textureUploadHeap.Get(),
+                         0, 0,
+                         static_cast<unsigned int>(subResources.size()),
+                         subResources.data());
 
-    // 텍스처 상태를 복사 후 상태로 전환
-    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(_tex2D.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandList->ResourceBarrier(1, &barrier);
+    GEngine->GetGraphicsCmdQueue()->FlushResourceCommandQueue();
+
+    // SRV 생성
+    D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+    srvHeapDesc.NumDescriptors = 1;
+    srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+    srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+    DEVICE->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&_srvHeap));
+
+    _srvHeapBegin = _srvHeap->GetCPUDescriptorHandleForHeapStart();
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.Format = cubeImages[0].GetMetadata().format;
+    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDesc.TextureCube.MipLevels = 1;
+    DEVICE->CreateShaderResourceView(_tex2D.Get(), &srvDesc, _srvHeapBegin);
 }
+
 
 Vec4 Texture::GetPixel(uint32 x, uint32 y) {
     Vec4 color = Vec4(0, 0, 0, 0);

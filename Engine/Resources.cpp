@@ -421,7 +421,7 @@ shared_ptr<class MeshData> Resources::LoadBIN(const wstring& path) {
 
 void Resources::CreateDefaultShader() {
 
-    // Skybox
+    // Skysphere
     {
         ShaderInfo info =
         {
@@ -431,8 +431,8 @@ void Resources::CreateDefaultShader() {
         };
 
         shared_ptr<Shader> shader = make_shared<Shader>();
-        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\skybox.fx", info);
-        Add<Shader>(L"Skybox", shader);
+        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\skysphere.fx", info);
+        Add<Shader>(L"Skysphere", shader);
     }
 
     // Deferred (Deferred)
@@ -689,12 +689,12 @@ void Resources::CreateDefaultShader() {
 
 void Resources::CreateDefaultMaterial() {
 
-    // Skybox
+    // Skysphere
     {
-        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Skybox");
+        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Skysphere");
         shared_ptr<Material> material = make_shared<Material>();
         material->SetShader(shader);
-        Add<Material>(L"Skybox", material);
+        Add<Material>(L"Skysphere", material);
     }
 
     // DirLight
