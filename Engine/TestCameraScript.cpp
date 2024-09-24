@@ -111,21 +111,20 @@ void TestCameraScript::LateUpdate() {
             if (dirAnglePM < 0) {
                 dirAngle = -dirAngle;
             }
-            if (dirAnglePM == 0) {
-                
-                //왼쪽을 보면 +값이어야되고
-                //오른쪽을 보면 -값이어야해
-                dirAngle = XM_PI;
-                
-            }
-
-
+            
             _dir.y = revolution.y + dirAngle; // 최종회전값
+
+            if (parentRotate.y - _dir.y > XM_PI) {
+                parentRotate.y -= 2 * XM_PI;
+            }
+            if (parentRotate.y - _dir.y < -XM_PI) {
+                parentRotate.y += 2 * XM_PI;
+            }
         }
         //회전보간
         Vec3 result;
         result.x = 0.f;
-        result.y = _dir.y + (DELTA_TIME * 5) * (parentRotate.y - _dir.y);
+        result.y = _dir.y + (DELTA_TIME * 10) * (parentRotate.y - _dir.y);
         result.z = 0.f;
 
         parentTransform->SetLocalRotation(result);
