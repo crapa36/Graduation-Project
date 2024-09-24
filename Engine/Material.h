@@ -3,6 +3,7 @@
 
 class Shader;
 class Texture;
+class CubeMapTexture;
 
 enum {
     MATERIAL_ARG_COUNT = 4,
@@ -46,6 +47,7 @@ public:
         _textures[index] = texture;
         _params.SetTexOn(index, (texture == nullptr ? 0 : 1));
     }
+    
 
     void SetVec2(uint8 index, Vec2 value) { _params.SetVec2(index, value); }
     void SetVec4(uint8 index, Vec4 value) { _params.SetVec4(index, value); }

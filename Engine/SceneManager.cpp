@@ -403,8 +403,10 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
             meshRenderer->SetMesh(sphereMesh);
         }
         {
-            shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Skybox");
+            shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Skysphere");
             shared_ptr<Texture> texture = GET_SINGLETON(Resources)->Load<Texture>(L"Sky01", L"..\\Resources\\Texture\\Sky_01.jpg");
+            
+
             shared_ptr<Material> material = make_shared<Material>();
             material->SetShader(shader);
             material->SetTexture(0, texture);

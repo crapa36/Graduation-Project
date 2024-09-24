@@ -195,6 +195,9 @@
     <ClCompile Include="Rigidbody.cpp">
       <Filter>Object\Component</Filter>
     </ClCompile>
+    <ClCompile Include="CubeMapTexture.cpp">
+      <Filter>Resource</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -365,6 +368,9 @@
     <ClInclude Include="Rigidbody.h">
       <Filter>Object\Component</Filter>
     </ClInclude>
+    <ClInclude Include="CubeMapTexture.h">
+      <Filter>Resource</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl">
@@ -409,6 +415,9 @@
       <Filter>Shader</Filter>
     </FxCompile>
     <FxCompile Include="..\Resources\Shader\math.fx">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resources\Shader\skysphere.fx">
       <Filter>Shader</Filter>
     </FxCompile>
   </ItemGroup>

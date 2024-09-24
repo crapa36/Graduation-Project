@@ -64,11 +64,15 @@ cbuffer MATERIAL_PARAMS : register(b2)
     row_major float4x4 g_mat_3;
 };
 
+// Texture2D 텍스처 정의
 Texture2D g_tex_0 : register(t0);
 Texture2D g_tex_1 : register(t1);
 Texture2D g_tex_2 : register(t2);
 Texture2D g_tex_3 : register(t3);
 Texture2D g_tex_4 : register(t4);
+
+// TextureCube 텍스처 정의 (큐브맵 추가)
+TextureCube g_texCube : register(t5);
 
 StructuredBuffer<Matrix> g_mat_bone : register(t7);
 
