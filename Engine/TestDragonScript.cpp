@@ -29,10 +29,6 @@ void TestDragonScript::Update() {
 void TestDragonScript::LateUpdate() {
     if (GetForegroundWindow() == GEngine->GetWindow().hwnd) {
         // 화면 중심 좌표 계산
-        _centerPos.x = GEngine->GetWindow().width / 2;
-        _centerPos.y = GEngine->GetWindow().height / 2;
-        _centerScreenPos = _centerPos;
-        ClientToScreen(GEngine->GetWindow().hwnd, &_centerScreenPos);
 
         // ESC 키로 종료
         if (INPUT->IsKeyPressed(DIK_ESCAPE))

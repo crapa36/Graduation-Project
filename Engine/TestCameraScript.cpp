@@ -24,7 +24,6 @@ void TestCameraScript::LateUpdate() {
     if (GetForegroundWindow() == GEngine->GetWindow().hwnd) {
         Vec3 revolution = GetTransform()->GetLocalRevolution();
 
-
         // 마우스 좌클릭 시 선택 또는 피킹 처리
         if (INPUT->IsMouseButtonPressed(0)) {  // 0은 왼쪽 마우스 버튼
             const POINT& mousePos = INPUT->GetMousePos();
@@ -65,6 +64,8 @@ void TestCameraScript::LateUpdate() {
             ShowCursor(true); // 마우스 커서를 보임
         }
 
+        GetTransform()->SetLocalRevolution(revolution);
+
         // 부모 객체(카메라)의 회전과 이동 처리
         shared_ptr<GameObject> parent = GetGameObject()->GetParent().lock();
         shared_ptr<Transform> parentTransform = parent->GetTransform();
@@ -72,13 +73,11 @@ void TestCameraScript::LateUpdate() {
         Vec3 parentPos = parentTransform->GetLocalPosition();
 
         Vec3 dir;
-        Vec3 look;
 
         if (INPUT->IsKeyPressed(DIK_W) || INPUT->IsKeyPressed(DIK_S) ||
             INPUT->IsKeyPressed(DIK_A) || INPUT->IsKeyPressed(DIK_D)) {
 
             dir = { 0.f, 0.f, 0.f };
-            look = parentTransform->GetLook();
             
             //방향벡터 구하기
             if (INPUT->IsKeyPressed(DIK_W)) {
@@ -93,25 +92,39 @@ void TestCameraScript::LateUpdate() {
             if (INPUT->IsKeyPressed(DIK_D)) {
                 dir -= GetTransform()->GetRight();
             }
-
+            
             Vec3 look = GetTransform()->GetLook(); //카메라가 바라보는 벡터
             look.Normalize();
             dir.Normalize();
-            //외적과 내적으로 두 벡터 사이의 각 구하기
-            float dirAngle = acos(look.Dot(dir));
-            Vec3 crossProduct = look.Cross(dir);
-            float dirAnglePM = crossProduct.Dot({ 0.f, 1.f, 0.f });
 
+            
+            //외적과 내적으로 두 벡터 사이의 각 구하기
+            float dotProduct = look.Dot(dir);
+            dotProduct = std::clamp(dotProduct, -1.0f, 1.0f);
+            float dirAngle = acos(dotProduct);
+            if (isnan(dirAngle)) {
+                dirAngle = XM_PI;
+            }
+            Vec3 crossProduct = look.Cross(dir);
+            crossProduct.Normalize();
+            double dirAnglePM = crossProduct.Dot({ 0.f, 1.f, 0.f });
             if (dirAnglePM < 0) {
                 dirAngle = -dirAngle;
             }
-
+            
             _dir.y = revolution.y + dirAngle; // 최종회전값
+
+            if (parentRotate.y - _dir.y > XM_PI) {
+                parentRotate.y -= 2 * XM_PI;
+            }
+            if (parentRotate.y - _dir.y < -XM_PI) {
+                parentRotate.y += 2 * XM_PI;
+            }
         }
         //회전보간
         Vec3 result;
         result.x = 0.f;
-        result.y = parentRotate.y + (DELTA_TIME * 10) * (_dir.y - parentRotate.y);
+        result.y = _dir.y + (DELTA_TIME * 10) * (parentRotate.y - _dir.y);
         result.z = 0.f;
 
         parentTransform->SetLocalRotation(result);
