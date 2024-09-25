@@ -34,7 +34,7 @@ void Engine::Init(const WindowInfo& info) {
 
     CreateRenderTargetGroups();
 
-    ResizeWindow(info.width, info.height);
+    //ResizeWindow(info.width, info.height);
 
     GET_SINGLETON(Input)->Init(info);
     GET_SINGLETON(Timer)->Init();

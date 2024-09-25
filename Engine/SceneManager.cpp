@@ -271,7 +271,7 @@ void SceneManager::LoadScene(wstring sceneName) {
 
     shared_ptr<Scene> scene = make_shared<Scene>();
 
-    _activeScene = LoadTestScene();
+    _activeScene = Scenes.at(sceneName);
 
     //SaveScene(L"../Resources/main_scene.bin");
 

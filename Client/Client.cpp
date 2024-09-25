@@ -138,6 +138,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
     GwindowInfo.hwnd = hWnd;
+    RECT clientRect;
+    ::GetClientRect(GwindowInfo.hwnd, &clientRect);
+    GwindowInfo.clientWidth = clientRect.right - clientRect.left;
+    GwindowInfo.clientHeight = clientRect.bottom - clientRect.top;
     return TRUE;
 }
 
