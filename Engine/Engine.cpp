@@ -13,8 +13,8 @@ void Engine::Init(const WindowInfo& info) {
     _window = info;
 
     // 그려질 화면 크기를 설정
-    _viewport = { 0, 0, static_cast<FLOAT>(info.width), static_cast<FLOAT>(info.height), 0.0f, 1.0f };
-    _scissorRect = CD3DX12_RECT(0, 0, info.width, info.height);
+    _viewport = { 0, 0, static_cast<FLOAT>(info.clientWidth), static_cast<FLOAT>(info.clientHeight), 0.0f, 1.0f };
+    _scissorRect = CD3DX12_RECT(0, 0, info.clientWidth, info.clientHeight);
 
     
 
@@ -34,11 +34,12 @@ void Engine::Init(const WindowInfo& info) {
 
     CreateRenderTargetGroups();
 
-    //ResizeWindow(info.width, info.height); 윈도우 창크기와 렌더타겟 크기가 다른 현상으로 임시 주석처리
+    ResizeWindow(info.width, info.height);
 
     GET_SINGLETON(Input)->Init(info);
     GET_SINGLETON(Timer)->Init();
     GET_SINGLETON(Resources)->Init();
+    GET_SINGLETON(SceneManager)->Init();
     GET_SINGLETON(ImguiManager)->Init(info.hwnd, _device->GetDevice(), *_imguiDescriptorHeap.get());
 }
 
@@ -79,6 +80,11 @@ void Engine::ResizeWindow(int32 width, int32 height) {
     RECT rect = { 0, 0, width, height };
     ::AdjustWindowRect(&rect, WS_OVERLAPPEDWINDOW, false);
     ::SetWindowPos(_window.hwnd, 0, 100, 100, width, height, 0);
+    RECT clientRect;
+    ::GetClientRect(_window.hwnd, &clientRect);
+
+    _window.clientWidth = clientRect.right - clientRect.left;
+    _window.clientHeight = clientRect.bottom - clientRect.top;
 }
 
 void Engine::ShowFps() {

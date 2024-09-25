@@ -21,8 +21,8 @@ void SwapChain::CreateSwapChain(const WindowInfo& info, ComPtr<IDXGIFactory> dxg
     _swapChain.Reset();
 
     DXGI_SWAP_CHAIN_DESC sd;
-    sd.BufferDesc.Width = static_cast<uint32>(info.width); // 버퍼의 해상도 너비
-    sd.BufferDesc.Height = static_cast<uint32>(info.height); // 버퍼의 해상도 높이
+    sd.BufferDesc.Width = static_cast<uint32>(info.clientWidth); // 버퍼의 해상도 너비
+    sd.BufferDesc.Height = static_cast<uint32>(info.clientHeight); // 버퍼의 해상도 높이
     sd.BufferDesc.RefreshRate.Numerator = 60; // 화면 갱신 비율
     sd.BufferDesc.RefreshRate.Denominator = 1; // 화면 갱신 비율
     sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; // 버퍼의 디스플레이 형식
