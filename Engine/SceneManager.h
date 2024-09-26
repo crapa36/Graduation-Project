@@ -10,7 +10,7 @@ class SceneManager {
     DECLARE_SINGLETON(SceneManager);
 
 public:
-    void Init();
+    void Init(WindowInfo info);
     void Update();
     void Render();
 
@@ -21,8 +21,6 @@ public:
     void SetLayerName(uint8 index, const wstring& name);
     const wstring& IndexToLayerName(uint8 index) { return _layerNames[index]; }
     uint8 LayerNameToIndex(const wstring& name);
-
-
 
 public:
     shared_ptr<Scene> GetActiveScene() { return _activeScene; }
@@ -38,4 +36,7 @@ private:
 
     array<wstring, MAX_LAYER> _layerNames;
     map<wstring, uint8> _layerIndex;
+
+    int32   _clientWidth;
+    int32   _clientHeight;
 };

@@ -23,8 +23,11 @@
 #include "Rigidbody.h"
 
 #include "MeshData.h"
+#include "TitleScript.h"
 
-void SceneManager::Init() {
+void SceneManager::Init(WindowInfo info) {
+    _clientHeight = info.clientHeight;
+    _clientWidth = info.clientWidth;
 #pragma region LayerMask
     SetLayerName(0, L"Default");
     SetLayerName(1, L"UI");
@@ -268,12 +271,10 @@ void SceneManager::SaveScene(wstring sceneName) {
 }
 
 void SceneManager::LoadScene(wstring sceneName) {
-
     shared_ptr<Scene> scene = make_shared<Scene>();
 
     _activeScene = Scenes.at(sceneName);
 
-    //_activeScene = LoadTestScene();
     //SaveScene(L"../Resources/main_scene.bin");
 
     _activeScene->Awake();
@@ -303,27 +304,7 @@ uint8 SceneManager::LayerNameToIndex(const wstring& name) {
 
 shared_ptr<Scene> SceneManager::LoadTestMenuScene() {
     shared_ptr<Scene> scene = make_shared<Scene>();
-#pragma region Camera
-    {
-        shared_ptr<GameObject> camera = make_shared<GameObject>();
-        camera->SetName(L"Main_Camera");
-        camera->AddComponent(make_shared<Transform>());
-        camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, FOV=45��
-        camera->AddComponent(make_shared<TestCameraScript>());
-        camera->GetCamera()->SetFar(10000.f); // Far 10000 ����
-        camera->GetTransform()->SetLocalPosition(Vec3(0.f, 70.f, -200.f));
 
-
-        camera->GetTransform()->SetInheritRotation(false);
-        camera->GetTransform()->SetInheritScale(false);
-
-        uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
-        camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UI�� �� ����
-        scene->AddGameObject(camera);
-
-    }
-
-#pragma endregion
 #pragma region UI_Camera
     {
         shared_ptr<GameObject> camera = make_shared<GameObject>();
@@ -339,34 +320,35 @@ shared_ptr<Scene> SceneManager::LoadTestMenuScene() {
     }
 #pragma endregion
 
-#pragma region UI_Test
-    
-        shared_ptr<GameObject> obj = make_shared<GameObject>();
-        obj->SetLayerIndex(GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI")); // UI
-        obj->AddComponent(make_shared<Transform>());
-        obj->GetTransform()->SetLocalScale(Vec3(200.f, 200.f, 200.f));
-        obj->GetTransform()->SetLocalPosition(Vec3(-500.f, 250.f, 500.f));
-        shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
-        {
-            shared_ptr<Mesh> mesh = GET_SINGLETON(Resources)->LoadRectangleMesh();
-            meshRenderer->SetMesh(mesh);
-        }
-        {
-            shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Texture");
+#pragma region Title
 
-            shared_ptr<Texture> texture;
-           
-            texture = GET_SINGLETON(Resources)->Load<Texture>(L"Sky01", L"..\\Resources\\Texture\\Sky_01.jpg");
-            
+    shared_ptr<GameObject> obj = make_shared<GameObject>();
+    obj->SetName(L"Title");
+    obj->SetLayerIndex(GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI"));
+    obj->AddComponent(make_shared<Transform>());
+    obj->GetTransform()->SetLocalScale(Vec3(_clientWidth, _clientHeight, 1.f));
+    obj->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 1.f));
+    shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+    {
+        shared_ptr<Mesh> mesh = GET_SINGLETON(Resources)->LoadRectangleMesh();
+        meshRenderer->SetMesh(mesh);
+    }
+    {
+        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Texture");
 
-            shared_ptr<Material> material = make_shared<Material>();
-            material->SetShader(shader);
-            material->SetTexture(0, texture);
-            meshRenderer->SetMaterial(material);
-        }
-        obj->AddComponent(meshRenderer);
-        scene->AddGameObject(obj);
-    
+        shared_ptr<Texture> texture;
+
+        texture = GET_SINGLETON(Resources)->Load<Texture>(L"Title", L"..\\Resources\\Texture\\Title.png");
+
+        shared_ptr<Material> material = make_shared<Material>();
+        material->SetShader(shader);
+        material->SetTexture(0, texture);
+        meshRenderer->SetMaterial(material);
+    }
+    obj->AddComponent(make_shared<TitleScript>());
+    obj->AddComponent(meshRenderer);
+    scene->AddGameObject(obj);
+
 #pragma endregion
     return scene;
 }
@@ -481,7 +463,6 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         {
             shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Skysphere");
             shared_ptr<Texture> texture = GET_SINGLETON(Resources)->Load<Texture>(L"Sky01", L"..\\Resources\\Texture\\Sky_01.jpg");
-            
 
             shared_ptr<Material> material = make_shared<Material>();
             material->SetShader(shader);
