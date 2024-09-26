@@ -22,11 +22,14 @@ public:
     const wstring& IndexToLayerName(uint8 index) { return _layerNames[index]; }
     uint8 LayerNameToIndex(const wstring& name);
 
+
+
 public:
     shared_ptr<Scene> GetActiveScene() { return _activeScene; }
 
 private:
     shared_ptr<Scene> LoadTestScene();
+    shared_ptr<Scene> LoadTestMenuScene();
 
 private:
     map<wstring, shared_ptr<Scene>> Scenes;

@@ -25,8 +25,32 @@
 #include "MeshData.h"
 
 void SceneManager::Init() {
-    Scenes[L"TestScene"] = LoadTestScene();
+#pragma region LayerMask
+    SetLayerName(0, L"Default");
+    SetLayerName(1, L"UI");
+#pragma endregion
 
+#pragma region ComputeShader
+    {
+        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"ComputeShader");
+
+        // UAV �� Texture ����
+        shared_ptr<Texture> texture = GET_SINGLETON(Resources)->CreateTexture(L"UAVTexture",
+                                                                              DXGI_FORMAT_R8G8B8A8_UNORM, 1024, 1024,
+                                                                              CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
+                                                                              D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+
+        shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"ComputeShader");
+        material->SetShader(shader);
+        material->SetInt(0, 1);
+        GEngine->GetComputeDescriptorHeap()->SetUAV(texture->GetUAVHandle(), UAV_REGISTER::u0);
+
+        // ������ �׷� (1 * 1024 * 1)
+        material->Dispatch(1, 1024, 1);
+    }
+#pragma endregion
+    Scenes[L"TestScene"] = LoadTestScene();
+    Scenes[L"TestMenuScene"] = LoadTestMenuScene();
 }
 
 void SceneManager::Update() {
@@ -244,35 +268,12 @@ void SceneManager::SaveScene(wstring sceneName) {
 }
 
 void SceneManager::LoadScene(wstring sceneName) {
-#pragma region LayerMask
-    SetLayerName(0, L"Default");
-    SetLayerName(1, L"UI");
-#pragma endregion
-
-#pragma region ComputeShader
-    {
-        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"ComputeShader");
-
-        // UAV �� Texture ����
-        shared_ptr<Texture> texture = GET_SINGLETON(Resources)->CreateTexture(L"UAVTexture",
-                                                                              DXGI_FORMAT_R8G8B8A8_UNORM, 1024, 1024,
-                                                                              CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-                                                                              D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-
-        shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"ComputeShader");
-        material->SetShader(shader);
-        material->SetInt(0, 1);
-        GEngine->GetComputeDescriptorHeap()->SetUAV(texture->GetUAVHandle(), UAV_REGISTER::u0);
-
-        // ������ �׷� (1 * 1024 * 1)
-        material->Dispatch(1, 1024, 1);
-    }
-#pragma endregion
 
     shared_ptr<Scene> scene = make_shared<Scene>();
 
     _activeScene = Scenes.at(sceneName);
 
+    //_activeScene = LoadTestScene();
     //SaveScene(L"../Resources/main_scene.bin");
 
     _activeScene->Awake();
@@ -298,6 +299,76 @@ uint8 SceneManager::LayerNameToIndex(const wstring& name) {
         return 0;
 
     return findIt->second;
+}
+
+shared_ptr<Scene> SceneManager::LoadTestMenuScene() {
+    shared_ptr<Scene> scene = make_shared<Scene>();
+#pragma region Camera
+    {
+        shared_ptr<GameObject> camera = make_shared<GameObject>();
+        camera->SetName(L"Main_Camera");
+        camera->AddComponent(make_shared<Transform>());
+        camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, FOV=45��
+        camera->AddComponent(make_shared<TestCameraScript>());
+        camera->GetCamera()->SetFar(10000.f); // Far 10000 ����
+        camera->GetTransform()->SetLocalPosition(Vec3(0.f, 70.f, -200.f));
+
+
+        camera->GetTransform()->SetInheritRotation(false);
+        camera->GetTransform()->SetInheritScale(false);
+
+        uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
+        camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UI�� �� ����
+        scene->AddGameObject(camera);
+
+    }
+
+#pragma endregion
+#pragma region UI_Camera
+    {
+        shared_ptr<GameObject> camera = make_shared<GameObject>();
+        camera->SetName(L"Orthographic_Camera");
+        camera->AddComponent(make_shared<Transform>());
+        camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, 800*600
+        camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 0.f));
+        camera->GetCamera()->SetProjectionType(PROJECTION_TYPE::ORTHOGRAPHIC);
+        uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
+        camera->GetCamera()->SetCullingMaskAll(); // �� ����
+        camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, false); // UI�� ����
+        scene->AddGameObject(camera);
+    }
+#pragma endregion
+
+#pragma region UI_Test
+    
+        shared_ptr<GameObject> obj = make_shared<GameObject>();
+        obj->SetLayerIndex(GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI")); // UI
+        obj->AddComponent(make_shared<Transform>());
+        obj->GetTransform()->SetLocalScale(Vec3(200.f, 200.f, 200.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(-500.f, 250.f, 500.f));
+        shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+        {
+            shared_ptr<Mesh> mesh = GET_SINGLETON(Resources)->LoadRectangleMesh();
+            meshRenderer->SetMesh(mesh);
+        }
+        {
+            shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Texture");
+
+            shared_ptr<Texture> texture;
+           
+            texture = GET_SINGLETON(Resources)->Load<Texture>(L"Sky01", L"..\\Resources\\Texture\\Sky_01.jpg");
+            
+
+            shared_ptr<Material> material = make_shared<Material>();
+            material->SetShader(shader);
+            material->SetTexture(0, texture);
+            meshRenderer->SetMaterial(material);
+        }
+        obj->AddComponent(meshRenderer);
+        scene->AddGameObject(obj);
+    
+#pragma endregion
+    return scene;
 }
 
 shared_ptr<Scene> SceneManager::LoadTestScene() {
