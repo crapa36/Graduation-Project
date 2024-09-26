@@ -327,7 +327,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
             camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, FOV=45��
             camera->AddComponent(make_shared<TestCameraScript>());
             camera->GetCamera()->SetFar(10000.f); // Far 10000 ����
-            camera->GetTransform()->SetLocalPosition(Vec3(0.f, 70.f, -200.f));
+            camera->GetTransform()->SetLocalPosition(Vec3(0.f, 50.f, -200.f));
 
             camera->SetParent(gameObjects.front());
             camera->GetTransform()->SetInheritRotation(false);
