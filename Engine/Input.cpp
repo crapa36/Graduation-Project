@@ -143,7 +143,7 @@ bool Input::ReadMouse() {
     _mousePos = cursorPos;
 
     // 마우스 휠 업데이트
-    _mouseWheel += _mouseState.lZ;
+    _mouseWheel = _mouseState.lZ;
 
     return true;
 }

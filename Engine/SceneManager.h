@@ -10,7 +10,7 @@ class SceneManager {
     DECLARE_SINGLETON(SceneManager);
 
 public:
-    void Init(WindowInfo info);
+    void Init();
     void Update();
     void Render();
 
@@ -26,17 +26,10 @@ public:
     shared_ptr<Scene> GetActiveScene() { return _activeScene; }
 
 private:
-    shared_ptr<Scene> LoadTestScene();
-    shared_ptr<Scene> LoadTestMenuScene();
-
-private:
     map<wstring, shared_ptr<Scene>> Scenes;
     shared_ptr<Scene> _beforeScene;
     shared_ptr<Scene> _activeScene;
 
     array<wstring, MAX_LAYER> _layerNames;
     map<wstring, uint8> _layerIndex;
-
-    int32   _clientWidth;
-    int32   _clientHeight;
 };
