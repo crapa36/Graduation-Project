@@ -115,16 +115,20 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
     // 윈도우 스타일
     DWORD style = WS_OVERLAPPEDWINDOW;
 
-    // 원하는 클라이언트 영역 크기
+    // 전체 윈도우 크기
     GwindowInfo.width = 1320;
     GwindowInfo.height = 780;
-
+   
     // 윈도우 크기를 조정하여 클라이언트 영역이 원하는 크기가 되도록 합니다.
-    RECT rect = { 0, 0, GwindowInfo.width, GwindowInfo.height };
+    RECT rect = { 0, 0, GwindowInfo.width,  GwindowInfo.height };
     AdjustWindowRect(&rect, style, FALSE);
 
+    // 클라이언트 영역 크기를 GwindowInfo에 설정합니다.
+    GwindowInfo.clientWidth = rect.right - rect.left;
+    GwindowInfo.clientHeight = rect.bottom - rect.top;
+
     HWND hWnd = CreateWindowW(szWindowClass, szTitle, style,
-                              CW_USEDEFAULT, 0, rect.right - rect.left, rect.bottom - rect.top,
+                              CW_USEDEFAULT, 0, GwindowInfo.width, GwindowInfo.height,
                               nullptr, nullptr, hInstance, nullptr);
 
     if (!hWnd) {
@@ -134,6 +138,10 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
     GwindowInfo.hwnd = hWnd;
+    RECT clientRect;
+    ::GetClientRect(GwindowInfo.hwnd, &clientRect);
+    GwindowInfo.clientWidth = clientRect.right - clientRect.left;
+    GwindowInfo.clientHeight = clientRect.bottom - clientRect.top;
     return TRUE;
 }
 

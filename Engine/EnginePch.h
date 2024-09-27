@@ -124,6 +124,8 @@ struct WindowInfo {
     HWND	hwnd; // 출력 윈도우
     int32	width; // 너비
     int32	height; // 높이
+    int32   clientWidth; // 클라이언트 영역 너비
+    int32   clientHeight; // 클라이언트 영역 높이
     bool	windowed; // 창모드 or 전체화면
     HINSTANCE hInstance; // 인스턴스
 };

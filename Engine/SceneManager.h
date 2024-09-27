@@ -10,6 +10,7 @@ class SceneManager {
     DECLARE_SINGLETON(SceneManager);
 
 public:
+    void Init();
     void Update();
     void Render();
 

@@ -24,6 +24,11 @@
 
 #include "MeshData.h"
 
+void SceneManager::Init() {
+    Scenes[L"TestScene"] = LoadTestScene();
+
+}
+
 void SceneManager::Update() {
     if (_activeScene == nullptr)
         return;
@@ -266,7 +271,7 @@ void SceneManager::LoadScene(wstring sceneName) {
 
     shared_ptr<Scene> scene = make_shared<Scene>();
 
-    _activeScene = LoadTestScene();
+    _activeScene = Scenes.at(sceneName);
 
     //SaveScene(L"../Resources/main_scene.bin");
 
@@ -275,8 +280,8 @@ void SceneManager::LoadScene(wstring sceneName) {
 }
 
 void SceneManager::ChangeScene(wstring sceneName) {
-    //_beforeScene = _activeScene;
-    //_activeScene = Scenes.at(sceneName);
+    _beforeScene = _activeScene;
+    _activeScene = Scenes.at(sceneName);
 }
 
 void SceneManager::SetLayerName(uint8 index, const wstring& name) {

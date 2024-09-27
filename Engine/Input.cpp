@@ -5,8 +5,8 @@
 bool Input::Init(WindowInfo info) {
     HRESULT result;
 
-    m_screenWidth = info.width;
-    m_screenHeight = info.height;
+    m_screenWidth = info.clientWidth;
+    m_screenHeight = info.clientHeight;
 
     // DirectInput 인터페이스 초기화
     result = DirectInput8Create(info.hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&m_directInput, nullptr);
