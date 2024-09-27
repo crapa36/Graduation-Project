@@ -7,7 +7,7 @@
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
 
-std::array<int, MAX_USER> clients;
+
 
 enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND };
 class OVER_EXP {
@@ -33,6 +33,67 @@ public:
 	}
 };
 
+enum S_STATE { ST_FREE, ST_INGAME };
+class SESSION {
+public:
+	int _id;
+	SOCKET _socket;
+	S_STATE _state;
+	OVER_EXP _recv_over;
+	int _prev_remain;
+	char _name[MAX_NAME_SIZE];
+	short x, y;
+
+	SESSION()
+	{
+		_id = -1;
+		_socket = 0;
+		x = y = 0;
+		_name[0] = 0;
+		_state = ST_FREE;
+		_prev_remain = 0;
+	}
+
+	~SESSION() {}
+
+	void do_send(void* packet)
+	{
+		OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(packet) };
+		WSASend(_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, 0);
+	}
+
+	void send_remove_player_packet(int c_id)
+	{
+		SC_REMOVE_PLAYER_PACKET p;
+		p.id = c_id;
+		p.size = sizeof(p);
+		p.type = SC_REMOVE_PLAYER;
+		do_send(&p);
+	}
+};
+
+std::array<SESSION, MAX_USER> clients;
+
+int get_new_client_id()
+{
+	for (int i = 0; i < MAX_USER; ++i) {
+		if (clients[i]._state == ST_FREE)
+			return i;
+	}
+	return -1;
+}
+
+void disconnect(int c_id)
+{
+	for (auto& pl : clients) {
+		if (ST_INGAME != pl._state) continue;
+		if (pl._id == c_id) continue;
+		pl.send_remove_player_packet(c_id);
+	}
+	closesocket(clients[c_id]._socket);
+	clients[c_id]._state = ST_FREE;
+}
+
 int main() {
 	WSAData WSADATA;
 	WSAStartup(MAKEWORD(2, 2), &WSADATA);
@@ -52,11 +113,37 @@ int main() {
 	HANDLE h_iocp;
 	h_iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
 	CreateIoCompletionPort(reinterpret_cast<HANDLE>(server_socket), h_iocp, 9999, 0);
-	SOCKET c_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+	SOCKET client_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+
 	OVER_EXP a_over;
 	a_over._comp_type = OP_ACCEPT;
-	AcceptEx(server_socket, c_socket, a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &a_over._over);
+	AcceptEx(server_socket, client_socket, a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &a_over._over);
+
+	while (true) {
+		DWORD num_bytes;
+		ULONG_PTR key;
+		WSAOVERLAPPED* over = nullptr;
+		BOOL ret = GetQueuedCompletionStatus(h_iocp, &num_bytes, &key, &over, INFINITE);
+		OVER_EXP* ex_over = reinterpret_cast<OVER_EXP*>(over);
+		if (FALSE == ret) {
+			if (ex_over->_comp_type == OP_ACCEPT) std::cout << "Accept Error";
+			else {
+				std::cout << "GQCS Error on client[" << key << "]\n";
+				disconnect(static_cast<int>(key));
+				if (ex_over->_comp_type == OP_SEND) delete ex_over;
+				continue;
+			}
+		}
+
+		if ((0 == num_bytes) && ((ex_over->_comp_type == OP_RECV) || (ex_over->_comp_type == OP_SEND))) {
+			disconnect(static_cast<int>(key));
+			if (ex_over->_comp_type == OP_SEND) delete ex_over;
+			continue;
+		}
+
+
 
 	closesocket(server_socket);
+	CloseHandle(h_iocp);
 	WSACleanup();
 }
