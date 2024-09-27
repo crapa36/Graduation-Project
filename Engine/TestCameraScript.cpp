@@ -23,6 +23,7 @@ void TestCameraScript::LateUpdate() {
     // 게임 윈도우가 포커스 되었을 때만 입력 처리
     if (GetForegroundWindow() == GEngine->GetWindow().hwnd) {
         Vec3 revolution = GetTransform()->GetLocalRevolution();
+        Vec3 pos = GetTransform()->GetLocalPosition();
 
         // 마우스 좌클릭 시 선택 또는 피킹 처리
         if (INPUT->IsMouseButtonPressed(0)) {  // 0은 왼쪽 마우스 버튼
@@ -124,7 +125,7 @@ void TestCameraScript::LateUpdate() {
         //회전보간
         Vec3 result;
         result.x = 0.f;
-        result.y = _dir.y + (DELTA_TIME * 10) * (parentRotate.y - _dir.y);
+        result.y = _dir.y + (0.9) * (parentRotate.y - _dir.y);
         result.z = 0.f;
 
         parentTransform->SetLocalRotation(result);
@@ -155,12 +156,16 @@ void TestCameraScript::LateUpdate() {
 
         // 마우스 휠로 줌 기능 추가
         int mouseWheel = INPUT->GetMouseWheel();
+        Vec3 vectorAB = XMVectorSubtract(pos, Vec3(0.f, 0.f, 0.f));
+        vectorAB.Normalize();
         if (mouseWheel != 0) {
-            float zoomSpeed = 5.0f;
-            parentPos += parentTransform->GetLook() * zoomSpeed * mouseWheel * DELTA_TIME;
+
+            float zoomSpeed = 0.1f;
+            pos -= vectorAB * zoomSpeed * mouseWheel * DELTA_TIME;
         }
 
         // 부모 객체 위치 적용
+        GetTransform()->SetLocalPosition(pos);
         parentTransform->SetLocalPosition(parentPos);
     }
 }
