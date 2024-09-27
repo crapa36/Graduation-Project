@@ -144,6 +144,7 @@ int main() {
 			if (ex_over->_comp_type == OP_SEND) delete ex_over;
 			continue;
 		}
+	}
 
 
 

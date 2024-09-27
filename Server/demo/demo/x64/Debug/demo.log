@@ -1,2 +1,18 @@
 ﻿  server.cpp
-  demo.vcxproj -> C:\Graduation_Project\Graduation-Project\Server\demo\x64\Debug\demo.exe
+C:\Graduation_Project\Graduation-Project\Engine\EnginePch.h(4,1): warning C4005: '_HAS_STD_BYTE': 매크로 재정의
+  (소스 파일 'server.cpp'을(를) 컴파일하는 중)
+  C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\yvals_core.h(973,1):
+  '_HAS_STD_BYTE'의 이전 정의를 참조하십시오.
+  
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\filesystem(12): warning STL4038: The contents of <filesystem> are available only with C++17 or later.
+C:\Graduation_Project\Graduation-Project\Engine\EnginePch.h(22,21): error C2039: 'filesystem': 'std'의 멤버가 아닙니다.
+  (소스 파일 'server.cpp'을(를) 컴파일하는 중)
+  C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.39.33519\include\map(24,1):
+  'std' 선언을 참조하십시오.
+  
+C:\Graduation_Project\Graduation-Project\Engine\EnginePch.h(22,21): error C2878: 'filesystem': 같은 이름을 가진 네임스페이스 또는 클래스가 없습니다.
+  (소스 파일 'server.cpp'을(를) 컴파일하는 중)
+  
+C:\Graduation_Project\Graduation-Project\Engine\EnginePch.h(37,10): error C1083: 포함 파일을 열 수 없습니다. 'DirectXTex/DirectXTex.h': No such file or directory
+  (소스 파일 'server.cpp'을(를) 컴파일하는 중)
+  
