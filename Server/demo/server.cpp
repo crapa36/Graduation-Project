@@ -2,7 +2,11 @@
 #include <WS2tcpip.h>
 #include <MSWSock.h>
 #include <array>
+#include <vector>
+
+#include "../../Engine/EnginePch.h"
 #include "protocol.h"
+
 
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
@@ -42,13 +46,13 @@ public:
 	OVER_EXP _recv_over;
 	int _prev_remain;
 	char _name[MAX_NAME_SIZE];
-	short x, y;
+	Vec3 position;
 
 	SESSION()
 	{
 		_id = -1;
 		_socket = 0;
-		x = y = 0;
+		position = {};
 		_name[0] = 0;
 		_state = ST_FREE;
 		_prev_remain = 0;
