@@ -1,6 +1,7 @@
 constexpr int PORT_NUM = 4000;
+constexpr int BUF_SIZE = 200;
 
-
+constexpr int MAX_USER = 10;
 
 
 
