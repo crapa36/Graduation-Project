@@ -87,9 +87,9 @@ vector<shared_ptr<GameObject>> MeshData::Instantiate() {
 
     for (MeshRenderInfo& info : _meshRenders) {
         shared_ptr<GameObject> gameObject = make_shared<GameObject>();
-        gameObject->AddComponent(make_shared<Transform>()); // FBX
+        //gameObject->AddComponent(make_shared<Transform>()); // FBX
+        gameObject->AddComponent(info.mesh->GetTransform()); // BIN
 
-        //gameObject->AddComponent(info.mesh->GetTransform()); // BIN
         gameObject->AddComponent(make_shared<MeshRenderer>());
         gameObject->GetMeshRenderer()->SetMesh(info.mesh);
 

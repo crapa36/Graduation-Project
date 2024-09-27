@@ -25,6 +25,31 @@
 #include "MeshData.h"
 
 void SceneManager::Init() {
+#pragma region LayerMask
+    SetLayerName(0, L"Default");
+    SetLayerName(1, L"UI");
+#pragma endregion
+
+#pragma region ComputeShader
+    {
+        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"ComputeShader");
+
+        // UAV �� Texture ����
+        shared_ptr<Texture> texture = GET_SINGLETON(Resources)->CreateTexture(L"UAVTexture",
+            DXGI_FORMAT_R8G8B8A8_UNORM, 1024, 1024,
+            CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
+            D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+
+        shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"ComputeShader");
+        material->SetShader(shader);
+        material->SetInt(0, 1);
+        GEngine->GetComputeDescriptorHeap()->SetUAV(texture->GetUAVHandle(), UAV_REGISTER::u0);
+
+        // ������ �׷� (1 * 1024 * 1)
+        material->Dispatch(1, 1024, 1);
+    }
+#pragma endregion
+
     Scenes[L"TestScene"] = LoadTestScene();
 
 }
@@ -244,30 +269,6 @@ void SceneManager::SaveScene(wstring sceneName) {
 }
 
 void SceneManager::LoadScene(wstring sceneName) {
-#pragma region LayerMask
-    SetLayerName(0, L"Default");
-    SetLayerName(1, L"UI");
-#pragma endregion
-
-#pragma region ComputeShader
-    {
-        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"ComputeShader");
-
-        // UAV �� Texture ����
-        shared_ptr<Texture> texture = GET_SINGLETON(Resources)->CreateTexture(L"UAVTexture",
-                                                                              DXGI_FORMAT_R8G8B8A8_UNORM, 1024, 1024,
-                                                                              CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT), D3D12_HEAP_FLAG_NONE,
-                                                                              D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
-
-        shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"ComputeShader");
-        material->SetShader(shader);
-        material->SetInt(0, 1);
-        GEngine->GetComputeDescriptorHeap()->SetUAV(texture->GetUAVHandle(), UAV_REGISTER::u0);
-
-        // ������ �׷� (1 * 1024 * 1)
-        material->Dispatch(1, 1024, 1);
-    }
-#pragma endregion
 
     shared_ptr<Scene> scene = make_shared<Scene>();
 
@@ -302,28 +303,53 @@ uint8 SceneManager::LayerNameToIndex(const wstring& name) {
 
 shared_ptr<Scene> SceneManager::LoadTestScene() {
     shared_ptr<Scene> scene = make_shared<Scene>();
-#pragma region FBX
-    {
-        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadFBX(L"..\\Resources\\FBX\\Dragon.fbx");
+//#pragma region FBX
+//    {
+//        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadFBX(L"..\\Resources\\FBX\\Dragon.fbx");
+//
+//        vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
+//
+//        for (auto& gameObject : gameObjects) {
+//            gameObject->SetName(L"Dragon");
+//            gameObject->SetCheckFrustum(false);
+//            gameObject->AddComponent(make_shared<BoxCollider>());
+//            gameObject->AddComponent(make_shared<TestDragonScript>());
+//            gameObject->AddComponent(make_shared<Rigidbody>());
+//            dynamic_pointer_cast<BoxCollider>(gameObject->GetCollider())->SetExtents(Vec3(40.f, 30.f, 40.f));
+//            dynamic_pointer_cast<BoxCollider>(gameObject->GetCollider())->SetCenter(Vec3(0.f, 10.f, 0.f));
+//            gameObject->GetTransform()->SetLocalPosition(Vec3(0.f, 500.f, 0.f));
+//            gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
+//            gameObject->GetRigidbody()->SetUseGravity(true);
+//            gameObject->GetRigidbody()->SetElasticity(0.0f);
+//
+//            gameObject->SetStatic(false);
+//            scene->AddGameObject(gameObject);
+//        }
 
-        vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
+#pragma region BIN
+{
+         
+                wstring path = L"../Resources/BIN/Apache.bin";
+                shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadBIN(path);
+        
+                vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
 
-        for (auto& gameObject : gameObjects) {
-            gameObject->SetName(L"Dragon");
-            gameObject->SetCheckFrustum(false);
-            gameObject->AddComponent(make_shared<BoxCollider>());
-            gameObject->AddComponent(make_shared<TestDragonScript>());
-            gameObject->AddComponent(make_shared<Rigidbody>());
-            dynamic_pointer_cast<BoxCollider>(gameObject->GetCollider())->SetExtents(Vec3(40.f, 30.f, 40.f));
-            dynamic_pointer_cast<BoxCollider>(gameObject->GetCollider())->SetCenter(Vec3(0.f, 10.f, 0.f));
-            gameObject->GetTransform()->SetLocalPosition(Vec3(0.f, 500.f, 0.f));
-            gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
-            gameObject->GetRigidbody()->SetUseGravity(true);
-            gameObject->GetRigidbody()->SetElasticity(0.0f);
+                for (auto& gameObject : gameObjects) {
+                    gameObject->SetName(L"Apache");
+                    gameObject->SetCheckFrustum(false);
+                    gameObject->AddComponent(make_shared<BoxCollider>());
+                    gameObject->AddComponent(make_shared<TestDragonScript>());
+                    gameObject->AddComponent(make_shared<Rigidbody>());
+                    dynamic_pointer_cast<BoxCollider>(gameObject->GetCollider())->SetExtents(Vec3(40.f, 30.f, 40.f));
+                    dynamic_pointer_cast<BoxCollider>(gameObject->GetCollider())->SetCenter(Vec3(0.f, 10.f, 0.f));
+                    gameObject->GetTransform()->SetLocalPosition(Vec3(0.f, 500.f, 0.f));
+                    gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
+                    gameObject->GetRigidbody()->SetUseGravity(true);
+                    gameObject->GetRigidbody()->SetElasticity(0.0f);
+                    gameObject->SetStatic(false);
+                    scene->AddGameObject(gameObject);
+                }
 
-            gameObject->SetStatic(false);
-            scene->AddGameObject(gameObject);
-        }
 #pragma region Camera
         {
             shared_ptr<GameObject> camera = make_shared<GameObject>();
@@ -576,21 +602,6 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
         scene->AddGameObject(particle);
     }
 #pragma endregion
-
-    //#pragma region BIN
-    //    {
-    //        wstring path = L"../Resources/BIN/Apache.bin";
-    //        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadBIN(path);
-    //
-    //        vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
-    //        for (auto& gameObject : gameObjects) {
-    //            gameObject->SetName(L"Apache");
-    //            gameObject->SetCheckFrustum(false);
-    //            scene->AddGameObject(gameObject);
-    //            gameObject->SetStatic(false);
-    //        }
-    //    }
-    //#pragma endregion
 
     return scene;
 }

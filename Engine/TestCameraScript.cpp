@@ -159,6 +159,7 @@ void TestCameraScript::LateUpdate() {
         Vec3 vectorAB = XMVectorSubtract(pos, Vec3(0.f, 0.f, 0.f));
         vectorAB.Normalize();
         if (mouseWheel != 0) {
+
             float zoomSpeed = 0.1f;
             pos -= vectorAB * zoomSpeed * mouseWheel * DELTA_TIME;
         }
