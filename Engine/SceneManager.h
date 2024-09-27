@@ -1,0 +1,42 @@
+#pragma once
+
+class Scene;
+
+enum {
+    MAX_LAYER = 32
+};
+
+class SceneManager {
+    DECLARE_SINGLETON(SceneManager);
+
+public:
+    void Init(WindowInfo info);
+    void Update();
+    void Render();
+
+    void SaveScene(wstring sceneName);
+    void LoadScene(wstring sceneName);
+    void ChangeScene(wstring sceneName);
+
+    void SetLayerName(uint8 index, const wstring& name);
+    const wstring& IndexToLayerName(uint8 index) { return _layerNames[index]; }
+    uint8 LayerNameToIndex(const wstring& name);
+
+public:
+    shared_ptr<Scene> GetActiveScene() { return _activeScene; }
+
+private:
+    shared_ptr<Scene> LoadTestScene();
+    shared_ptr<Scene> LoadTestMenuScene();
+
+private:
+    map<wstring, shared_ptr<Scene>> Scenes;
+    shared_ptr<Scene> _beforeScene;
+    shared_ptr<Scene> _activeScene;
+
+    array<wstring, MAX_LAYER> _layerNames;
+    map<wstring, uint8> _layerIndex;
+
+    int32   _clientWidth;
+    int32   _clientHeight;
+};
