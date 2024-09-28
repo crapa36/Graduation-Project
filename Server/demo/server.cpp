@@ -97,6 +97,7 @@ void disconnect(int c_id)
 		if (ST_INGAME != pl._state) continue;
 		if (pl._id == c_id) continue;
 		pl.send_remove_player_packet(c_id);
+		std::cout << "Client [" << c_id << "] Connected\n";
 	}
 	closesocket(clients[c_id]._socket);
 	clients[c_id]._state = ST_FREE;
