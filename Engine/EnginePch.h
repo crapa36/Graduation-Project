@@ -6,6 +6,8 @@
 #define PIE 3.1415
 
 // °¢Á¾ include
+#include <WinSock2.h>
+#include <ws2tcpip.h>
 #include <windows.h>
 #include <iostream>
 #include <fstream>
