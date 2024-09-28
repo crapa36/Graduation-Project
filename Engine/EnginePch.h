@@ -31,6 +31,7 @@ namespace fs = std::filesystem;
 #include <DirectXPackedVector.h>
 #include <DirectXColors.h>
 using namespace DirectX;
+using namespace DirectX::SimpleMath;
 using namespace DirectX::PackedVector;
 using namespace Microsoft::WRL;
 
@@ -137,6 +138,7 @@ struct Vertex {
     }
     Vec3 pos;
     Vec2 uv;
+    Vec2 uv2;
     Vec3 normal;
     Vec3 tangent;
     Vec4 weights;

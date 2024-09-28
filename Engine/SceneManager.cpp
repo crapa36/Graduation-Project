@@ -329,23 +329,47 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
 #pragma region BIN
 {
          
-                wstring path = L"../Resources/BIN/Apache.bin";
+                wstring path = L"../Resources/BIN/Gunship.bin";
                 shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadBIN(path);
-        
+
+                shared_ptr<GameObject> mainObject = make_shared<GameObject>();
+
+                mainObject->SetName(L"Main");
+                mainObject->SetCheckFrustum(false);
+
+                mainObject->AddComponent(make_shared<Transform>());
+                shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+                {
+                    shared_ptr<Mesh> sphereMesh = GET_SINGLETON(Resources)->LoadSphereMesh();
+                    meshRenderer->SetMesh(sphereMesh);
+                }
+                {
+                    shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Pebbles");
+                    meshRenderer->SetMaterial(material->Clone());
+                }
+                mainObject->AddComponent(meshRenderer);
+
+                mainObject->AddComponent(make_shared<BoxCollider>());
+                mainObject->AddComponent(make_shared<TestDragonScript>());
+                mainObject->AddComponent(make_shared<Rigidbody>());
+                dynamic_pointer_cast<BoxCollider>(mainObject->GetCollider())->SetExtents(Vec3(40.f, 30.f, 40.f));
+                dynamic_pointer_cast<BoxCollider>(mainObject->GetCollider())->SetCenter(Vec3(0.f, 10.f, 0.f));
+                mainObject->GetTransform()->SetLocalPosition(Vec3(0.f, 500.f, 0.f));
+                mainObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
+                mainObject->GetRigidbody()->SetUseGravity(false);
+                mainObject->GetRigidbody()->SetElasticity(0.0f);
+
+                mainObject->SetStatic(false);
+                scene->AddGameObject(mainObject);
+
                 vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
 
                 for (auto& gameObject : gameObjects) {
                     gameObject->SetName(L"Apache");
                     gameObject->SetCheckFrustum(false);
-                    gameObject->AddComponent(make_shared<BoxCollider>());
-                    gameObject->AddComponent(make_shared<TestDragonScript>());
-                    gameObject->AddComponent(make_shared<Rigidbody>());
-                    dynamic_pointer_cast<BoxCollider>(gameObject->GetCollider())->SetExtents(Vec3(40.f, 30.f, 40.f));
-                    dynamic_pointer_cast<BoxCollider>(gameObject->GetCollider())->SetCenter(Vec3(0.f, 10.f, 0.f));
-                    gameObject->GetTransform()->SetLocalPosition(Vec3(0.f, 500.f, 0.f));
-                    gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
-                    gameObject->GetRigidbody()->SetUseGravity(true);
-                    gameObject->GetRigidbody()->SetElasticity(0.0f);
+                   
+                    gameObject->SetParent(mainObject);
+
                     gameObject->SetStatic(false);
                     scene->AddGameObject(gameObject);
                 }
@@ -360,7 +384,7 @@ shared_ptr<Scene> SceneManager::LoadTestScene() {
             camera->GetCamera()->SetFar(10000.f); // Far 10000 ����
             camera->GetTransform()->SetLocalPosition(Vec3(0.f, 50.f, -200.f));
 
-            camera->SetParent(gameObjects.front());
+            camera->SetParent(mainObject);
             camera->GetTransform()->SetInheritRotation(false);
             camera->GetTransform()->SetInheritScale(false);
 

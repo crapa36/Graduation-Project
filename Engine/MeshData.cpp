@@ -43,23 +43,23 @@ shared_ptr<MeshData> MeshData::LoadFromFBX(const wstring& path) {
 }
 
 shared_ptr<MeshData> MeshData::LoadFromBIN(const wstring& path) {
-    CMeshLoader loader;
-    loader.LoadBIN(path);
+    shared_ptr<CMeshLoader> loader = make_shared<CMeshLoader>();
+    loader->LoadBIN(path);
 
     shared_ptr<MeshData> meshData = make_shared<MeshData>();
 
-    for (int32 i = 0; i < loader.GetMeshCount(); i++) {
-        if (!loader.GetMesh(i).vertices.empty()) {
-            shared_ptr<Mesh> mesh = Mesh::CreateFromBIN(&loader.GetMesh(i), loader);
-            mesh->SetTransform(loader.GetMesh(i).transform);
+    for (int32 i = 0; i < loader->GetMeshCount(); i++) {
+        if (!loader->GetMesh(i).vertices.empty()) {
+            shared_ptr<Mesh> mesh = Mesh::CreateFromBIN(&loader->GetMesh(i), loader);
+            mesh->SetTransform(loader->GetMesh(i).transform);
 
             //mesh->SetTransform(make_shared<Transform>());
             GET_SINGLETON(Resources)->Add<Mesh>(mesh->GetName(), mesh);
 
             // Material 찾아서 연동
             vector<shared_ptr<Material>> materials;
-            for (size_t j = 0; j < loader.GetMesh(i).materials.size(); j++) {
-                shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(loader.GetMesh(i).materials.at(j).name);
+            for (size_t j = 0; j < loader->GetMesh(i).materials.size(); j++) {
+                shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(loader->GetMesh(i).materials.at(j).name);
                 materials.push_back(material);
             }
 
