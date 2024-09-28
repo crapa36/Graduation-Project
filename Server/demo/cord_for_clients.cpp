@@ -2,8 +2,6 @@
 #include <WinSock2.h>
 #include <iostream>
 
-void send_login_packet(const char* name);
-
 extern SOCKET g_socket; // Assume this is your global socket connected to the server
 
 //서버로 보내는 로그인 패킷

@@ -1,3 +1,6 @@
+#pragma once
+#include <cstdint>
+
 constexpr int PORT_NUM = 4000;
 constexpr int BUF_SIZE = 200;
 constexpr int MAX_USER = 10;
@@ -15,7 +18,7 @@ enum PACKET_TYPE : uint8_t {
     // ... other packet types ...
 };
 
-
+#pragma pack(push, 1)
 struct CS_LOGIN_PACKET {
     uint8_t size;
     PACKET_TYPE type;
@@ -46,7 +49,13 @@ struct SC_LOGIN_FAIL_PACKET {
 
 
 struct SC_REMOVE_PLAYER_PACKET {
-	unsigned char size;
-	char	type;
-	short	id;
+    uint8_t size;
+    PACKET_TYPE type;
+    int id;
+    SC_REMOVE_PLAYER_PACKET() : size(sizeof(SC_REMOVE_PLAYER_PACKET)), type(SC_REMOVE_PLAYER), id(-1) {}
 };
+
+#pragma pack(pop)
+
+// Client-side function declaration
+void send_login_packet(const char* name);
