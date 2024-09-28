@@ -4,7 +4,7 @@
 #include <array>
 #include <vector>
 
-#include "../../Engine/EnginePch.h"
+//#include "../../Engine/EnginePch.h"
 #include "protocol.h"
 
 
@@ -46,13 +46,17 @@ public:
 	OVER_EXP _recv_over;
 	int _prev_remain;
 	char _name[MAX_NAME_SIZE];
-	Vec3 position;
+	float x;
+	float y;
+	float z;
 
 	SESSION()
 	{
 		_id = -1;
 		_socket = 0;
-		position = {};
+		x = 0.0;
+		y = 0.0;
+		z = 0.0;
 		_name[0] = 0;
 		_state = ST_FREE;
 		_prev_remain = 0;
