@@ -102,6 +102,29 @@ void disconnect(int c_id)
 	clients[c_id]._state = ST_FREE;
 }
 
+void process_accept(SOCKET client_socket, SOCKADDR_IN& addr, HANDLE h_iocp)
+{
+	int new_id = get_new_client_id();
+	if (new_id == -1) {
+		std::cout << "Client Full\n";
+		closesocket(client_socket);
+		return;
+	}
+
+	SESSION& new_client = clients[new_id];
+	new_client._id = new_id;
+	new_client._socket = client_socket;
+	new_client._state = ST_INGAME;
+
+	CreateIoCompletionPort(reinterpret_cast<HANDLE>(client_socket), h_iocp, new_id, 0);
+
+	std::cout << "Client [" << new_id << "] Connected\n";
+
+	DWORD flags = 0;
+	WSARecv(client_socket, &new_client._recv_over._wsabuf, 1, NULL, &flags, &new_client._recv_over._over, NULL);
+}
+
+
 int main() {
 	WSAData WSADATA;
 	WSAStartup(MAKEWORD(2, 2), &WSADATA);
@@ -148,6 +171,25 @@ int main() {
 			if (ex_over->_comp_type == OP_SEND) delete ex_over;
 			continue;
 		}
+
+		switch (ex_over->_comp_type) {
+		case OP_ACCEPT:
+			process_accept(client_socket, cl_addr, h_iocp);
+			client_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+			ZeroMemory(&a_over._over, sizeof(a_over._over));
+			AcceptEx(server_socket, client_socket, a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &a_over._over);
+			break;
+		case OP_RECV:
+			// Handle receive operation
+			break;
+		case OP_SEND:
+			if (num_bytes != ex_over->_wsabuf.len) {
+				disconnect(static_cast<int>(key));
+			}
+			delete ex_over;
+			break;
+		}
+
 	}
 
 
