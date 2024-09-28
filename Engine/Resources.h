@@ -5,6 +5,7 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "CubeMapTexture.h"
 
 class Resources {
     DECLARE_SINGLETON(Resources);
@@ -62,7 +63,6 @@ inline shared_ptr<T> Resources::Load(const wstring& key, const wstring& path) {
 
     return object;
 }
-
 
 template<typename T>
 bool Resources::Add(const wstring& key, shared_ptr<T> object) {

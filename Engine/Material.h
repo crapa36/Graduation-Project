@@ -47,7 +47,7 @@ public:
         _textures[index] = texture;
         _params.SetTexOn(index, (texture == nullptr ? 0 : 1));
     }
-    
+    void SetCubeMapTexture(shared_ptr<CubeMapTexture> texture) { _cubeMapTexture = texture; }
 
     void SetVec2(uint8 index, Vec2 value) { _params.SetVec2(index, value); }
     void SetVec4(uint8 index, Vec4 value) { _params.SetVec4(index, value); }
@@ -66,4 +66,5 @@ private:
     shared_ptr<Shader>	_shader;
     MaterialParams		_params;
     array<shared_ptr<Texture>, MATERIAL_ARG_COUNT> _textures;
+    shared_ptr<CubeMapTexture> _cubeMapTexture;
 };

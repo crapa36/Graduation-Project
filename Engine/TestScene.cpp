@@ -128,16 +128,16 @@ TestScene::TestScene() {
         skybox->SetCheckFrustum(false);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
-            shared_ptr<Mesh> sphereMesh = GET_SINGLETON(Resources)->LoadSphereMesh();
+            shared_ptr<Mesh> sphereMesh = GET_SINGLETON(Resources)->LoadCubeMesh();
             meshRenderer->SetMesh(sphereMesh);
         }
         {
-            shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Skysphere");
-            shared_ptr<Texture> texture = GET_SINGLETON(Resources)->Load<Texture>(L"Sky01", L"..\\Resources\\Texture\\Sky_01.jpg");
+            shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Skybox");
+            shared_ptr<CubeMapTexture> texture = GET_SINGLETON(Resources)->Load<CubeMapTexture>(L"Sky01", L"..\\Resources\\Texture\\SkyBox_0.dds");
 
             shared_ptr<Material> material = make_shared<Material>();
             material->SetShader(shader);
-            material->SetTexture(0, texture);
+            material->SetCubeMapTexture(texture);
             meshRenderer->SetMaterial(material);
         }
         skybox->AddComponent(meshRenderer);

@@ -10,8 +10,8 @@
 #include "Engine.h"
 
 TestCameraScript::TestCameraScript() {
-    _centerPos.x = GEngine->GetWindow().width / 2;
-    _centerPos.y = GEngine->GetWindow().height / 2;
+    _centerPos.x = GEngine->GetWindow().clientWidth / 2;
+    _centerPos.y = GEngine->GetWindow().clientHeight / 2;
     _centerScreenPos = _centerPos;
     ClientToScreen(GEngine->GetWindow().hwnd, &_centerScreenPos);
 }

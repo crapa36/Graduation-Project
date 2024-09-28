@@ -50,6 +50,7 @@ cbuffer MATERIAL_PARAMS : register(b2)
     int g_tex_on_1;
     int g_tex_on_2;
     int g_tex_on_3;
+
     float2 g_vec2_0;
     float2 g_vec2_1;
     float2 g_vec2_2;
@@ -70,6 +71,7 @@ Texture2D g_tex_1 : register(t1);
 Texture2D g_tex_2 : register(t2);
 Texture2D g_tex_3 : register(t3);
 Texture2D g_tex_4 : register(t4);
+
 
 // TextureCube 텍스처 정의 (큐브맵 추가)
 TextureCube g_texCube : register(t5);

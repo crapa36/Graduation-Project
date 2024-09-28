@@ -46,7 +46,7 @@ struct HS_OUT
 // Constant HS
 PatchTess ConstantHS(InputPatch<VS_OUT, 3> input, int patchID : SV_PrimitiveID)
 {
-    PatchTess output = (PatchTess)0.f;
+    PatchTess output = (PatchTess) 0.f;
 
     float minDistance = g_vec2_1.x;
     float maxDistance = g_vec2_1.y;
@@ -79,7 +79,7 @@ PatchTess ConstantHS(InputPatch<VS_OUT, 3> input, int patchID : SV_PrimitiveID)
 [patchconstantfunc("ConstantHS")] // ConstantHS 함수 이름
 HS_OUT HS_Main(InputPatch<VS_OUT, 3> input, int vertexIdx : SV_OutputControlPointID, int patchID : SV_PrimitiveID)
 {
-    HS_OUT output = (HS_OUT)0.f;
+    HS_OUT output = (HS_OUT) 0.f;
 
     output.pos = input[vertexIdx].pos;
     output.uv = input[vertexIdx].uv;
@@ -97,6 +97,7 @@ HS_OUT HS_Main(InputPatch<VS_OUT, 3> input, int vertexIdx : SV_OutputControlPoin
 // g_tex_0      : Diffuse Texture
 // g_tex_1      : Normal Texture
 // g_tex_2      : HeightMap Texture
+// g_tex_3      : Detailed Texture
 
 // --------------
 // Domain Shader
@@ -115,7 +116,7 @@ struct DS_OUT
 [domain("tri")]
 DS_OUT DS_Main(const OutputPatch<HS_OUT, 3> input, float3 location : SV_DomainLocation, PatchTess patch)
 {
-    DS_OUT output = (DS_OUT)0.f;
+    DS_OUT output = (DS_OUT) 0.f;
 
     float3 localPos = input[0].pos * location[0] + input[1].pos * location[1] + input[2].pos * location[2];
     float2 uv = input[0].uv * location[0] + input[1].uv * location[1] + input[2].uv * location[2];
@@ -125,7 +126,7 @@ DS_OUT DS_Main(const OutputPatch<HS_OUT, 3> input, float3 location : SV_DomainLo
     int mapWidth = g_vec2_0.x;
     int mapHeight = g_vec2_0.y;
 
-    float2 fullUV = float2(uv.x / (float)tileCountX, uv.y / (float)tileCountZ);
+    float2 fullUV = float2(uv.x / (float) tileCountX, uv.y / (float) tileCountZ);
     float height = g_tex_2.SampleLevel(g_sam_0, fullUV, 0).x;
 
     // 높이맵 높이 적용
@@ -167,11 +168,18 @@ struct PS_OUT
 
 PS_OUT PS_Main(DS_OUT input)
 {
-    PS_OUT output = (PS_OUT)0;
+    PS_OUT output = (PS_OUT) 0;
 
     float4 color = float4(1.f, 1.f, 1.f, 1.f);
     if (g_tex_on_0 == 1)
         color = g_tex_0.Sample(g_sam_0, input.uv);
+
+    // Detailed texture 적용
+    if (g_tex_on_3 == 1)
+    {
+        float4 detailedColor = g_tex_3.Sample(g_sam_0, input.uv * 5.0); // 텍스처 타일링
+        color *= detailedColor;
+    }
 
     float3 viewNormal = input.viewNormal;
     if (g_tex_on_1 == 1)
