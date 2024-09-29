@@ -15,8 +15,8 @@ Matrix Camera::S_MatView;
 Matrix Camera::S_MatProjection;
 
 Camera::Camera() : Component(COMPONENT_TYPE::CAMERA) {
-    _width = static_cast<float>(GEngine->GetWindow().width);
-    _height = static_cast<float>(GEngine->GetWindow().height);
+    _width = static_cast<float>(GEngine->GetWindow().clientWidth);
+    _height = static_cast<float>(GEngine->GetWindow().clientHeight);
 }
 
 Camera::~Camera() {
@@ -60,7 +60,9 @@ void Camera::SortGameObject() {
                 continue;
             }
         }
-
+        if (gameObject->GetParticleSystem()) {
+            _vecParticle.push_back(gameObject);
+        }
         if (gameObject->GetMeshRenderer()) {
             SHADER_TYPE shaderType = gameObject->GetMeshRenderer()->GetMaterial()->GetShader()->GetShaderType();
             switch (shaderType) {
@@ -79,9 +81,6 @@ void Camera::SortGameObject() {
             }
         }
 #endif
-        if (gameObject->GetParticleSystem()) {
-            _vecParticle.push_back(gameObject);
-        }
     }
 }
 

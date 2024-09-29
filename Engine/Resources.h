@@ -5,6 +5,7 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "CubeMapTexture.h"
 
 class Resources {
     DECLARE_SINGLETON(Resources);

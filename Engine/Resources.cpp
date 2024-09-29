@@ -421,6 +421,20 @@ shared_ptr<class MeshData> Resources::LoadBIN(const wstring& path) {
 
 void Resources::CreateDefaultShader() {
 
+    // Skysphere
+    {
+        ShaderInfo info =
+        {
+            SHADER_TYPE::FORWARD,
+            RASTERIZER_TYPE::CULL_NONE,
+            DEPTH_STENCIL_TYPE::LESS_EQUAL
+        };
+
+        shared_ptr<Shader> shader = make_shared<Shader>();
+        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\skysphere.fx", info);
+        Add<Shader>(L"Skysphere", shader);
+    }
+
     // Skybox
     {
         ShaderInfo info =
@@ -561,7 +575,7 @@ void Resources::CreateDefaultShader() {
         {
             SHADER_TYPE::PARTICLE,
             RASTERIZER_TYPE::CULL_BACK,
-            DEPTH_STENCIL_TYPE::LESS_NO_WRITE,
+            DEPTH_STENCIL_TYPE::LESS,
             BLEND_TYPE::ALPHA_BLEND,
             D3D_PRIMITIVE_TOPOLOGY_POINTLIST
         };
@@ -689,7 +703,15 @@ void Resources::CreateDefaultShader() {
 
 void Resources::CreateDefaultMaterial() {
 
-    // Skybox
+    // Skysphere
+    {
+        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Skysphere");
+        shared_ptr<Material> material = make_shared<Material>();
+        material->SetShader(shader);
+        Add<Material>(L"Skysphere", material);
+    }
+
+    // Skysphere
     {
         shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Skybox");
         shared_ptr<Material> material = make_shared<Material>();
@@ -710,7 +732,7 @@ void Resources::CreateDefaultMaterial() {
     // PointLight
     {
         const WindowInfo& window = GEngine->GetWindow();
-        Vec2 resolution = { static_cast<float>(window.width), static_cast<float>(window.height) };
+        Vec2 resolution = { static_cast<float>(window.clientWidth), static_cast<float>(window.clientHeight) };
 
         shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"PointLight");
         shared_ptr<Material> material = make_shared<Material>();
@@ -824,10 +846,16 @@ void Resources::CreateDefaultMaterial() {
     // Terrain
     {
         shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Terrain");
-        shared_ptr<Texture> texture = GET_SINGLETON(Resources)->Load<Texture>(L"Terrain", L"..\\Resources\\Texture\\Terrain\\Terrain.png");
+        shared_ptr<Texture> texture = GET_SINGLETON(Resources)->Load<Texture>(L"Terrain", L"..\\Resources\\Texture\\Terrain\\pineforest02.dds");
+        shared_ptr<Texture> normalTexture = GET_SINGLETON(Resources)->Load<Texture>(L"Terrain_Normal", L"..\\Resources\\Texture\\Terrain\\pineforest02_n.dds");
+        shared_ptr<Texture> detailTexture = GET_SINGLETON(Resources)->Load<Texture>(L"Terrain_Detail", L"..\\Resources\\Texture\\Terrain\\terrain_detail.jpg");
         shared_ptr<Material> material = make_shared<Material>();
         material->SetShader(shader);
         material->SetTexture(0, texture);
+        material->SetTexture(1, normalTexture);
+
+        //material->SetTexture(3, detailTexture);
+
         Add<Material>(L"Terrain", material);
     }
 

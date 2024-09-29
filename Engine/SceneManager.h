@@ -10,6 +10,7 @@ class SceneManager {
     DECLARE_SINGLETON(SceneManager);
 
 public:
+    void Init();
     void Update();
     void Render();
 
@@ -23,9 +24,6 @@ public:
 
 public:
     shared_ptr<Scene> GetActiveScene() { return _activeScene; }
-
-private:
-    shared_ptr<Scene> LoadTestScene();
 
 private:
     map<wstring, shared_ptr<Scene>> Scenes;

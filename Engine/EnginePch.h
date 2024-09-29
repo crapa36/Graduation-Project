@@ -6,6 +6,10 @@
 #define PIE 3.1415
 
 // 각종 include
+#define WIN32_LEAN_AND_MEAN
+#include <WinSock2.h>
+#include <ws2tcpip.h>
+
 #include <windows.h>
 #include <iostream>
 #include <fstream>
@@ -30,12 +34,15 @@ namespace fs = std::filesystem;
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 #include <DirectXColors.h>
+
 using namespace DirectX;
 using namespace DirectX::PackedVector;
 using namespace Microsoft::WRL;
 
 #include <DirectXTex/DirectXTex.h>
 #include <DirectXTex/DirectXTex.inl>
+#include "DDSTextureLoader12.h"
+#include "WICTextureLoader12.h"
 
 #include "FBX/fbxsdk.h"
 
@@ -124,6 +131,8 @@ struct WindowInfo {
     HWND	hwnd; // 출력 윈도우
     int32	width; // 너비
     int32	height; // 높이
+    int32   clientWidth; // 클라이언트 영역 너비
+    int32   clientHeight; // 클라이언트 영역 높이
     bool	windowed; // 창모드 or 전체화면
     HINSTANCE hInstance; // 인스턴스
 };
