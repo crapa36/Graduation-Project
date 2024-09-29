@@ -1,7 +1,4 @@
 #pragma once
-#pragma once
-
-
 #pragma comment(lib, "ws2_32.lib")
 
 extern SOCKET g_socket;

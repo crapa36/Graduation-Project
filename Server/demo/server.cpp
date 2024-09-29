@@ -254,13 +254,14 @@ int main() {
 		}
 
 		switch (ex_over->_comp_type) {
-		case OP_ACCEPT:
+		case OP_ACCEPT: {
 			process_accept(client_socket, cl_addr, h_iocp);
-			
+
 			ZeroMemory(&a_over._over, sizeof(a_over._over));
 			AcceptEx(server_socket, client_socket, a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &a_over._over);
 			break;
-		case OP_RECV:
+		}
+		case OP_RECV: {
 			int remain_data = num_bytes + clients[key]._prev_remain;
 			char* p = ex_over->_send_buf;
 			while (remain_data > 0) {
@@ -278,12 +279,14 @@ int main() {
 			}
 			clients[key].do_recv();
 			break;
-		case OP_SEND:
+		}
+		case OP_SEND: {
 			if (num_bytes != ex_over->_wsabuf.len) {
 				disconnect(static_cast<int>(key));
 			}
 			delete ex_over;
 			break;
+		}
 		}
 
 	}
