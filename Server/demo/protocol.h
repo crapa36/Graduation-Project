@@ -10,10 +10,12 @@ constexpr int MAX_NAME_SIZE = 20;
 
 //ÆÐÅ¶ ID
 enum PACKET_TYPE : uint8_t {
-    CS_LOGIN = 1,
+    CS_LOGIN = 0,
+    CS_MOVE,
     SC_LOGIN_OK,
     SC_LOGIN_FAIL,
-    SC_REMOVE_PLAYER = 4,
+    SC_LOGIN_INFO_PACKET,
+    SC_REMOVE_PLAYER = 5,
 
     // ... other packet types ...
 };
@@ -27,6 +29,16 @@ struct CS_LOGIN_PACKET {
     CS_LOGIN_PACKET() : size(sizeof(CS_LOGIN_PACKET)), type(CS_LOGIN) {
         name[0] = '\0';
     }
+};
+
+struct CS_MOVE_PACKET {
+    uint8_t size;
+    PACKET_TYPE	type;
+    int id;
+    float d_x, d_y, d_z;
+
+    CS_MOVE_PACKET() : size(sizeof(CS_MOVE_PACKET)), type(CS_MOVE), id(-1), d_x(0.0f), d_y(0.0f), d_z(0.0f) {}
+    
 };
 
 struct SC_LOGIN_OK_PACKET {
@@ -47,6 +59,13 @@ struct SC_LOGIN_FAIL_PACKET {
     }
 };
 
+struct SC_LOGIN_INFO_PACKET {
+    uint8_t size;
+    PACKET_TYPE	type;
+    int	id;
+    float x, y, z;
+    SC_LOGIN_INFO_PACKET() : size(sizeof(SC_LOGIN_INFO_PACKET)), type(PACKET_TYPE::SC_LOGIN_INFO_PACKET), id(-1), x(0.0f), y(0.0f), z(0.0f) {}
+};
 
 struct SC_REMOVE_PLAYER_PACKET {
     uint8_t size;
