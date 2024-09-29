@@ -107,6 +107,31 @@ public:
 
 std::array<SESSION, MAX_USER> clients;
 
+void SESSION::send_move_packet(int c_id)
+{
+	CS_PLAYER_MOVE_PACKET p;
+	p.id = c_id;
+	p.size = sizeof(CS_PLAYER_MOVE_PACKET);
+	p.type = CS_PLAYER_MOVE;
+	p.x = clients[c_id].x;
+	p.y = clients[c_id].y;
+	p.z = clients[c_id].z;
+	do_send(&p);
+}
+
+void SESSION::send_add_player_packet(int c_id)
+{
+	SC_ADD_PLAYER_PACKET add_packet;
+	add_packet.id = c_id;
+	strcpy_s(add_packet.name, clients[c_id]._name);
+	add_packet.size = sizeof(add_packet);
+	add_packet.type = SC_ADD_PLAYER;
+	add_packet.x = clients[c_id].x;
+	add_packet.y = clients[c_id].y;
+	add_packet.z = clients[c_id].z;
+	do_send(&add_packet);
+}
+
 int get_new_client_id()
 {
 	for (int i = 0; i < MAX_USER; ++i) {
@@ -165,8 +190,8 @@ void process_packet(int c_id, char* packet)
 		}
 		break;
 	}
-	case CS_MOVE: {
-		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
+	case CS_PLAYER_MOVE: {
+		CS_PLAYER_MOVE_PACKET* p = reinterpret_cast<CS_PLAYER_MOVE_PACKET*>(packet);
 		float x = clients[c_id].x;
 		float y = clients[c_id].y;
 		float z = clients[c_id].z;
