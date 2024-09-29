@@ -2,7 +2,7 @@
 #include "Game.h"
 #include "Engine.h"
 #include "SceneManager.h"
-#include "Network.h"
+#include "NetworkManager.h"
 
 void Game::Init(const WindowInfo& info) {
     if (!initialize_winsock()) {

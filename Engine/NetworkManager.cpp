@@ -1,8 +1,18 @@
 #include "pch.h"
-#include "Network.h"
+#include "NetworkManager.h"
 #include "../Server/demo/protocol.h"
 
+
+
+struct OVER_EXP {
+    WSAOVERLAPPED _over;
+    char _buf[BUF_SIZE];
+    WSABUF _wsabuf;
+    int _comp_type;
+};
+
 SOCKET g_socket;
+OVER_EXP g_recv_over;
 
 bool initialize_winsock()
 {
