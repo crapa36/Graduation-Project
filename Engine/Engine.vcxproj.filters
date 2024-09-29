@@ -16,9 +16,6 @@
     <Filter Include="Object">
       <UniqueIdentifier>{4f33afe3-032e-40bd-94fc-13c6467dab97}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Object\Test">
-      <UniqueIdentifier>{b8681210-d12d-41eb-abd5-36f8ab94aedf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Object\Component">
       <UniqueIdentifier>{c31527e6-ddf5-4223-870c-2f1d6187f7d6}</UniqueIdentifier>
     </Filter>
@@ -30,6 +27,12 @@
     </Filter>
     <Filter Include="Resource">
       <UniqueIdentifier>{07fe09cd-7db5-4bc2-9573-f2854417128a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes">
+      <UniqueIdentifier>{934b7eea-6cf9-4e95-874b-36f22bee28a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\Scripts">
+      <UniqueIdentifier>{b8681210-d12d-41eb-abd5-36f8ab94aedf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -85,7 +88,7 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="TestCameraScript.cpp">
-      <Filter>Object\Test</Filter>
+      <Filter>Scenes\Scripts</Filter>
     </ClCompile>
     <ClCompile Include="Resources.cpp">
       <Filter>Manager</Filter>
@@ -184,10 +187,10 @@
       <Filter>Utils\imgui</Filter>
     </ClCompile>
     <ClCompile Include="TestPlayerScript.cpp">
-      <Filter>Object\Test</Filter>
+      <Filter>Scenes\Scripts</Filter>
     </ClCompile>
     <ClCompile Include="TestDragonScript.cpp">
-      <Filter>Object\Test</Filter>
+      <Filter>Scenes\Scripts</Filter>
     </ClCompile>
     <ClCompile Include="BoxCollider.cpp">
       <Filter>Object\Component\Collider</Filter>
@@ -197,6 +200,21 @@
     </ClCompile>
     <ClCompile Include="CubeMapTexture.cpp">
       <Filter>Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="TitleScript.cpp">
+      <Filter>Scenes\Scripts</Filter>
+    </ClCompile>
+    <ClCompile Include="TestScene.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="TitleScene.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="WICTextureLoader12.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="DDSTextureLoader12.cpp">
+      <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -258,7 +276,7 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="TestCameraScript.h">
-      <Filter>Object\Test</Filter>
+      <Filter>Scenes\Scripts</Filter>
     </ClInclude>
     <ClInclude Include="Resources.h">
       <Filter>Manager</Filter>
@@ -348,10 +366,10 @@
       <Filter>Utils\imgui</Filter>
     </ClInclude>
     <ClInclude Include="TestPlayerScript.h">
-      <Filter>Object\Test</Filter>
+      <Filter>Scenes\Scripts</Filter>
     </ClInclude>
     <ClInclude Include="TestDragonScript.h">
-      <Filter>Object\Test</Filter>
+      <Filter>Scenes\Scripts</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">
       <Filter>Manager</Filter>
@@ -370,6 +388,22 @@
     </ClInclude>
     <ClInclude Include="CubeMapTexture.h">
       <Filter>Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="TitleScript.h">
+      <Filter>Scenes\Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="TestScene.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="TitleScene.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="WICTextureLoader12.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="DDSTextureLoader12.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -420,5 +454,8 @@
     <FxCompile Include="..\Resources\Shader\skysphere.fx">
       <Filter>Shader</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Engine.rc" />
   </ItemGroup>
 </Project>

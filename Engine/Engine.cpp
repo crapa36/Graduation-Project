@@ -16,8 +16,6 @@ void Engine::Init(const WindowInfo& info) {
     _viewport = { 0, 0, static_cast<FLOAT>(info.clientWidth), static_cast<FLOAT>(info.clientHeight), 0.0f, 1.0f };
     _scissorRect = CD3DX12_RECT(0, 0, info.clientWidth, info.clientHeight);
 
-    
-
     _device->Init();
     _graphicsCmdQueue->Init(_device->GetDevice(), _swapChain);
     _computeCmdQueue->Init(_device->GetDevice());
@@ -109,7 +107,7 @@ void Engine::CreateRenderTargetGroups() {
 
     // DepthStencil
     shared_ptr<Texture> dsTexture = GET_SINGLETON(Resources)->CreateTexture(L"DepthStencil",
-                                                                            DXGI_FORMAT_D32_FLOAT, _window.width, _window.height,
+                                                                            DXGI_FORMAT_D32_FLOAT, _window.clientWidth, _window.clientHeight,
                                                                             CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                             D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
 
@@ -152,17 +150,17 @@ void Engine::CreateRenderTargetGroups() {
         vector<RenderTarget> rtVec(RENDER_TARGET_G_BUFFER_GROUP_MEMBER_COUNT);
 
         rtVec[0].target = GET_SINGLETON(Resources)->CreateTexture(L"PositionTarget",
-                                                                  DXGI_FORMAT_R32G32B32A32_FLOAT, _window.width, _window.height,
+                                                                  DXGI_FORMAT_R32G32B32A32_FLOAT, _window.clientWidth, _window.clientHeight,
                                                                   CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                   D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
         rtVec[1].target = GET_SINGLETON(Resources)->CreateTexture(L"NormalTarget",
-                                                                  DXGI_FORMAT_R32G32B32A32_FLOAT, _window.width, _window.height,
+                                                                  DXGI_FORMAT_R32G32B32A32_FLOAT, _window.clientWidth, _window.clientHeight,
                                                                   CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                   D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
         rtVec[2].target = GET_SINGLETON(Resources)->CreateTexture(L"DiffuseTarget",
-                                                                  DXGI_FORMAT_R8G8B8A8_UNORM, _window.width, _window.height,
+                                                                  DXGI_FORMAT_R8G8B8A8_UNORM, _window.clientWidth, _window.clientHeight,
                                                                   CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                   D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
@@ -175,12 +173,12 @@ void Engine::CreateRenderTargetGroups() {
         vector<RenderTarget> rtVec(RENDER_TARGET_LIGHTING_GROUP_MEMBER_COUNT);
 
         rtVec[0].target = GET_SINGLETON(Resources)->CreateTexture(L"DiffuseLightTarget",
-                                                                  DXGI_FORMAT_R8G8B8A8_UNORM, _window.width, _window.height,
+                                                                  DXGI_FORMAT_R8G8B8A8_UNORM, _window.clientWidth, _window.clientHeight,
                                                                   CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                   D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
         rtVec[1].target = GET_SINGLETON(Resources)->CreateTexture(L"SpecularLightTarget",
-                                                                  DXGI_FORMAT_R8G8B8A8_UNORM, _window.width, _window.height,
+                                                                  DXGI_FORMAT_R8G8B8A8_UNORM, _window.clientWidth, _window.clientHeight,
                                                                   CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                   D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 

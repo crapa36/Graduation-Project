@@ -6,6 +6,10 @@
 #define PIE 3.1415
 
 // °¢Á¾ include
+#define WIN32_LEAN_AND_MEAN
+#include <WinSock2.h>
+#include <ws2tcpip.h>
+
 #include <windows.h>
 #include <iostream>
 #include <fstream>
@@ -30,6 +34,7 @@ namespace fs = std::filesystem;
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
 #include <DirectXColors.h>
+
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 using namespace DirectX::PackedVector;
@@ -37,6 +42,8 @@ using namespace Microsoft::WRL;
 
 #include <DirectXTex/DirectXTex.h>
 #include <DirectXTex/DirectXTex.inl>
+#include "DDSTextureLoader12.h"
+#include "WICTextureLoader12.h"
 
 #include "FBX/fbxsdk.h"
 

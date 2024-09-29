@@ -191,6 +191,7 @@
     <ClInclude Include="ConstantBuffer.h" />
     <ClInclude Include="CubeMapTexture.h" />
     <ClInclude Include="d3dx12.h" />
+    <ClInclude Include="DDSTextureLoader12.h" />
     <ClInclude Include="Device.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="EnginePch.h" />
@@ -220,6 +221,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="PhysicsManager.h" />
     <ClInclude Include="RenderTargetGroup.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Resources.h" />
     <ClInclude Include="Rigidbody.h" />
     <ClInclude Include="RootSignature.h" />
@@ -235,9 +237,13 @@
     <ClInclude Include="TestCameraScript.h" />
     <ClInclude Include="TestDragonScript.h" />
     <ClInclude Include="TestPlayerScript.h" />
+    <ClInclude Include="TestScene.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Timer.h" />
+    <ClInclude Include="TitleScene.h" />
+    <ClInclude Include="TitleScript.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="WICTextureLoader12.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Animator.cpp" />
@@ -249,6 +255,7 @@
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="ConstantBuffer.cpp" />
     <ClCompile Include="CubeMapTexture.cpp" />
+    <ClCompile Include="DDSTextureLoader12.cpp" />
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="EnginePch.cpp" />
@@ -297,9 +304,13 @@
     <ClCompile Include="TestCameraScript.cpp" />
     <ClCompile Include="TestDragonScript.cpp" />
     <ClCompile Include="TestPlayerScript.cpp" />
+    <ClCompile Include="TestScene.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="TitleScene.cpp" />
+    <ClCompile Include="TitleScript.cpp" />
     <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="WICTextureLoader12.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl" />
@@ -319,6 +330,9 @@
     <FxCompile Include="..\Resources\Shader\terrain.fx" />
     <FxCompile Include="..\Resources\Shader\tessellation.fx" />
     <FxCompile Include="..\Resources\Shader\utils.fx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Engine.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

@@ -26,9 +26,6 @@ public:
     shared_ptr<Scene> GetActiveScene() { return _activeScene; }
 
 private:
-    shared_ptr<Scene> LoadTestScene();
-
-private:
     map<wstring, shared_ptr<Scene>> Scenes;
     shared_ptr<Scene> _beforeScene;
     shared_ptr<Scene> _activeScene;

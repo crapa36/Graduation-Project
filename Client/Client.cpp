@@ -118,14 +118,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
     // 전체 윈도우 크기
     GwindowInfo.width = 1320;
     GwindowInfo.height = 780;
-   
-    // 윈도우 크기를 조정하여 클라이언트 영역이 원하는 크기가 되도록 합니다.
-    RECT rect = { 0, 0, GwindowInfo.width,  GwindowInfo.height };
-    AdjustWindowRect(&rect, style, FALSE);
 
-    // 클라이언트 영역 크기를 GwindowInfo에 설정합니다.
-    GwindowInfo.clientWidth = rect.right - rect.left;
-    GwindowInfo.clientHeight = rect.bottom - rect.top;
+    // 윈도우 크기를 조정하여 클라이언트 영역이 원하는 크기가 되도록 합니다.
 
     HWND hWnd = CreateWindowW(szWindowClass, szTitle, style,
                               CW_USEDEFAULT, 0, GwindowInfo.width, GwindowInfo.height,
@@ -197,6 +191,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         }
     }
     break;
+
     case WM_DESTROY:
         ImGui_ImplDX12_Shutdown();
         ImGui_ImplWin32_Shutdown();

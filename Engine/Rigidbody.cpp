@@ -22,6 +22,7 @@ Rigidbody::~Rigidbody() {
 }
 
 void Rigidbody::init() {
+
     // 초기화 코드 (필요 시)
 }
 
@@ -29,7 +30,7 @@ void Rigidbody::Update() {
 
     // 중력 적용
     if (_useGravity && !_isGrounded) {
-        _velocity += Vec3(0.0f, -9.8f, 0.0f) * DELTA_TIME;  // 지구 중력 상수 사용
+        _velocity += Vec3(0.0f, -50.f, 0.0f) * DELTA_TIME;
     }
 
     // 선형 감쇠 적용
@@ -39,11 +40,10 @@ void Rigidbody::Update() {
     _angularVelocity *= (1.0f - _angularDrag * DELTA_TIME);
 
     _isGrounded = false;
-
-    
 }
 
 void Rigidbody::LastUpdate() {
+
     // 현재는 구현하지 않음
 }
 
@@ -81,13 +81,12 @@ void Rigidbody::OnCollisionEnter(const std::shared_ptr<GameObject>& other, const
     _velocity = (_velocity - 2.0f * velocityDotNormal * collisionNormal) * _elasticity;
 
     // 충돌 깊이에 따른 힘 적용
-    AddForce(collisionNormal * collisionDepth * 2.0f);
+    //AddForce(collisionNormal * collisionDepth * 2.0f);
 
-    if (auto otherRigidbody = other->GetRigidbody()) {
-        float otherVelocityDotNormal = otherRigidbody->_velocity.Dot(collisionNormal);
-        otherRigidbody->_velocity = (otherRigidbody->_velocity - 2.0f * otherVelocityDotNormal * collisionNormal) * otherRigidbody->_elasticity;
-        otherRigidbody->AddForce(-collisionNormal * otherVelocityDotNormal);
+    //상대 속도에 따른 힘 적용
+    //AddForce(other->GetRigidbody()->GetVelocity() * 0.5f);
+
+    if (other->GetTerrain()) {
+        _isGrounded = true;
     }
-
-    _isGrounded = true;
 }

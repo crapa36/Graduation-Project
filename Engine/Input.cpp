@@ -5,61 +5,61 @@
 bool Input::Init(WindowInfo info) {
     HRESULT result;
 
-    m_screenWidth = info.clientWidth;
-    m_screenHeight = info.clientHeight;
+    _screenWidth = info.clientWidth;
+    _screenHeight = info.clientHeight;
 
     // DirectInput 인터페이스 초기화
-    result = DirectInput8Create(info.hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&m_directInput, nullptr);
+    result = DirectInput8Create(info.hInstance, DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&_directInput, nullptr);
     if (FAILED(result)) {
         OutputDebugStringA("DirectInput8Create failed\n");
         return false;
     }
 
     // 키보드 장치 초기화
-    result = m_directInput->CreateDevice(GUID_SysKeyboard, &m_keyboard, nullptr);
+    result = _directInput->CreateDevice(GUID_SysKeyboard, &_keyboard, nullptr);
     if (FAILED(result)) {
         OutputDebugStringA("Failed to create keyboard device\n");
         return false;
     }
 
-    result = m_keyboard->SetDataFormat(&c_dfDIKeyboard);
+    result = _keyboard->SetDataFormat(&c_dfDIKeyboard);
     if (FAILED(result)) {
         OutputDebugStringA("Failed to set keyboard data format\n");
         return false;
     }
 
-    result = m_keyboard->SetCooperativeLevel(info.hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+    result = _keyboard->SetCooperativeLevel(info.hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
     if (FAILED(result)) {
         OutputDebugStringA("Failed to set keyboard cooperative level\n");
         return false;
     }
 
-    result = m_keyboard->Acquire();
+    result = _keyboard->Acquire();
     if (FAILED(result)) {
         OutputDebugStringA("Failed to acquire keyboard\n");
         return false;
     }
 
     // 마우스 장치 초기화
-    result = m_directInput->CreateDevice(GUID_SysMouse, &m_mouse, nullptr);
+    result = _directInput->CreateDevice(GUID_SysMouse, &_mouse, nullptr);
     if (FAILED(result)) {
         OutputDebugStringA("Failed to create mouse device\n");
         return false;
     }
 
-    result = m_mouse->SetDataFormat(&c_dfDIMouse);
+    result = _mouse->SetDataFormat(&c_dfDIMouse);
     if (FAILED(result)) {
         OutputDebugStringA("Failed to set mouse data format\n");
         return false;
     }
 
-    result = m_mouse->SetCooperativeLevel(info.hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+    result = _mouse->SetCooperativeLevel(info.hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
     if (FAILED(result)) {
         OutputDebugStringA("Failed to set mouse cooperative level\n");
         return false;
     }
 
-    result = m_mouse->Acquire();
+    result = _mouse->Acquire();
     if (FAILED(result)) {
         OutputDebugStringA("Failed to acquire mouse\n");
         return false;
@@ -70,46 +70,50 @@ bool Input::Init(WindowInfo info) {
     GetCursorPos(&cursorPos);
     ScreenToClient(info.hwnd, &cursorPos);
 
-    m_mousePos = cursorPos;
+    _mousePos = cursorPos;
+
+    // 마우스 커서 로드
+    _arrowCursor = LoadCursorFromFile(TEXT("..\\Resources\\MouseCursors\\Arrow.cur"));
 
     return true;
 }
 
 void Input::Shutdown() {
-    if (m_mouse) {
-        m_mouse->Unacquire();
-        m_mouse->Release();
-        m_mouse = nullptr;
+    if (_mouse) {
+        _mouse->Unacquire();
+        _mouse->Release();
+        _mouse = nullptr;
     }
 
-    if (m_keyboard) {
-        m_keyboard->Unacquire();
-        m_keyboard->Release();
-        m_keyboard = nullptr;
+    if (_keyboard) {
+        _keyboard->Unacquire();
+        _keyboard->Release();
+        _keyboard = nullptr;
     }
 
-    if (m_directInput) {
-        m_directInput->Release();
-        m_directInput = nullptr;
+    if (_directInput) {
+        _directInput->Release();
+        _directInput = nullptr;
     }
 }
 
 bool Input::Update() {
-    memcpy(m_previousKeyboardState, m_keyboardState, sizeof(m_keyboardState));
-    memcpy(&m_previousMouseState, &m_mouseState, sizeof(m_mouseState));
+    memcpy(_previousKeyboardState, _keyboardState, sizeof(_keyboardState));
+    memcpy(&_previousMouseState, &_mouseState, sizeof(_mouseState));
     if (!ReadKeyboard() || !ReadMouse()) {
         return false;
     }
+    SetCursor(_arrowCursor);
 
     ProcessInput();
     return true;
 }
 
 bool Input::ReadKeyboard() {
-    HRESULT result = m_keyboard->GetDeviceState(sizeof(m_keyboardState), (LPVOID)&m_keyboardState);
+    HRESULT result = _keyboard->GetDeviceState(sizeof(_keyboardState), (LPVOID)&_keyboardState);
     if (FAILED(result)) {
         if (result == DIERR_INPUTLOST || result == DIERR_NOTACQUIRED) {
-            m_keyboard->Acquire();
+            _keyboard->Acquire();
         }
         else {
             OutputDebugStringA("Failed to get keyboard state\n");
@@ -120,10 +124,10 @@ bool Input::ReadKeyboard() {
 }
 
 bool Input::ReadMouse() {
-    HRESULT result = m_mouse->GetDeviceState(sizeof(DIMOUSESTATE), (LPVOID)&m_mouseState);
+    HRESULT result = _mouse->GetDeviceState(sizeof(DIMOUSESTATE), (LPVOID)&_mouseState);
     if (FAILED(result)) {
         if (result == DIERR_INPUTLOST || result == DIERR_NOTACQUIRED) {
-            m_mouse->Acquire();
+            _mouse->Acquire();
         }
         else {
             OutputDebugStringA("Failed to get mouse state\n");
@@ -136,42 +140,43 @@ bool Input::ReadMouse() {
     GetCursorPos(&cursorPos);
     ScreenToClient(GEngine->GetWindow().hwnd, &cursorPos);
 
-    m_mousePos = cursorPos;
+    _mousePos = cursorPos;
 
     // 마우스 휠 업데이트
-    m_mouseWheel += m_mouseState.lZ;
+    _mouseWheel = _mouseState.lZ;
 
     return true;
 }
 
 void Input::ProcessInput() {
+
     // 화면 경계 제한
-    if (m_mousePos.x < 0) { m_mousePos.x = 0; }
-    if (m_mousePos.y < 0) { m_mousePos.y = 0; }
-    if (m_mousePos.x > m_screenWidth) { m_mousePos.x = m_screenWidth; }
-    if (m_mousePos.y > m_screenHeight) { m_mousePos.y = m_screenHeight; }
+    if (_mousePos.x < 0) { _mousePos.x = 0; }
+    if (_mousePos.y < 0) { _mousePos.y = 0; }
+    if (_mousePos.x > _screenWidth) { _mousePos.x = _screenWidth; }
+    if (_mousePos.y > _screenHeight) { _mousePos.y = _screenHeight; }
 }
 
 bool Input::IsKeyPressed(unsigned char key) {
-    return m_keyboardState[key] & 0x80;
+    return _keyboardState[key] & 0x80;
 }
 
 bool Input::IsKeyJustPressed(unsigned char key) {
-    return (m_keyboardState[key] & 0x80) && !(m_previousKeyboardState[key] & 0x80);
+    return (_keyboardState[key] & 0x80) && !(_previousKeyboardState[key] & 0x80);
 }
 
 bool Input::IsKeyJustReleased(unsigned char key) {
-    return !(m_keyboardState[key] & 0x80) && (m_previousKeyboardState[key] & 0x80);
+    return !(_keyboardState[key] & 0x80) && (_previousKeyboardState[key] & 0x80);
 }
 
 bool Input::IsMouseButtonPressed(int button) {
-    return (m_mouseState.rgbButtons[button] & 0x80) != 0;
+    return (_mouseState.rgbButtons[button] & 0x80) != 0;
 }
 
 bool Input::IsMouseButtonJustPressed(int button) {
-    return (m_mouseState.rgbButtons[button] & 0x80) && !(m_previousMouseState.rgbButtons[button] & 0x80);
+    return (_mouseState.rgbButtons[button] & 0x80) && !(_previousMouseState.rgbButtons[button] & 0x80);
 }
 
 bool Input::IsMouseButtonJustReleased(int button) {
-    return !(m_mouseState.rgbButtons[button] & 0x80) && (m_previousMouseState.rgbButtons[button] & 0x80);
+    return !(_mouseState.rgbButtons[button] & 0x80) && (_previousMouseState.rgbButtons[button] & 0x80);
 }
