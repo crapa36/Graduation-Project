@@ -7,5 +7,5 @@ public:
     CubeMapTexture();
     ~CubeMapTexture();
 
-    virtual void Load(const std::wstring& path);
+    void Load(const std::wstring& path) override;
 };

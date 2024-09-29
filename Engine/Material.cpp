@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Material.h"
 #include "Engine.h"
+#include "CubeMapTexture.h"
 
 Material::Material() : Object(OBJECT_TYPE::MATERIAL) {
 }
@@ -21,6 +22,8 @@ void Material::PushGraphicsData() {
         SRV_REGISTER reg = SRV_REGISTER(static_cast<int8>(SRV_REGISTER::t0) + i);
         GEngine->GetGraphicsDescriptorHeap()->SetSRV(_textures[i]->GetSRVHandle(), reg);
     }
+    if (_cubeMapTexture != nullptr)
+        GEngine->GetGraphicsDescriptorHeap()->SetSRV(_cubeMapTexture->GetSRVHandle(), SRV_REGISTER::t5);
 
     // 파이프라인 세팅
     _shader->Update();

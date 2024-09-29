@@ -10,8 +10,8 @@
 #include "Engine.h"
 
 TestCameraScript::TestCameraScript() {
-    _centerPos.x = GEngine->GetWindow().width / 2;
-    _centerPos.y = GEngine->GetWindow().height / 2;
+    _centerPos.x = GEngine->GetWindow().clientWidth / 2;
+    _centerPos.y = GEngine->GetWindow().clientHeight / 2;
     _centerScreenPos = _centerPos;
     ClientToScreen(GEngine->GetWindow().hwnd, &_centerScreenPos);
 }
@@ -20,16 +20,17 @@ TestCameraScript::~TestCameraScript() {
 }
 
 void TestCameraScript::LateUpdate() {
+
     // 게임 윈도우가 포커스 되었을 때만 입력 처리
     if (GetForegroundWindow() == GEngine->GetWindow().hwnd) {
         Vec3 revolution = GetTransform()->GetLocalRevolution();
+        Vec3 pos = GetTransform()->GetLocalPosition();
 
         // 마우스 좌클릭 시 선택 또는 피킹 처리
         if (INPUT->IsMouseButtonPressed(0)) {  // 0은 왼쪽 마우스 버튼
             const POINT& mousePos = INPUT->GetMousePos();
             GET_SINGLETON(PhysicsManager)->Pick(mousePos.x, mousePos.y);
         }
-
 
         // Alt 키 입력으로 마우스 잠금 전환
         if (INPUT->IsKeyJustPressed(DIK_LALT)) {
@@ -76,9 +77,8 @@ void TestCameraScript::LateUpdate() {
 
         if (INPUT->IsKeyPressed(DIK_W) || INPUT->IsKeyPressed(DIK_S) ||
             INPUT->IsKeyPressed(DIK_A) || INPUT->IsKeyPressed(DIK_D)) {
-
             dir = { 0.f, 0.f, 0.f };
-            
+
             //방향벡터 구하기
             if (INPUT->IsKeyPressed(DIK_W)) {
                 dir -= GetTransform()->GetLook();
@@ -92,12 +92,11 @@ void TestCameraScript::LateUpdate() {
             if (INPUT->IsKeyPressed(DIK_D)) {
                 dir -= GetTransform()->GetRight();
             }
-            
+
             Vec3 look = GetTransform()->GetLook(); //카메라가 바라보는 벡터
             look.Normalize();
             dir.Normalize();
 
-            
             //외적과 내적으로 두 벡터 사이의 각 구하기
             float dotProduct = look.Dot(dir);
             dotProduct = std::clamp(dotProduct, -1.0f, 1.0f);
@@ -111,7 +110,7 @@ void TestCameraScript::LateUpdate() {
             if (dirAnglePM < 0) {
                 dirAngle = -dirAngle;
             }
-            
+
             _dir.y = revolution.y + dirAngle; // 최종회전값
 
             if (parentRotate.y - _dir.y > XM_PI) {
@@ -121,18 +120,18 @@ void TestCameraScript::LateUpdate() {
                 parentRotate.y += 2 * XM_PI;
             }
         }
+
         //회전보간
         Vec3 result;
         result.x = 0.f;
-        result.y = _dir.y + (DELTA_TIME * 10) * (parentRotate.y - _dir.y);
+        result.y = _dir.y + (0.9) * (parentRotate.y - _dir.y);
         result.z = 0.f;
 
         parentTransform->SetLocalRotation(result);
 
-
         //WASD 입력시 캐릭터가 바라보는 방향으로 이동
         if (INPUT->IsKeyPressed(DIK_W) || INPUT->IsKeyPressed(DIK_S) ||
-            INPUT->IsKeyPressed(DIK_A) || INPUT->IsKeyPressed(DIK_D)) { 
+            INPUT->IsKeyPressed(DIK_A) || INPUT->IsKeyPressed(DIK_D)) {
             parentPos -= parentTransform->GetLook() * _speed * DELTA_TIME;
         }
 
@@ -152,15 +151,17 @@ void TestCameraScript::LateUpdate() {
             _speed = 100.f;
         }
 
-
         // 마우스 휠로 줌 기능 추가
         int mouseWheel = INPUT->GetMouseWheel();
+        Vec3 vectorAB = XMVectorSubtract(pos, Vec3(0.f, 0.f, 0.f));
+        vectorAB.Normalize();
         if (mouseWheel != 0) {
-            float zoomSpeed = 5.0f;
-            parentPos += parentTransform->GetLook() * zoomSpeed * mouseWheel * DELTA_TIME;
+            float zoomSpeed = 50.f;
+            pos -= vectorAB * zoomSpeed * mouseWheel * DELTA_TIME;
         }
 
         // 부모 객체 위치 적용
+        GetTransform()->SetLocalPosition(pos);
         parentTransform->SetLocalPosition(parentPos);
     }
 }

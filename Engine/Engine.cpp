@@ -37,7 +37,7 @@ void Engine::Init(const WindowInfo& info) {
     GET_SINGLETON(Input)->Init(info);
     GET_SINGLETON(Timer)->Init();
     GET_SINGLETON(Resources)->Init();
-    GET_SINGLETON(SceneManager)->Init(info);
+    GET_SINGLETON(SceneManager)->Init();
     GET_SINGLETON(ImguiManager)->Init(info.hwnd, _device->GetDevice(), *_imguiDescriptorHeap.get());
 }
 

@@ -18,8 +18,8 @@
 shared_ptr<GameObject> PhysicsManager::Pick(int32 screenX, int32 screenY) {
     shared_ptr<Camera> camera = GET_SINGLETON(SceneManager)->GetActiveScene()->GetMainCamera();
 
-    float width = static_cast<float>(GEngine->GetWindow().width);
-    float height = static_cast<float>(GEngine->GetWindow().height);
+    float width = static_cast<float>(GEngine->GetWindow().clientWidth);
+    float height = static_cast<float>(GEngine->GetWindow().clientHeight);
 
     Matrix projectionMatrix = camera->GetProjectionMatrix();
 

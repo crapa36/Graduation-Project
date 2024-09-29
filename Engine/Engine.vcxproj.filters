@@ -28,7 +28,10 @@
     <Filter Include="Resource">
       <UniqueIdentifier>{07fe09cd-7db5-4bc2-9573-f2854417128a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Object\Scripts">
+    <Filter Include="Scenes">
+      <UniqueIdentifier>{934b7eea-6cf9-4e95-874b-36f22bee28a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scenes\Scripts">
       <UniqueIdentifier>{b8681210-d12d-41eb-abd5-36f8ab94aedf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -85,7 +88,7 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="TestCameraScript.cpp">
-      <Filter>Object\Scripts</Filter>
+      <Filter>Scenes\Scripts</Filter>
     </ClCompile>
     <ClCompile Include="Resources.cpp">
       <Filter>Manager</Filter>
@@ -184,10 +187,10 @@
       <Filter>Utils\imgui</Filter>
     </ClCompile>
     <ClCompile Include="TestPlayerScript.cpp">
-      <Filter>Object\Scripts</Filter>
+      <Filter>Scenes\Scripts</Filter>
     </ClCompile>
     <ClCompile Include="TestDragonScript.cpp">
-      <Filter>Object\Scripts</Filter>
+      <Filter>Scenes\Scripts</Filter>
     </ClCompile>
     <ClCompile Include="BoxCollider.cpp">
       <Filter>Object\Component\Collider</Filter>
@@ -199,7 +202,19 @@
       <Filter>Resource</Filter>
     </ClCompile>
     <ClCompile Include="TitleScript.cpp">
-      <Filter>Object\Scripts</Filter>
+      <Filter>Scenes\Scripts</Filter>
+    </ClCompile>
+    <ClCompile Include="TestScene.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="TitleScene.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="WICTextureLoader12.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="DDSTextureLoader12.cpp">
+      <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="NetworkManager.cpp">
       <Filter>Manager</Filter>
@@ -264,7 +279,7 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="TestCameraScript.h">
-      <Filter>Object\Scripts</Filter>
+      <Filter>Scenes\Scripts</Filter>
     </ClInclude>
     <ClInclude Include="Resources.h">
       <Filter>Manager</Filter>
@@ -354,10 +369,10 @@
       <Filter>Utils\imgui</Filter>
     </ClInclude>
     <ClInclude Include="TestPlayerScript.h">
-      <Filter>Object\Scripts</Filter>
+      <Filter>Scenes\Scripts</Filter>
     </ClInclude>
     <ClInclude Include="TestDragonScript.h">
-      <Filter>Object\Scripts</Filter>
+      <Filter>Scenes\Scripts</Filter>
     </ClInclude>
     <ClInclude Include="Input.h">
       <Filter>Manager</Filter>
@@ -378,7 +393,20 @@
       <Filter>Resource</Filter>
     </ClInclude>
     <ClInclude Include="TitleScript.h">
-      <Filter>Object\Scripts</Filter>
+      <Filter>Scenes\Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="TestScene.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="TitleScene.h">
+      <Filter>Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="WICTextureLoader12.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="DDSTextureLoader12.h">
+      <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="NetworkManager.h">
       <Filter>Manager</Filter>
@@ -432,5 +460,8 @@
     <FxCompile Include="..\Resources\Shader\skysphere.fx">
       <Filter>Shader</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Engine.rc" />
   </ItemGroup>
 </Project>
