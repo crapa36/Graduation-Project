@@ -64,6 +64,16 @@ public:
 
 	~SESSION() {}
 
+	void do_recv()
+	{
+		DWORD recv_flag = 0;
+		memset(&_recv_over._over, 0, sizeof(_recv_over._over));
+		_recv_over._wsabuf.len = BUF_SIZE - _prev_remain;
+		_recv_over._wsabuf.buf = _recv_over._send_buf + _prev_remain;
+		WSARecv(_socket, &_recv_over._wsabuf, 1, 0, &recv_flag,
+			&_recv_over._over, 0);
+	}
+
 	void do_send(void* packet)
 	{
 		OVER_EXP* sdata = new OVER_EXP{ reinterpret_cast<char*>(packet) };
@@ -112,17 +122,17 @@ void process_accept(SOCKET client_socket, SOCKADDR_IN& addr, HANDLE h_iocp)
 		return;
 	}
 
-	SESSION& new_client = clients[new_id];
-	new_client._id = new_id;
-	new_client._socket = client_socket;
-	new_client._state = ST_INGAME;
+	clients[new_id]._id = new_id;
+	clients[new_id]._socket = client_socket;
+	clients[new_id]._state = ST_INGAME;
 
 	CreateIoCompletionPort(reinterpret_cast<HANDLE>(client_socket), h_iocp, new_id, 0);
-
+	clients[new_id].do_recv();
+	client_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 	std::cout << "Client [" << new_id << "] Connected\n";
 
 	DWORD flags = 0;
-	WSARecv(client_socket, &new_client._recv_over._wsabuf, 1, NULL, &flags, &new_client._recv_over._over, NULL);
+	WSARecv(client_socket, &clients[new_id]._recv_over._wsabuf, 1, NULL, &flags, &clients[new_id]._recv_over._over, NULL);
 }
 
 
@@ -176,7 +186,7 @@ int main() {
 		switch (ex_over->_comp_type) {
 		case OP_ACCEPT:
 			process_accept(client_socket, cl_addr, h_iocp);
-			client_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+			
 			ZeroMemory(&a_over._over, sizeof(a_over._over));
 			AcceptEx(server_socket, client_socket, a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &a_over._over);
 			break;
