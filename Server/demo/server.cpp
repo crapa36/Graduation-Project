@@ -80,6 +80,18 @@ public:
 		WSASend(_socket, &sdata->_wsabuf, 1, 0, 0, &sdata->_over, 0);
 	}
 
+	void send_login_info_packet()
+	{
+		SC_LOGIN_INFO_PACKET p;
+		p.id = _id;
+		p.size = sizeof(SC_LOGIN_INFO_PACKET);
+		p.type = SC_LOGIN_INFO;
+		p.x = x;
+		p.y = y;
+		p.z = z;
+		do_send(&p);
+	}
+
 	void send_remove_player_packet(int c_id)
 	{
 		SC_REMOVE_PLAYER_PACKET p;
@@ -88,6 +100,9 @@ public:
 		p.type = SC_REMOVE_PLAYER;
 		do_send(&p);
 	}
+
+	void send_move_packet(int c_id);
+	void send_add_player_packet(int c_id);
 };
 
 std::array<SESSION, MAX_USER> clients;
@@ -133,6 +148,36 @@ void process_accept(SOCKET client_socket, SOCKADDR_IN& addr, HANDLE h_iocp)
 
 	DWORD flags = 0;
 	WSARecv(client_socket, &clients[new_id]._recv_over._wsabuf, 1, NULL, &flags, &clients[new_id]._recv_over._over, NULL);
+}
+
+void process_packet(int c_id, char* packet)
+{
+	switch (packet[1]) {
+	case CS_LOGIN: {
+		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
+		strcpy_s(clients[c_id]._name, p->name);
+		clients[c_id].send_login_info_packet();
+		for (auto& pl : clients) {
+			if (ST_INGAME != pl._state) continue;
+			if (pl._id == c_id) continue;
+			pl.send_add_player_packet(c_id);
+			clients[c_id].send_add_player_packet(pl._id);
+		}
+		break;
+	}
+	case CS_MOVE: {
+		CS_MOVE_PACKET* p = reinterpret_cast<CS_MOVE_PACKET*>(packet);
+		float x = clients[c_id].x;
+		float y = clients[c_id].y;
+		float z = clients[c_id].z;
+		
+		for (auto& cl : clients) {
+			if (cl._state != ST_INGAME) continue;
+			cl.send_move_packet(c_id);
+
+		}
+	}
+	}
 }
 
 
@@ -191,7 +236,22 @@ int main() {
 			AcceptEx(server_socket, client_socket, a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &a_over._over);
 			break;
 		case OP_RECV:
-			// Handle receive operation
+			int remain_data = num_bytes + clients[key]._prev_remain;
+			char* p = ex_over->_send_buf;
+			while (remain_data > 0) {
+				int packet_size = p[0];
+				if (packet_size <= remain_data) {
+					process_packet(static_cast<int>(key), p);
+					p = p + packet_size;
+					remain_data = remain_data - packet_size;
+				}
+				else break;
+			}
+			clients[key]._prev_remain = remain_data;
+			if (remain_data > 0) {
+				memcpy(ex_over->_send_buf, p, remain_data);
+			}
+			clients[key].do_recv();
 			break;
 		case OP_SEND:
 			if (num_bytes != ex_over->_wsabuf.len) {
