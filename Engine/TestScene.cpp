@@ -82,6 +82,7 @@ TestScene::TestScene() {
         mainObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
         mainObject->GetRigidbody()->SetUseGravity(false);
         mainObject->GetRigidbody()->SetElasticity(0.0f);
+        mainObject->GetRigidbody()->SetDrag(0.90f);
 
         mainObject->SetStatic(false);
         _scene->AddGameObject(mainObject);

@@ -130,11 +130,16 @@ void TestCameraScript::LateUpdate() {
 
         parentTransform->SetLocalRotation(result);
 
+        parent->GetRigidbody()->SetDirection(parentTransform->GetLook());
 
         //WASD 입력시 캐릭터가 바라보는 방향으로 이동
         if (INPUT->IsKeyPressed(DIK_W) || INPUT->IsKeyPressed(DIK_S) ||
-            INPUT->IsKeyPressed(DIK_A) || INPUT->IsKeyPressed(DIK_D)) { 
-            parentPos += parentTransform->GetLook() * _speed * DELTA_TIME;
+            INPUT->IsKeyPressed(DIK_A) || INPUT->IsKeyPressed(DIK_D)) {
+            parent->GetRigidbody()->SetIsMove(true);
+            
+        }
+        else {
+            parent->GetRigidbody()->SetIsMove(false);
         }
 
         // 스페이스바로 위쪽 이동, Ctrl로 아래쪽 이동
@@ -155,11 +160,15 @@ void TestCameraScript::LateUpdate() {
 
 
         // 마우스 휠로 줌 기능 추가
+        float zoomSpeed = 0.2f;
         int mouseWheel = INPUT->GetMouseWheel();
         Vec3 vectorAB = XMVectorSubtract(pos, Vec3(0.f, 0.f, 0.f));
-        vectorAB.Normalize();
-        if (mouseWheel != 0) {
-            float zoomSpeed = 0.2f;
+        if (vectorAB.Length() > 20 && mouseWheel > 0) {
+            vectorAB.Normalize();
+            pos -= vectorAB * zoomSpeed * mouseWheel;
+        }
+        else if (vectorAB.Length() < 300 && mouseWheel < 0) {
+            vectorAB.Normalize();
             pos -= vectorAB * zoomSpeed * mouseWheel;
         }
 
