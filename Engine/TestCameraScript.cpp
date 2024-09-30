@@ -82,16 +82,16 @@ void TestCameraScript::LateUpdate() {
             
             //방향벡터 구하기
             if (INPUT->IsKeyPressed(DIK_W)) {
-                dir -= GetTransform()->GetLook();
-            }
-            if (INPUT->IsKeyPressed(DIK_S)) {
                 dir += GetTransform()->GetLook();
             }
+            if (INPUT->IsKeyPressed(DIK_S)) {
+                dir -= GetTransform()->GetLook();
+            }
             if (INPUT->IsKeyPressed(DIK_A)) {
-                dir += GetTransform()->GetRight();
+                dir -= GetTransform()->GetRight();
             }
             if (INPUT->IsKeyPressed(DIK_D)) {
-                dir -= GetTransform()->GetRight();
+                dir += GetTransform()->GetRight();
             }
             
             Vec3 look = GetTransform()->GetLook(); //카메라가 바라보는 벡터
@@ -134,7 +134,7 @@ void TestCameraScript::LateUpdate() {
         //WASD 입력시 캐릭터가 바라보는 방향으로 이동
         if (INPUT->IsKeyPressed(DIK_W) || INPUT->IsKeyPressed(DIK_S) ||
             INPUT->IsKeyPressed(DIK_A) || INPUT->IsKeyPressed(DIK_D)) { 
-            parentPos -= parentTransform->GetLook() * _speed * DELTA_TIME;
+            parentPos += parentTransform->GetLook() * _speed * DELTA_TIME;
         }
 
         // 스페이스바로 위쪽 이동, Ctrl로 아래쪽 이동
@@ -159,7 +159,6 @@ void TestCameraScript::LateUpdate() {
         Vec3 vectorAB = XMVectorSubtract(pos, Vec3(0.f, 0.f, 0.f));
         vectorAB.Normalize();
         if (mouseWheel != 0) {
-
             float zoomSpeed = 0.1f;
             pos -= vectorAB * zoomSpeed * mouseWheel * DELTA_TIME;
         }
