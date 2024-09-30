@@ -66,8 +66,9 @@ void cleanup()
     WSACleanup();
 }
 
-void send_move_packet() {
+void send_move_packet(/*호출자로 컴퍼넌트나 오브젝트 받아와서*/) {
     CS_PLAYER_MOVE_PACKET packet;
+    //인자로 받은 애의 정보로 변환
     packet.d_x = 0.0;
     packet.d_y = 0.0;
     packet.d_z = 0.0;
