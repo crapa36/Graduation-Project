@@ -81,4 +81,7 @@ void ImguiManager::Render() {
 }
 
 void ImguiManager::Release() {
+    ImGui_ImplDX12_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
 }

@@ -35,12 +35,12 @@ void TestDragonScript::LateUpdate() {
             PostQuitMessage(0);
 
         // DEL 키로 디버그 모드 전환
-        if (INPUT->IsKeyJustPressed(DIK_DELETE)) {
+        if (INPUT->IsKeyJustPressed(DIK_END)) {
             GEngine->SetDebugMode(!GEngine->GetDebugMode());
         }
 
         // END 키로 ImGui 모드 전환
-        if (INPUT->IsKeyJustPressed(DIK_END)) {
+        if (INPUT->IsKeyJustPressed(DIK_DELETE)) {
             GEngine->SetImguiMode(!GEngine->GetImguiMode());
         }
 
