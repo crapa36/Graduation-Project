@@ -47,7 +47,7 @@ TestScene::TestScene() {
 
             gameObject->SetStatic(false);
             _scene->AddGameObject(gameObject);
-            //북마크
+            //오브젝트 생성
         }
 #pragma region Camera
         {
