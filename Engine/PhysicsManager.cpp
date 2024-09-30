@@ -114,15 +114,38 @@ void PhysicsManager::HandleCollision(std::shared_ptr<GameObject> objA, std::shar
         auto transformB = objB->GetTransform();
         auto positionA = transformA->GetLocalPosition();
         auto positionB = transformB->GetLocalPosition();
-
-        Vec3 adjustment = collisionNormal * (collisionDepth / 2.0f);
+        float MassA = 0.0f;
+        float MassB = 0.0f;
+        if (auto RigidbodyA = objA->GetRigidbody()) {
+            MassA=RigidbodyA->GetMass();
+        }
+        
+        if (auto RigidbodyB = objB->GetRigidbody()) {
+            MassB = RigidbodyB->GetMass();
+        }
+        
+        //Mass의 비율에 따라 위치 조정
+        Vec3 adjustmentA = collisionNormal * (collisionDepth * (MassB / (MassA + MassB)));
+        Vec3 adjustmentB = collisionNormal * (collisionDepth * (MassA / (MassA + MassB)));
+        /*Vec3 adjustmentA = collisionNormal * (collisionDepth / 2.0f);
+        Vec3 adjustmentB = collisionNormal * (collisionDepth / 2.0f);*/
 
         // 위치 조정
-        positionA -= adjustment;
-        positionB += adjustment;
+        if (objA->GetRigidbody()&&objB->GetRigidbody()) {
+            positionA -= adjustmentA;
+            positionB += adjustmentB;
 
-        transformA->SetLocalPosition(positionA);
-        transformB->SetLocalPosition(positionB);
+            transformA->SetLocalPosition(positionA);
+            transformB->SetLocalPosition(positionB);
+        }
+        else if (objA->GetRigidbody()) {
+            positionA -= adjustmentB;
+            transformA->SetLocalPosition(positionA);
+        }
+        else if (objB->GetRigidbody()) {
+            positionB += adjustmentA;
+            transformB->SetLocalPosition(positionB);
+        }
     }
 
     // 충돌 시간 업데이트
