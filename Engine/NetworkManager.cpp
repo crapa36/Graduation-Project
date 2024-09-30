@@ -69,11 +69,7 @@ void cleanup()
 void send_move_packet(/*호출자로 컴퍼넌트나 오브젝트 받아와서*/) {
     CS_PLAYER_MOVE_PACKET packet;
     //인자로 받은 애의 정보로 변환
-    packet.d_x = 0.0;
-    packet.d_y = 0.0;
-    packet.d_z = 0.0;
-    packet.x = 0.0;
-    packet.y = 0.0;
-    packet.z = 0.0;
+    /*packet.Position = Object.GetPosition();
+    packet.Rotation = Object.GetRotation();*/
     send(g_socket, reinterpret_cast<char*>(&packet), sizeof(packet), 0);
 }
