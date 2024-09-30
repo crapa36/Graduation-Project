@@ -49,6 +49,7 @@ void send_login_packet(const char* name)
     CS_LOGIN_PACKET packet;
     strncpy_s(packet.name, name, MAX_NAME_SIZE);
     packet.name[MAX_NAME_SIZE - 1] = '\0'; // Ensure null-termination
+    
 
     int result = send(g_socket, reinterpret_cast<char*>(&packet), sizeof(packet), 0);
     if (result == SOCKET_ERROR) {
@@ -63,4 +64,15 @@ void cleanup()
 {
     closesocket(g_socket);
     WSACleanup();
+}
+
+void send_move_packet() {
+    CS_PLAYER_MOVE_PACKET packet;
+    packet.d_x = 0.0;
+    packet.d_y = 0.0;
+    packet.d_z = 0.0;
+    packet.x = 0.0;
+    packet.y = 0.0;
+    packet.z = 0.0;
+    send(g_socket, reinterpret_cast<char*>(&packet), sizeof(packet), 0);
 }
