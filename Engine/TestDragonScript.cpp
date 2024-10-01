@@ -7,6 +7,7 @@
 #include "Animator.h"
 
 void TestDragonScript::Update() {
+
     // 1번 키 입력 시 애니메이션 순차 재생
     if (INPUT->IsKeyJustPressed(DIK_1)) {
         int32 count = GetAnimator()->GetAnimCount();
@@ -28,6 +29,7 @@ void TestDragonScript::Update() {
 
 void TestDragonScript::LateUpdate() {
     if (GetForegroundWindow() == GEngine->GetWindow().hwnd) {
+
         // 화면 중심 좌표 계산
 
         // ESC 키로 종료

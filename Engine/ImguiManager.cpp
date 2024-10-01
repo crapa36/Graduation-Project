@@ -8,7 +8,6 @@
 #include "TableDescriptorHeap.h"
 
 void ImguiManager::Init(HWND hwnd, ComPtr<ID3D12Device> device, ImguiDescriptorHeap idh) {
-    // ImGui 초기화 및 버전 체크
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     _io = ImGui::GetIO();
@@ -19,52 +18,46 @@ void ImguiManager::Init(HWND hwnd, ComPtr<ID3D12Device> device, ImguiDescriptorH
     // DPI 설정 확인 및 조정
     _io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f); // 기본값 설정, 필요시 조정
 
-    // 다크 테마 스타일 설정
     ImGui::StyleColorsDark();
 
-    // ImGui Win32 및 DX12 백엔드 초기화
-    if (!ImGui_ImplWin32_Init(hwnd)) {
-        throw std::runtime_error("Failed to initialize ImGui Win32 backend.");
-    }
-
-    if (!ImGui_ImplDX12_Init(
+    ImGui_ImplWin32_Init(hwnd);
+    ImGui_ImplDX12_Init(
         device.Get(),
         2,
-        DXGI_FORMAT_R8G8B8A8_UNORM,
+        DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM,
         idh.GetDescriptorHeap().Get(),
         idh.GetDescriptorHeap()->GetCPUDescriptorHandleForHeapStart(),
-        idh.GetDescriptorHeap()->GetGPUDescriptorHandleForHeapStart())) {
-        throw std::runtime_error("Failed to initialize ImGui DX12 backend.");
-    }
+        idh.GetDescriptorHeap()->GetGPUDescriptorHandleForHeapStart()
+    );
 }
+
 void ImguiManager::Update() {
-    // 프레임 시작
+
+    // Start the Dear ImGui frame
     ImGui_ImplDX12_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-    // 1. 데모 창 표시 (ImGui 샘플 기능 확인용)
-    if (_show_demo_window) {
+    // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+    if (_show_demo_window)
         ImGui::ShowDemoWindow(&_show_demo_window);
-    }
 
-    // 2. 기본 "Hello, world!" 창 생성 및 사용자 위젯 표시
+    // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
     {
         static float f = 0.0f;
         static int counter = 0;
 
-        ImGui::Begin("Hello, world!");                          // 창 시작
+        ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
-        ImGui::Text("This is some useful text.");               // 텍스트 출력
-        ImGui::Checkbox("Demo Window", &_show_demo_window);     // 데모 창 표시 여부
+        ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+        ImGui::Checkbox("Demo Window", &_show_demo_window);      // Edit bools storing our window open/close state
         ImGui::Checkbox("Another Window", &_show_another_window);
 
-        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // 슬라이더 위젯
-        ImGui::ColorEdit3("clear color", &_clear_color.x);       // 색상 편집 위젯 (RGB만 전달)
+        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        ImGui::ColorEdit3("clear color", (float*)&_clear_color); // Edit 3 floats representing a color
 
-        if (ImGui::Button("Button")) {                          // 버튼 생성
+        if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
             counter++;
-        }
         ImGui::SameLine();
         ImGui::Text("counter = %d", counter);
 
@@ -72,30 +65,22 @@ void ImguiManager::Update() {
         ImGui::End();
     }
 
-    // 3. "Another Window" 창 표시
+    // 3. Show another simple window.
     if (_show_another_window) {
-        ImGui::Begin("Another Window", &_show_another_window);   // "Another Window" 창 시작
+        ImGui::Begin("Another Window", &_show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
         ImGui::Text("Hello from another window!");
-        if (ImGui::Button("Close Me")) {
-            _show_another_window = false;                       // 창 닫기 버튼
-        }
+        if (ImGui::Button("Close Me"))
+            _show_another_window = false;
         ImGui::End();
     }
 }
+
 void ImguiManager::Render() {
     ImGui::Render();
-
-    // DirectX 12 명령 리스트에 렌더 데이터 제출
-    if (GRAPHICS_CMD_LIST) {
-        ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), GRAPHICS_CMD_LIST.Get());
-    }
-    else {
-        throw std::runtime_error("Graphics command list is not initialized.");
-    }
+    ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), GRAPHICS_CMD_LIST.Get());
 }
 
 void ImguiManager::Release() {
-    // ImGui 리소스 해제
     ImGui_ImplDX12_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();

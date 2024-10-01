@@ -252,6 +252,7 @@ TestScene::TestScene() {
     }
 #pragma endregion
 
+
 #pragma region Point Light
     {
         shared_ptr<GameObject> light = make_shared<GameObject>();
