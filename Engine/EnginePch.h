@@ -145,7 +145,6 @@ struct Vertex {
     }
     Vec3 pos;
     Vec2 uv;
-    Vec2 uv2;
     Vec3 normal;
     Vec3 tangent;
     Vec4 weights;
