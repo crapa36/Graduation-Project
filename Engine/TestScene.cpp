@@ -195,12 +195,19 @@ TestScene::TestScene() {
 #pragma endregion
 
 #pragma region UI_Test
+    auto height = GEngine->GetWindow().clientHeight;
+    auto width = GEngine->GetWindow().clientWidth;
+
     for (int32 i = 0; i < 6; i++) {
         shared_ptr<GameObject> obj = make_shared<GameObject>();
         obj->SetLayerIndex(GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI")); // UI
         obj->AddComponent(make_shared<Transform>());
-        obj->GetTransform()->SetLocalScale(Vec3(200.f, 200.f, 200.f));
-        obj->GetTransform()->SetLocalPosition(Vec3(-700.f + (i * 260), 350.f, 500.f));
+
+        // 비율로 설정
+        
+        obj->GetTransform()->SetLocalScale(Vec3(width / 8, width / 8, 200.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(-width / 2 + ((i+0.5) * (width / 6)), height / 8*3, 500.f));
+
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
             shared_ptr<Mesh> mesh = GET_SINGLETON(Resources)->LoadRectangleMesh();
