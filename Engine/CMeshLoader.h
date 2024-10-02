@@ -6,15 +6,32 @@ struct CMeshMaterialInfo {
     Vec4			ambient;
     Vec4			specular;
     wstring			name;
-    wstring			diffuseTexName;
-    wstring			normalTexName;
-    wstring			specularTexName;
+    char diffuseTexName[64] = "null";
+    char normalTexName[64] = "null";
+    char specularTexName[64] = "null";
+    char detailDiffuseTexName[64] = "null";
+    char detailNormalTexName[64]= "null";
+    BYTE strlenD = 64;
+    BYTE strlenN = 64;
+    BYTE strlenS = 64;
+    BYTE strlenDD = 64;
+    BYTE strlenDN = 64;
 };
 
 
-#define VERTEXT_POSITION			0x01
-#define VERTEXT_COLOR				0x02
-#define VERTEXT_NORMAL				0x04
+#define VERTEXT_POSITION				0x01
+#define VERTEXT_COLOR					0x02
+#define VERTEXT_NORMAL					0x04
+#define VERTEXT_TANGENT					0x08
+#define VERTEXT_TEXTURE_COORD0			0x10
+#define VERTEXT_TEXTURE_COORD1			0x20
+
+#define VERTEXT_TEXTURE					(VERTEXT_POSITION | VERTEXT_TEXTURE_COORD0)
+#define VERTEXT_DETAIL					(VERTEXT_POSITION | VERTEXT_TEXTURE_COORD0 | VERTEXT_TEXTURE_COORD1)
+#define VERTEXT_NORMAL_TEXTURE			(VERTEXT_POSITION | VERTEXT_NORMAL | VERTEXT_TEXTURE_COORD0)
+#define VERTEXT_NORMAL_TANGENT_TEXTURE	(VERTEXT_POSITION | VERTEXT_NORMAL | VERTEXT_TANGENT | VERTEXT_TEXTURE_COORD0)
+#define VERTEXT_NORMAL_DETAIL			(VERTEXT_POSITION | VERTEXT_NORMAL | VERTEXT_TEXTURE_COORD0 | VERTEXT_TEXTURE_COORD1)
+#define VERTEXT_NORMAL_TANGENT__DETAIL	(VERTEXT_POSITION | VERTEXT_NORMAL | VERTEXT_TANGENT | VERTEXT_TEXTURE_COORD0 | VERTEXT_TEXTURE_COORD1)
 struct CMeshLoadInfo
 {
     char							m_pstrMeshName[256] = { 0 };
@@ -31,6 +48,15 @@ struct CMeshLoadInfo
     XMFLOAT4* m_pxmf4Colors = NULL;
     int       nNormals = 0;
     XMFLOAT3* m_pxmf3Normals = NULL;
+
+    int								nTextureCoords = 0;
+    XMFLOAT2* m_pxmf2TextureCoords0 = NULL;
+    XMFLOAT2* m_pxmf2TextureCoords1 = NULL;
+
+    int								nTangents = 0;
+    int								nBiTangents = 0;
+    XMFLOAT3* m_pxmf3Tangents = NULL;
+    XMFLOAT3* m_pxmf3BiTangents = NULL;
 
     int								m_nIndices = 0;
     UINT* m_pnIndices = NULL;
@@ -78,7 +104,9 @@ private:
 private:
     wstring			_resourceDirectory;
 
-    int32                               _childCount = 0;
+    int32                               _count = 0;
+    vector<int32>                       _parentCount;
+    vector<int32>                       _childCount;
 
     vector<CMeshInfo>					_meshes;
 };

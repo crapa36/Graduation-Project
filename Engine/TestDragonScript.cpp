@@ -45,38 +45,5 @@ void TestDragonScript::LateUpdate() {
         if (INPUT->IsKeyJustPressed(DIK_END)) {
             GEngine->SetImguiMode(!GEngine->GetImguiMode());
         }
-
-        // (주석 처리된) WASD 키 입력에 따라 애니메이션 재생 코드
-        // 각 키 입력에 따라 다른 애니메이션 클립 재생 가능
-        /*
-        int32 index = GetAnimator()->GetCurrentClipIndex();
-        if (INPUT->IsKeyPressed(DIK_W)) {
-            if (index != 2) {
-                GetAnimator()->Play(2);
-            }
-        }
-        if (INPUT->IsKeyPressed(DIK_S)) {
-            if (index != 2) {
-                GetAnimator()->Play(2);
-            }
-        }
-        if (INPUT->IsKeyPressed(DIK_A)) {
-            if (index != 2) {
-                GetAnimator()->Play(2);
-            }
-        }
-        if (INPUT->IsKeyPressed(DIK_D)) {
-            if (index != 2) {
-                GetAnimator()->Play(2);
-            }
-        }
-
-        // W, A, S, D 키가 눌리지 않을 때 정지 애니메이션으로 전환
-        if (!INPUT->IsKeyPressed(DIK_W) && !INPUT->IsKeyPressed(DIK_S) &&
-            !INPUT->IsKeyPressed(DIK_A) && !INPUT->IsKeyPressed(DIK_D)) {
-            if (index != 1)
-                GetAnimator()->Play(1);
-        }
-        */
     }
 }

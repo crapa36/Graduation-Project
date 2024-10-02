@@ -10,8 +10,8 @@
 #include "Engine.h"
 
 TestCameraScript::TestCameraScript() {
-    _centerPos.x = GEngine->GetWindow().clientWidth / 2;
-    _centerPos.y = GEngine->GetWindow().clientHeight / 2;
+    _centerPos.x = GEngine->GetWindow().width / 2;
+    _centerPos.y = GEngine->GetWindow().height / 2;
     _centerScreenPos = _centerPos;
     ClientToScreen(GEngine->GetWindow().hwnd, &_centerScreenPos);
 }
@@ -20,7 +20,6 @@ TestCameraScript::~TestCameraScript() {
 }
 
 void TestCameraScript::LateUpdate() {
-
     // 게임 윈도우가 포커스 되었을 때만 입력 처리
     if (GetForegroundWindow() == GEngine->GetWindow().hwnd) {
         Vec3 revolution = GetTransform()->GetLocalRevolution();
@@ -31,6 +30,7 @@ void TestCameraScript::LateUpdate() {
             const POINT& mousePos = INPUT->GetMousePos();
             GET_SINGLETON(PhysicsManager)->Pick(mousePos.x, mousePos.y);
         }
+
 
         // Alt 키 입력으로 마우스 잠금 전환
         if (INPUT->IsKeyJustPressed(DIK_LALT)) {
@@ -77,26 +77,28 @@ void TestCameraScript::LateUpdate() {
 
         if (INPUT->IsKeyPressed(DIK_W) || INPUT->IsKeyPressed(DIK_S) ||
             INPUT->IsKeyPressed(DIK_A) || INPUT->IsKeyPressed(DIK_D)) {
-            dir = { 0.f, 0.f, 0.f };
 
+            dir = { 0.f, 0.f, 0.f };
+            
             //방향벡터 구하기
             if (INPUT->IsKeyPressed(DIK_W)) {
-                dir -= GetTransform()->GetLook();
-            }
-            if (INPUT->IsKeyPressed(DIK_S)) {
                 dir += GetTransform()->GetLook();
             }
-            if (INPUT->IsKeyPressed(DIK_A)) {
-                dir += GetTransform()->GetRight();
+            if (INPUT->IsKeyPressed(DIK_S)) {
+                dir -= GetTransform()->GetLook();
             }
-            if (INPUT->IsKeyPressed(DIK_D)) {
+            if (INPUT->IsKeyPressed(DIK_A)) {
                 dir -= GetTransform()->GetRight();
             }
-
+            if (INPUT->IsKeyPressed(DIK_D)) {
+                dir += GetTransform()->GetRight();
+            }
+            
             Vec3 look = GetTransform()->GetLook(); //카메라가 바라보는 벡터
             look.Normalize();
             dir.Normalize();
 
+            
             //외적과 내적으로 두 벡터 사이의 각 구하기
             float dotProduct = look.Dot(dir);
             dotProduct = std::clamp(dotProduct, -1.0f, 1.0f);
@@ -110,7 +112,7 @@ void TestCameraScript::LateUpdate() {
             if (dirAnglePM < 0) {
                 dirAngle = -dirAngle;
             }
-
+            
             _dir.y = revolution.y + dirAngle; // 최종회전값
 
             if (parentRotate.y - _dir.y > XM_PI) {
@@ -120,7 +122,6 @@ void TestCameraScript::LateUpdate() {
                 parentRotate.y += 2 * XM_PI;
             }
         }
-
         //회전보간
         Vec3 result;
         result.x = 0.f;
@@ -129,10 +130,16 @@ void TestCameraScript::LateUpdate() {
 
         parentTransform->SetLocalRotation(result);
 
+        parent->GetRigidbody()->SetDirection(parentTransform->GetLook());
+
         //WASD 입력시 캐릭터가 바라보는 방향으로 이동
         if (INPUT->IsKeyPressed(DIK_W) || INPUT->IsKeyPressed(DIK_S) ||
             INPUT->IsKeyPressed(DIK_A) || INPUT->IsKeyPressed(DIK_D)) {
-            parentPos -= parentTransform->GetLook() * _speed * DELTA_TIME;
+            parent->GetRigidbody()->SetIsMove(true);
+            
+        }
+        else {
+            parent->GetRigidbody()->SetIsMove(false);
         }
 
         // 스페이스바로 위쪽 이동, Ctrl로 아래쪽 이동
@@ -151,12 +158,17 @@ void TestCameraScript::LateUpdate() {
             _speed = 100.f;
         }
 
+
         // 마우스 휠로 줌 기능 추가
+        float zoomSpeed = 0.2f;
         int mouseWheel = INPUT->GetMouseWheel();
         Vec3 vectorAB = XMVectorSubtract(pos, Vec3(0.f, 0.f, 0.f));
-        vectorAB.Normalize();
-        if (mouseWheel != 0) {
-            float zoomSpeed = 0.2f;
+        if (vectorAB.Length() > 20 && mouseWheel > 0) {
+            vectorAB.Normalize();
+            pos -= vectorAB * zoomSpeed * mouseWheel;
+        }
+        else if (vectorAB.Length() < 300 && mouseWheel < 0) {
+            vectorAB.Normalize();
             pos -= vectorAB * zoomSpeed * mouseWheel;
         }
 

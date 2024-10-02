@@ -6,29 +6,77 @@
 #include "Shader.h"
 #include "Material.h"
 
-///
 
-int ReadIntegerFromFile(FILE* pInFile) {
-    int nValue = 0;
-    UINT nReads = (UINT)::fread(&nValue, sizeof(int), 1, pInFile);
-    return(nValue);
-}
+//
+    int ReadIntegerFromFile(FILE* pInFile) {
+        int nValue = 0;
+        UINT nReads = (UINT)::fread(&nValue, sizeof(int), 1, pInFile);
+        return(nValue);
+    }
+    float ReadFloatFromFile(FILE* pInFile) {
+        float fValue = 0;
+        UINT nReads = (UINT)::fread(&fValue, sizeof(float), 1, pInFile);
+        return(fValue);
+    }
+    BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken) {
+        BYTE nStrLength = 0;
+        UINT nReads = 0;
+        nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+        nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pInFile);
+        pstrToken[nStrLength] = '\0';
 
-float ReadFloatFromFile(FILE* pInFile) {
-    float fValue = 0;
-    UINT nReads = (UINT)::fread(&fValue, sizeof(float), 1, pInFile);
-    return(fValue);
-}
+        return(nStrLength);
+    }
+    bool IsMatrixValid(const XMFLOAT4X4& matrix)
+    {
+        // XMFLOAT4X4의 모든 요소가 0이 아닐 경우 유효하다고 간주
+        return matrix._11 != 0 || matrix._12 != 0 || matrix._13 != 0 || matrix._14 != 0 ||
+            matrix._21 != 0 || matrix._22 != 0 || matrix._23 != 0 || matrix._24 != 0 ||
+            matrix._31 != 0 || matrix._32 != 0 || matrix._33 != 0 || matrix._34 != 0 ||
+            matrix._41 != 0 || matrix._42 != 0 || matrix._43 != 0 || matrix._44 != 0;
+    }
+    void DecomposeMatrix(const XMFLOAT4X4& matrix, Vec3& position, Quaternion& rotation, Vec3& scale)
+    {
+        // 4x4 행렬을 XMMATRIX로 변환
+        XMMATRIX mat = XMLoadFloat4x4(&matrix);
 
-BYTE ReadStringFromFile(FILE* pInFile, char* pstrToken) {
-    BYTE nStrLength = 0;
-    UINT nReads = 0;
-    nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
-    nReads = (UINT)::fread(pstrToken, sizeof(char), nStrLength, pInFile);
-    pstrToken[nStrLength] = '\0';
+        // 위치, 회전, 스케일 벡터를 초기화
+        XMVECTOR posVec, rotQuat, sclVec;
 
-    return(nStrLength);
-}
+        // 행렬을 위치, 회전(Quaternion), 스케일로 분리
+        XMMatrixDecompose(&sclVec, &rotQuat, &posVec, mat);
+
+        // 분리된 값들을 SimpleMath의 Vector3와 Quaternion 형식으로 변환
+        position = Vector3(posVec);
+        rotation = Quaternion(rotQuat);
+        scale = Vector3(sclVec);
+    }
+    Vec3 QuaternionToEuler(const Quaternion& q)
+    {
+        // 쿼터니언을 행렬로 변환
+        XMMATRIX rotationMatrix = XMMatrixRotationQuaternion(q);
+
+        // 행렬의 요소 추출
+        float pitch, yaw, roll;
+
+        // 행렬의 요소를 사용하여 오일러 각 계산
+        // Pitch (X-axis rotation)
+        pitch = std::asin(-rotationMatrix.r[2].m128_f32[1]);
+
+        // Roll (Z-axis rotation)
+        if (std::cos(pitch) > 0.0001f) { // 안정성을 위한 작은 수 비교
+            roll = std::atan2(rotationMatrix.r[2].m128_f32[0], rotationMatrix.r[2].m128_f32[2]);
+            yaw = std::atan2(rotationMatrix.r[0].m128_f32[1], rotationMatrix.r[1].m128_f32[1]);
+        }
+        else {
+            roll = std::atan2(-rotationMatrix.r[1].m128_f32[0], rotationMatrix.r[0].m128_f32[0]);
+            yaw = 0.0f;
+        }
+
+        // 오일러 각을 Vector3로 반환 (Yaw, Pitch, Roll)
+        return Vector3(pitch, yaw, roll); // 피치, 요, 롤 순으로 반환
+    }
+//
 
 CMeshLoader::CMeshLoader() {
 }
@@ -41,14 +89,14 @@ void CMeshLoader::LoadBIN(const wstring& path) {
 
     LoadGeometry(path);
 
-    reverse(_meshes.begin(), _meshes.end());
+    for (int i = 0; i < _childCount.size(); i++) {
+        for (int j = 0; j < _childCount.at(i); j++) {
+            if(i+j < _meshes.size())
+                _meshes.at(i+j).transform->SetParent(_meshes.at(_parentCount.at(i)).transform);
+        }
+    }
 
-	for (int i = 1; i < _meshes.size(); i++) {
-		_meshes.at(i).transform->SetParent(_meshes.front().transform);
-	}
-
-    // �츮 ������ �°� Texture / Material ����
-    //CreateTextures();
+    CreateTextures();
     CreateMaterials();
 }
 
@@ -85,6 +133,45 @@ void CMeshLoader::LoadMesh(FILE* pInFile, CMeshInfo* info) {
                 loadInfo.m_nType |= VERTEXT_COLOR;
                 loadInfo.m_pxmf4Colors = new XMFLOAT4[nColors];
                 nReads = (UINT)::fread(loadInfo.m_pxmf4Colors, sizeof(XMFLOAT4), nColors, pInFile);
+            }
+        }
+        else if (!strcmp(pstrToken, "<TextureCoords0>:"))
+        {
+            nReads = (UINT)::fread(&loadInfo.nTextureCoords, sizeof(int), 1, pInFile);
+            if (loadInfo.nTextureCoords > 0)
+            {
+                loadInfo.m_nType |= VERTEXT_TEXTURE_COORD0;
+                loadInfo.m_pxmf2TextureCoords0 = new XMFLOAT2[loadInfo.nTextureCoords];
+                nReads = (UINT)::fread(loadInfo.m_pxmf2TextureCoords0, sizeof(XMFLOAT2), loadInfo.nTextureCoords, pInFile);
+            }
+        }
+        else if (!strcmp(pstrToken, "<TextureCoords1>:"))
+        {
+            nReads = (UINT)::fread(&loadInfo.nTextureCoords, sizeof(int), 1, pInFile);
+            if (loadInfo.nTextureCoords > 0)
+            {
+                loadInfo.m_nType |= VERTEXT_TEXTURE_COORD1;
+                loadInfo.m_pxmf2TextureCoords1 = new XMFLOAT2[loadInfo.nTextureCoords];
+                nReads = (UINT)::fread(loadInfo.m_pxmf2TextureCoords1, sizeof(XMFLOAT2), loadInfo.nTextureCoords, pInFile);
+            }
+        }
+        else if (!strcmp(pstrToken, "<Tangents>:"))
+        {
+            nReads = (UINT)::fread(&loadInfo.nTangents, sizeof(int), 1, pInFile);
+            if (loadInfo.nTangents > 0)
+            {
+                loadInfo.m_nType |= VERTEXT_TANGENT;
+                loadInfo.m_pxmf3Tangents = new XMFLOAT3[loadInfo.nTangents];
+                nReads = (UINT)::fread(loadInfo.m_pxmf3Tangents, sizeof(XMFLOAT3), loadInfo.nTangents, pInFile);
+            }
+        }
+        else if (!strcmp(pstrToken, "<BiTangents>:"))
+        {
+            nReads = (UINT)::fread(&loadInfo.nBiTangents, sizeof(int), 1, pInFile);
+            if (loadInfo.nBiTangents > 0)
+            {
+                loadInfo.m_pxmf3BiTangents = new XMFLOAT3[loadInfo.nBiTangents];
+                nReads = (UINT)::fread(loadInfo.m_pxmf3BiTangents, sizeof(XMFLOAT3), loadInfo.nBiTangents, pInFile);
             }
         }
         else if (!strcmp(pstrToken, "<Normals>:")) {
@@ -182,6 +269,54 @@ void CMeshLoader::LoadMaterial(FILE* pInFile, CMeshInfo* info) {
         else if (!strcmp(pstrToken, "<GlossyReflection>:")) {
             nReads = (UINT)::fread(&(temp), sizeof(float), 1, pInFile);
         }
+        else if (!strcmp(pstrToken, "<AlbedoMap>:"))
+        {
+            BYTE nStrLength = 64;
+            UINT nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+            info->materials[nMaterial].strlenD = nStrLength;
+            nReads = (UINT)::fread(info->materials[nMaterial].diffuseTexName, sizeof(char), nStrLength, pInFile);
+            info->materials[nMaterial].diffuseTexName[nStrLength] = '\0';
+        }
+        else if (!strcmp(pstrToken, "<SpecularMap>:"))
+        {
+            BYTE nStrLength = 64;
+            UINT nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+            info->materials[nMaterial].strlenS = nStrLength; 
+            nReads = (UINT)::fread(info->materials[nMaterial].specularTexName, sizeof(char), nStrLength, pInFile);
+            info->materials[nMaterial].specularTexName[nStrLength] = '\0';
+        }
+        else if (!strcmp(pstrToken, "<NormalMap>:"))
+        {
+            BYTE nStrLength = 64;
+            UINT nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+            info->materials[nMaterial].strlenN = nStrLength;
+            nReads = (UINT)::fread(info->materials[nMaterial].normalTexName, sizeof(char), nStrLength, pInFile);
+            info->materials[nMaterial].normalTexName[nStrLength] = '\0';
+        }
+        else if (!strcmp(pstrToken, "<MetallicMap>:"))
+        {
+            ::ReadStringFromFile(pInFile, pstrToken);
+        }
+        else if (!strcmp(pstrToken, "<EmissionMap>:"))
+        {
+            ::ReadStringFromFile(pInFile, pstrToken);
+        }
+        else if (!strcmp(pstrToken, "<DetailAlbedoMap>:"))
+        {
+            BYTE nStrLength = 64;
+            UINT nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+            info->materials[nMaterial].strlenDD = nStrLength;
+            nReads = (UINT)::fread(info->materials[nMaterial].detailDiffuseTexName, sizeof(char), nStrLength, pInFile);
+            info->materials[nMaterial].detailDiffuseTexName[nStrLength] = '\0';
+        }
+        else if (!strcmp(pstrToken, "<DetailNormalMap>:"))
+        {
+            BYTE nStrLength = 64;
+            UINT nReads = (UINT)::fread(&nStrLength, sizeof(BYTE), 1, pInFile);
+            info->materials[nMaterial].strlenDN = nStrLength;
+            nReads = (UINT)::fread(info->materials[nMaterial].detailNormalTexName, sizeof(char), nStrLength, pInFile);
+            info->materials[nMaterial].detailNormalTexName[nStrLength] = '\0';
+        }
         else if (!strcmp(pstrToken, "</Materials>")) {
             break;
         }
@@ -194,14 +329,19 @@ CMeshInfo CMeshLoader::LoadFrameHierarchy(FILE* pInFile) {
 
     XMFLOAT3 xmf3Position, xmf3Rotation, xmf3Scale;
     XMFLOAT4 xmf4Rotation;
+    XMFLOAT4X4 matrix;
 
     CMeshInfo info;
-    int nFrame = 0;
+
+    BYTE nStrLength = 0;
+    int nFrame = 0, nTextures = 0;
+    info.transform = make_shared<Transform>();
 
     while (1) {
         ::ReadStringFromFile(pInFile, pstrToken);
         if (!strcmp(pstrToken, "<Frame>:")) {
-            nFrame = ::ReadIntegerFromFile(pInFile);
+            nReads = (UINT)::fread(&nFrame, sizeof(int), 1, pInFile);
+            nReads = (UINT)::fread(&nTextures, sizeof(int), 1, pInFile);
 
             ::ReadStringFromFile(pInFile, pstrToken);
             info.name = pstrToken;
@@ -213,7 +353,7 @@ CMeshInfo CMeshLoader::LoadFrameHierarchy(FILE* pInFile) {
             nReads = (UINT)::fread(&xmf4Rotation, sizeof(float), 4, pInFile); //Quaternion
         }
         else if (!strcmp(pstrToken, "<TransformMatrix>:")) {
-            nReads = (UINT)::fread(pstrToken, sizeof(float), 16, pInFile);
+            nReads = (UINT)::fread(&matrix, sizeof(float), 16, pInFile);
         }
         else if (!strcmp(pstrToken, "<Mesh>:")) {
             LoadMesh(pInFile, &info);
@@ -223,11 +363,16 @@ CMeshInfo CMeshLoader::LoadFrameHierarchy(FILE* pInFile) {
         }
         else if (!strcmp(pstrToken, "<Children>:")) {
             int nChilds = ::ReadIntegerFromFile(pInFile);
-            _childCount = nChilds;
 
             if (nChilds > 0) {
+                _childCount.push_back(nChilds);
+                _parentCount.push_back(_meshes.size() - 1);
                 for (int i = 0; i < nChilds; i++) {
-                    _meshes.push_back(LoadFrameHierarchy(pInFile));
+                    int32 count = _count;
+                    _count++;
+                    CMeshInfo mesh;
+                    _meshes.push_back(mesh);
+                    _meshes.at(count) = move(LoadFrameHierarchy(pInFile));
                 }
             }
         }
@@ -235,12 +380,19 @@ CMeshInfo CMeshLoader::LoadFrameHierarchy(FILE* pInFile) {
             break;
         }
     }
+    
+    if(!info.transform)
+        info.transform = make_shared<Transform>();
 
-    info.transform = make_shared<Transform>();
+    Vec3 position, scale, rotation;
+    Quaternion quaternion;
+
+    DecomposeMatrix(matrix, position, quaternion, scale);
+    rotation = QuaternionToEuler(xmf4Rotation);
 
     info.transform->SetLocalPosition(xmf3Position);
-    info.transform->SetLocalRotation(xmf3Rotation);
     info.transform->SetLocalScale(xmf3Scale);
+    info.transform->SetLocalRotation(xmf3Rotation);
     info.transform->SetLocalRotationQuaternion(xmf4Rotation);
 
     return info;
@@ -249,28 +401,22 @@ CMeshInfo CMeshLoader::LoadFrameHierarchy(FILE* pInFile) {
 
 void CMeshLoader::LoadGeometry(const wstring& FileName)
 {
-	string path = ws2s(FileName);
-	
-	char* c = const_cast<char*>(path.c_str());
-	c[path.size() + 1] = '\0';
-	FILE* pInFile = NULL;
-	::fopen_s(&pInFile, c, "rb");
+    string path = ws2s(FileName);
+
+    char* c = const_cast<char*>(path.c_str());
+    c[path.size() + 1] = '\0';
+    FILE* pInFile = NULL;
+    ::fopen_s(&pInFile, c, "rb");
 
     assert(pInFile);
     ::rewind(pInFile);
 
-    char pstrToken[64] = { '\0' };
+    int32 count = _count;
+    _count++;
+    CMeshInfo mesh;
+    _meshes.push_back(mesh);
+    _meshes.at(count) = move(LoadFrameHierarchy(pInFile));
 
-    for (; ; ) {
-        ::ReadStringFromFile(pInFile, pstrToken);
-
-        if (!strcmp(pstrToken, "<Hierarchy>:")) {
-            _meshes.push_back(LoadFrameHierarchy(pInFile));
-        }
-        else if (!strcmp(pstrToken, "</Hierarchy>")) {
-            break;
-        }
-    }
 }
 
 CMeshInfo CMeshLoader::Li2i(CMeshLoadInfo loadInfo) {
@@ -285,9 +431,13 @@ CMeshInfo CMeshLoader::Li2i(CMeshLoadInfo loadInfo) {
         vertex.normal.x = (loadInfo.m_pxmf3Normals[i].x);
         vertex.normal.y = (loadInfo.m_pxmf3Normals[i].y);
         vertex.normal.z = (loadInfo.m_pxmf3Normals[i].z);
-        vertex.tangent = Vec3(1.0f, 0.0f, 0.0f);
+        vertex.tangent = loadInfo.m_pxmf3Tangents[i];
+        vertex.uv = loadInfo.m_pxmf2TextureCoords0[i];
+        //vertex.uv2 = loadInfo.m_pxmf2TextureCoords1[i];
         temp.vertices.push_back(vertex);
     }
+
+
 
     {
         if (loadInfo.m_nIndices != 0) {
@@ -323,29 +473,65 @@ void CMeshLoader::CreateTextures() {
 
             // DiffuseTexture
             {
-                wstring relativePath = _meshes[i].materials[j].diffuseTexName.c_str();
-                wstring filename = fs::path(relativePath).filename();
-                wstring fullPath = _resourceDirectory + L"\\" + filename;
-                if (filename.empty() == false)
-                    GET_SINGLETON(Resources)->Load<Texture>(filename, fullPath);
+                BYTE nStrLength = _meshes[i].materials[j].strlenD;
+                bool bDuplicated = false;
+                bool bLoaded = false;
+                if (strcmp(_meshes[i].materials[j].diffuseTexName, "null"))
+                {
+                    bLoaded = true;
+                    char pstrFilePath[254] = { '\0' };
+                    strcpy_s(pstrFilePath, 64, "../Resources/BIN/Textures/");
+
+                    bDuplicated = (_meshes[i].materials[j].diffuseTexName[0] == '@');
+                    strcpy_s(pstrFilePath + 26, 64 - 26, (bDuplicated) ? (_meshes[i].materials[j].diffuseTexName + 1) : _meshes[i].materials[j].diffuseTexName);
+                    strcpy_s(pstrFilePath + 26 + ((bDuplicated) ? (nStrLength - 1) : nStrLength), 64 - 15 - ((bDuplicated) ? (nStrLength - 1) : nStrLength), ".dds");
+
+                    string filename(_meshes[i].materials[j].diffuseTexName);
+                    string fullPath(pstrFilePath);
+                    GET_SINGLETON(Resources)->Load<Texture>(s2ws(filename), s2ws(fullPath));
+                }
             }
 
             // NormalTexture
             {
-                wstring relativePath = _meshes[i].materials[j].normalTexName.c_str();
-                wstring filename = fs::path(relativePath).filename();
-                wstring fullPath = _resourceDirectory + L"\\" + filename;
-                if (filename.empty() == false)
-                    GET_SINGLETON(Resources)->Load<Texture>(filename, fullPath);
+                BYTE nStrLength = _meshes[i].materials[j].strlenN;
+                bool bDuplicated = false;
+                bool bLoaded = false;
+                if (strcmp(_meshes[i].materials[j].normalTexName, "null"))
+                {
+                    bLoaded = true;
+                    char pstrFilePath[254] = { '\0' };
+                    strcpy_s(pstrFilePath, 64, "../Resource/BIN/Textures/");
+
+                    bDuplicated = (_meshes[i].materials[j].normalTexName[0] == '@');
+                    strcpy_s(pstrFilePath + 25, 64 - 25, (bDuplicated) ? (_meshes[i].materials[j].normalTexName + 1) : _meshes[i].materials[j].normalTexName);
+                    strcpy_s(pstrFilePath + 25 + ((bDuplicated) ? (nStrLength - 1) : nStrLength), 64 - 15 - ((bDuplicated) ? (nStrLength - 1) : nStrLength), ".dds");
+
+                    string filename(_meshes[i].materials[j].normalTexName);
+                    string fullPath(pstrFilePath);
+                    GET_SINGLETON(Resources)->Load<Texture>(s2ws(filename), s2ws(fullPath));
+                }
             }
 
             // SpecularTexture
             {
-                wstring relativePath = _meshes[i].materials[j].specularTexName.c_str();
-                wstring filename = fs::path(relativePath).filename();
-                wstring fullPath = _resourceDirectory + L"\\" + filename;
-                if (filename.empty() == false)
-                    GET_SINGLETON(Resources)->Load<Texture>(filename, fullPath);
+                BYTE nStrLength = _meshes[i].materials[j].strlenS;
+                bool bDuplicated = false;
+                bool bLoaded = false;
+                if (strcmp(_meshes[i].materials[j].specularTexName, "null"))
+                {
+                    bLoaded = true;
+                    char pstrFilePath[254] = { '\0' };
+                    strcpy_s(pstrFilePath, 64, "../Resource/BIN/Textures/");
+
+                    bDuplicated = (_meshes[i].materials[j].specularTexName[0] == '@');
+                    strcpy_s(pstrFilePath + 25, 64 - 25, (bDuplicated) ? (_meshes[i].materials[j].specularTexName + 1) : _meshes[i].materials[j].specularTexName);
+                    strcpy_s(pstrFilePath + 25 + ((bDuplicated) ? (nStrLength - 1) : nStrLength), 64 - 15 - ((bDuplicated) ? (nStrLength - 1) : nStrLength), ".dds");
+
+                    string filename(_meshes[i].materials[j].specularTexName);
+                    string fullPath(pstrFilePath);
+                    GET_SINGLETON(Resources)->Load<Texture>(s2ws(filename), s2ws(fullPath));
+                }
             }
         }
     }
@@ -360,27 +546,24 @@ void CMeshLoader::CreateMaterials() {
             material->SetShader(GET_SINGLETON(Resources)->Get<Shader>(L"Deferred"));
 
             {
-                wstring diffuseName = _meshes[i].materials[j].diffuseTexName.c_str();
-                wstring filename = fs::path(diffuseName).filename();
-                wstring key = filename;
+                string filename(_meshes[i].materials[j].diffuseTexName);
+                wstring key = s2ws(filename);
                 shared_ptr<Texture> diffuseTexture = GET_SINGLETON(Resources)->Get<Texture>(key);
                 if (diffuseTexture)
                     material->SetTexture(0, diffuseTexture);
             }
 
             {
-                wstring normalName = _meshes[i].materials[j].normalTexName.c_str();
-                wstring filename = fs::path(normalName).filename();
-                wstring key = filename;
+                string filename(_meshes[i].materials[j].normalTexName);
+                wstring key = s2ws(filename);
                 shared_ptr<Texture> normalTexture = GET_SINGLETON(Resources)->Get<Texture>(key);
                 if (normalTexture)
                     material->SetTexture(1, normalTexture);
             }
 
             {
-                wstring specularName = _meshes[i].materials[j].specularTexName.c_str();
-                wstring filename = fs::path(specularName).filename();
-                wstring key = filename;
+                string filename(_meshes[i].materials[j].specularTexName);
+                wstring key = s2ws(filename);
                 shared_ptr<Texture> specularTexture = GET_SINGLETON(Resources)->Get<Texture>(key);
                 if (specularTexture)
                     material->SetTexture(2, specularTexture);
