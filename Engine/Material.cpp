@@ -23,7 +23,7 @@ void Material::PushGraphicsData() {
         GEngine->GetGraphicsDescriptorHeap()->SetSRV(_textures[i]->GetSRVHandle(), reg);
     }
     if (_cubeMapTexture != nullptr)
-        GEngine->GetGraphicsDescriptorHeap()->SetSRV(_cubeMapTexture->GetSRVHandle(), SRV_REGISTER::t5);
+        GEngine->GetGraphicsDescriptorHeap()->SetSRV(_cubeMapTexture->GetSRVHandle(), SRV_REGISTER::t6);
 
     // 파이프라인 세팅
     _shader->Update();

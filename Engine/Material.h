@@ -27,7 +27,7 @@ struct MaterialParams {
 
     array<int32, MATERIAL_ARG_COUNT> intParams;
     array<float, MATERIAL_ARG_COUNT> floatParams;
-    array<int32, MATERIAL_ARG_COUNT> texOnParams;
+    array<int32, MATERIAL_ARG_COUNT*2> texOnParams;
     array<Vec2, MATERIAL_ARG_COUNT> vec2Params;
     array<Vec4, MATERIAL_ARG_COUNT> vec4Params;
     array<Matrix, MATERIAL_ARG_COUNT> matrixParams;

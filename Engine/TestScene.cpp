@@ -275,7 +275,7 @@ TestScene::TestScene() {
     {
         shared_ptr<GameObject> light = make_shared<GameObject>();
         light->AddComponent(make_shared<Transform>());
-        light->GetTransform()->SetLocalPosition(Vec3(300.f, 0.f, 400.f));
+        light->GetTransform()->SetLocalPosition(Vec3(300.f, -100.f, 400.f));
         light->AddComponent(make_shared<Light>());
         light->GetLight()->SetLightDirection(Vec3(0.f, -1.f, 0.f));
         light->GetLight()->SetLightType(LIGHT_TYPE::SPOT);
