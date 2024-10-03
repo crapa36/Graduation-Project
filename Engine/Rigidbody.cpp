@@ -33,6 +33,11 @@ void Rigidbody::Update() {
         _velocity += Vec3(0.0f, -50.f, 0.0f) * DELTA_TIME;
     }
 
+    if (_isMove) {
+        _velocity.x = _direction.x * 100;
+        _velocity.z = _direction.z * 100;
+    }
+
     // 선형 감쇠 적용
     _velocity *= (1.0f - _drag * DELTA_TIME);
 
@@ -44,7 +49,6 @@ void Rigidbody::Update() {
 
 void Rigidbody::LastUpdate() {
 
-    // 현재는 구현하지 않음
 }
 
 void Rigidbody::FinalUpdate() {
@@ -55,6 +59,7 @@ void Rigidbody::FinalUpdate() {
 
     // 각속도에 따라 회전 변경
     transform->SetLocalRotation(transform->GetLocalRotation() + _angularVelocity * DELTA_TIME);
+
 }
 
 void Rigidbody::AddForce(const Vec3& force) {

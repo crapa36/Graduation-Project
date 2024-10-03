@@ -9,7 +9,8 @@
 #include "Resources.h"
 #include <algorithm>
 
-BoxCollider::BoxCollider() : BaseCollider(ColliderType::Box) {}
+BoxCollider::BoxCollider() : BaseCollider(ColliderType::Box) {
+}
 
 BoxCollider::~BoxCollider() {}
 
