@@ -46,13 +46,17 @@ public:
 	OVER_EXP _recv_over;
 	int _prev_remain;
 	char _name[MAX_NAME_SIZE];
-	Vec3 Position;
+	float x;
+	float y;
+	float z;
 
 	SESSION()
 	{
 		_id = -1;
 		_socket = 0;
-		Position = Vec3();
+		x = 0.0;
+		y = 0.0;
+		z = 0.0;
 		_name[0] = 0;
 		_state = ST_FREE;
 		_prev_remain = 0;
@@ -82,7 +86,9 @@ public:
 		p.id = _id;
 		p.size = sizeof(SC_LOGIN_INFO_PACKET);
 		p.type = SC_LOGIN_INFO;
-		p.Position = Vec3(0.0f, 0.0f, 0.0f);
+		p.x = x;
+		p.y = y;
+		p.z = z;
 		do_send(&p);
 	}
 
@@ -107,7 +113,9 @@ void SESSION::send_move_packet(int c_id)
 	p.id = c_id;
 	p.size = sizeof(CS_PLAYER_MOVE_PACKET);
 	p.type = CS_PLAYER_MOVE;
-	p.Position = clients[c_id].Position;
+	p.x = clients[c_id].x;
+	p.y = clients[c_id].y;
+	p.z = clients[c_id].z;
 	do_send(&p);
 }
 
@@ -118,7 +126,9 @@ void SESSION::send_add_player_packet(int c_id)
 	strcpy_s(add_packet.name, clients[c_id]._name);
 	add_packet.size = sizeof(add_packet);
 	add_packet.type = SC_ADD_PLAYER;
-	add_packet.Position = clients[c_id].Position;
+	add_packet.x = clients[c_id].x;
+	add_packet.y = clients[c_id].y;
+	add_packet.z = clients[c_id].z;
 	do_send(&add_packet);
 }
 
@@ -182,7 +192,9 @@ void process_packet(int c_id, char* packet)
 	}
 	case CS_PLAYER_MOVE: {
 		CS_PLAYER_MOVE_PACKET* p = reinterpret_cast<CS_PLAYER_MOVE_PACKET*>(packet);
-		Vec3 c_Position = clients[c_id].Position;
+		float x = clients[c_id].x;
+		float y = clients[c_id].y;
+		float z = clients[c_id].z;
 		
 		for (auto& cl : clients) {
 			if (cl._state != ST_INGAME) continue;
