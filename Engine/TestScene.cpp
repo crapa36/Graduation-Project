@@ -55,7 +55,7 @@ TestScene::TestScene() {
     {
         wstring path = L"../Resources/BIN/Gunship.bin";
         shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadBIN(path);
-    
+
         shared_ptr<GameObject> mainObject = make_shared<GameObject>();
 
         mainObject->SetName(L"Main");
@@ -82,7 +82,7 @@ TestScene::TestScene() {
         mainObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
         mainObject->GetRigidbody()->SetUseGravity(false);
         mainObject->GetRigidbody()->SetElasticity(0.0f);
-        mainObject->GetRigidbody()->SetDrag(0.90f);
+        mainObject->GetRigidbody()->SetDrag(0.95f);
 
         mainObject->SetStatic(false);
         _scene->AddGameObject(mainObject);
@@ -253,9 +253,9 @@ TestScene::TestScene() {
         obj->AddComponent(make_shared<Transform>());
 
         // 비율로 설정
-        
+
         obj->GetTransform()->SetLocalScale(Vec3(width / 8, width / 8, 200.f));
-        obj->GetTransform()->SetLocalPosition(Vec3(-width / 2 + ((i+0.5) * (width / 6)), height / 8*3, 500.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(-width / 2 + ((i + 0.5) * (width / 6)), height / 8 * 3, 500.f));
 
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
@@ -308,7 +308,6 @@ TestScene::TestScene() {
     }
 #pragma endregion
 
-
 #pragma region Point Light
     {
         shared_ptr<GameObject> light = make_shared<GameObject>();
@@ -356,7 +355,6 @@ TestScene::TestScene() {
         _scene->AddGameObject(particle);
     }
 #pragma endregion
-
 }
 TestScene::~TestScene() {
 }

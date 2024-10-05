@@ -79,6 +79,10 @@ void Light::Render() {
         _lightMaterial->SetMatrix(0, matVP);
     }
     else if (static_cast<LIGHT_TYPE>(_lightInfo.lightType) == LIGHT_TYPE::SPOT) {
+        _lightMaterial->SetMatrix(0, _shadowCamera->GetCamera()->GetViewMatrix());
+        _lightMaterial->SetMatrix(1, _shadowCamera->GetCamera()->GetProjectionMatrix());
+        float scale = 2 * _lightInfo.range;
+        GetTransform()->SetLocalScale(Vec3(scale, scale, scale));
     }
     else {
         float scale = 2 * _lightInfo.range;
