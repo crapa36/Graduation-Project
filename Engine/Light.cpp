@@ -46,6 +46,14 @@ void Light::FinalUpdate() {
             _shadowCamera->GetTransform()->SetLocalScale(Vec3(1, 1, 1));
         }
     }
+    else if (static_cast<LIGHT_TYPE>(_lightInfo.lightType) == LIGHT_TYPE::SPOT) {
+
+        // 그림자 카메라를 원근 투영으로 설정
+        _shadowCamera->GetCamera()->SetProjectionType(PROJECTION_TYPE::PERSPECTIVE);
+        _shadowCamera->GetTransform()->SetLocalPosition(GetTransform()->GetLocalPosition());
+        _shadowCamera->GetTransform()->SetLocalRotation(GetTransform()->GetLocalRotation());
+        _shadowCamera->GetTransform()->SetLocalScale(GetTransform()->GetLocalScale());
+    }
     else {
 
         // 비방향성 라이트와 그림자 카메라를 동기화
@@ -69,6 +77,8 @@ void Light::Render() {
 
         Matrix matVP = _shadowCamera->GetCamera()->GetViewMatrix() * _shadowCamera->GetCamera()->GetProjectionMatrix();
         _lightMaterial->SetMatrix(0, matVP);
+    }
+    else if (static_cast<LIGHT_TYPE>(_lightInfo.lightType) == LIGHT_TYPE::SPOT) {
     }
     else {
         float scale = 2 * _lightInfo.range;
