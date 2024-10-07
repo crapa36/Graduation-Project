@@ -73,7 +73,7 @@ bool Input::Init(WindowInfo info) {
     _mousePos = cursorPos;
 
     // 마우스 커서 로드
-    _arrowCursor = LoadCursorFromFile(TEXT("..\\Resources\\MouseCursors\\Arrow.cur"));
+    SetCurrentCursor(L"Arrow");
 
     return true;
 }
@@ -103,10 +103,17 @@ bool Input::Update() {
     if (!ReadKeyboard() || !ReadMouse()) {
         return false;
     }
-    SetCursor(_arrowCursor);
-
+    SetCursor(_currentCursor);
     ProcessInput();
     return true;
+}
+
+void Input::SetCurrentCursor(const wstring& name) {
+    if (Cursors.find(name) == Cursors.end()) {
+        Cursors[name] = LoadCursorFromFile((L"..\\Resources\\MouseCursors\\" + name + L".cur").c_str());
+    }
+
+    _currentCursor = Cursors[name];
 }
 
 bool Input::ReadKeyboard() {

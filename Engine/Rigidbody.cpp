@@ -43,8 +43,6 @@ void Rigidbody::Update() {
 }
 
 void Rigidbody::LastUpdate() {
-
-    // 현재는 구현하지 않음
 }
 
 void Rigidbody::FinalUpdate() {

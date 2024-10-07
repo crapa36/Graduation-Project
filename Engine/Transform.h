@@ -38,9 +38,11 @@ public:
     void SetInheritScale(bool inherit) { _inheritScale = inherit; }
 
     void LookAt(const Vec3& dir);
-    void SetLocalRotationQuaternion(const DirectX::SimpleMath::Quaternion& quaternion);
+    void SetLocalRotationQuaternion(const Quaternion& quaternion) { _quaternion = quaternion; }
     static bool CloseEnough(const float& a, const float& b, const float& epsilon = std::numeric_limits<float>::epsilon());
     static Vec3 DecomposeRotationMatrix(const Matrix& rotation);
+    Vec3 QuaternionToEuler(const Quaternion& q);
+
 
 public:
     void SetParent(shared_ptr<Transform> parent) { _parent = parent; }
@@ -56,8 +58,10 @@ private:
     // Parent ±‚¡ÿ
     Vec3 _localPosition = {};
     Vec3 _localRotation = {};
+    Vec3 _localQuaternionRotation = {};
     Vec3 _localRevolution = {};
     Vec3 _localScale = { 1.f, 1.f, 1.f };
+    Quaternion _quaternion;
 
     Matrix _matLocal = {};
     Matrix _matWorld = {};

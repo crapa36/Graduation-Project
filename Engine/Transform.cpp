@@ -11,10 +11,11 @@ Transform::~Transform() {
 }
 
 void Transform::FinalUpdate() {
+    _localQuaternionRotation = QuaternionToEuler(_quaternion);
     Matrix matScale = Matrix::CreateScale(_localScale);
-    Matrix matRotation = Matrix::CreateRotationX(_localRotation.x);
-    matRotation *= Matrix::CreateRotationY(_localRotation.y);
-    matRotation *= Matrix::CreateRotationZ(_localRotation.z);
+    Matrix matRotation = Matrix::CreateRotationX(_localRotation.x + _localQuaternionRotation.x);
+    matRotation *= Matrix::CreateRotationY(_localRotation.y + _localQuaternionRotation.y);
+    matRotation *= Matrix::CreateRotationZ(_localRotation.z + _localQuaternionRotation.z);
     Matrix matTranslation = Matrix::CreateTranslation(_localPosition);
     Matrix matRevolution = Matrix::CreateRotationX(_localRevolution.x);
     matRevolution *= Matrix::CreateRotationY(_localRevolution.y);
@@ -81,26 +82,6 @@ void Transform::LookAt(const Vec3& dir) {
     _localRotation = DecomposeRotationMatrix(matrix);
 }
 
-void Transform::SetLocalRotationQuaternion(const DirectX::SimpleMath::Quaternion& quaternion) {
-
-    // 쿼터니언을 저장합니다.
-    auto _rotation = quaternion;
-
-    // 쿼터니언을 회전 행렬로 변환합니다.
-    XMMATRIX rotationMatrix = XMMatrixRotationQuaternion(XMLoadFloat4(&_rotation));
-
-    // 로컬 회전 행렬을 설정합니다.
-    _matLocal = rotationMatrix;
-
-    // 부모 행렬이 있으면, 로컬 행렬을 부모의 역 행렬로 변환하여 월드 행렬을 계산합니다.
-    if (_parent.expired()) {
-        _matWorld = _matLocal;
-    }
-    else {
-        Matrix parentWorld = _parent.lock()->GetLocalToWorldMatrix();
-        _matWorld = _matLocal * parentWorld;
-    }
-}
 bool Transform::CloseEnough(const float& a, const float& b, const float& epsilon) {
     return (epsilon > std::abs(a - b));
 }
@@ -144,4 +125,30 @@ Vec3 Transform::DecomposeRotationMatrix(const Matrix& rotation) {
     }
 
     return ret;
+}
+
+Vec3 Transform::QuaternionToEuler(const Quaternion& q)
+{
+    // 쿼터니언을 행렬로 변환
+    XMMATRIX rotationMatrix = XMMatrixRotationQuaternion(q);
+
+    // 행렬의 요소 추출
+    float pitch, yaw, roll;
+
+    // 행렬의 요소를 사용하여 오일러 각 계산
+    // Pitch (X-axis rotation)
+    pitch = std::asin(-rotationMatrix.r[2].m128_f32[1]);
+
+    // Roll (Z-axis rotation)
+    if (std::cos(pitch) > 0.0001f) { // 안정성을 위한 작은 수 비교
+        roll = std::atan2(rotationMatrix.r[2].m128_f32[0], rotationMatrix.r[2].m128_f32[2]);
+        yaw = std::atan2(rotationMatrix.r[0].m128_f32[1], rotationMatrix.r[1].m128_f32[1]);
+    }
+    else {
+        roll = std::atan2(-rotationMatrix.r[1].m128_f32[0], rotationMatrix.r[0].m128_f32[0]);
+        yaw = 0.0f;
+    }
+
+    // 오일러 각을 Vector3로 반환 (Yaw, Pitch, Roll)
+    return Vector3(pitch, yaw, roll); // 피치, 요, 롤 순으로 반환
 }

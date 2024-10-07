@@ -5,7 +5,7 @@ struct TupleHash {
     std::size_t operator()(const std::tuple<std::shared_ptr<T1>, std::shared_ptr<T2>>& tuple) const {
         auto h1 = std::hash<std::shared_ptr<T1>>{}(std::get<0>(tuple));
         auto h2 = std::hash<std::shared_ptr<T2>>{}(std::get<1>(tuple));
-        return h1 ^ (h2 << 1); // ������ �ؽ� ����
+        return h1 ^ (h2 << 1);
     }
 };
 
@@ -30,7 +30,6 @@ private:
     void HandleCollision(shared_ptr<GameObject> objA, shared_ptr<GameObject> objB);
     void UpdatePhysics();
 
-
     std::unordered_map<std::tuple<std::shared_ptr<GameObject>, std::shared_ptr<GameObject>>, float, TupleHash, TupleEqual> _collisionCooldowns;
-    const float _cooldownDuration = 0.00001f; 
+    const float _cooldownDuration = 0.01f;
 };

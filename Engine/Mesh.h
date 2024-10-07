@@ -1,6 +1,7 @@
 #pragma once
 #include "Object.h"
 #include "Transform.h"
+#include "CMeshLoader.h"
 
 class Material;
 class StructuredBuffer;
@@ -46,7 +47,7 @@ public:
 
 
     static shared_ptr<Mesh> CreateFromFBX(const struct FbxMeshInfo* meshInfo, class FBXLoader& loader);
-    static shared_ptr<Mesh> CreateFromBIN(const struct CMeshInfo* meshInfo, class CMeshLoader& loader);
+    static shared_ptr<Mesh> CreateFromBIN(const struct CMeshInfo* meshInfo, shared_ptr<CMeshLoader> loader);
  
 
     void SetTransform(shared_ptr<Transform> v) { _transform = v; };

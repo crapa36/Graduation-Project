@@ -18,10 +18,10 @@ public:
 
     virtual float GetHeight() override { return _extents.y / 2; }
     virtual Vec3 GetCenter() override { return _center; }
-
+#ifdef _DEBUG
     virtual void CreateMesh() override;
     virtual void Render() override;
-
+#endif
     void SetCenter(Vec3 center) override { _center = center; }
     void SetExtents(Vec3 extents) override { _extents = extents; }
     void SetOrientation(const XMFLOAT4& orientation) override { _orientation = orientation; }
