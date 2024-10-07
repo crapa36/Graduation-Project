@@ -49,7 +49,8 @@ void Material::PushComputeData() {
 
 void Material::Dispatch(uint32 x, uint32 y, uint32 z) {
 
-    // CBV + SRV + SetPipelineState
+    // CBV + SRV + Set
+    // State
     PushComputeData();
 
     // SetDescriptorHeaps + SetComputeRootDescriptorTable

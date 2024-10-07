@@ -76,8 +76,11 @@ Texture2D g_tex_4 : register(t4);
 // TextureCube 텍스처 정의 (큐브맵 추가)
 TextureCube g_texCube : register(t5);
 
+// 반사 및 굴절 텍스처 정의
+Texture2D g_reflectionTex : register(t8); // 반사 텍스처
+Texture2D g_refractionTex : register(t9); // 굴절 텍스처
+
 StructuredBuffer<Matrix> g_mat_bone : register(t7);
 
 SamplerState g_sam_0 : register(s0);
-
 #endif

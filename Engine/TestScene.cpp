@@ -55,104 +55,121 @@ TestScene::TestScene() {
     {
         wstring path = L"../Resources/BIN/Gunship.bin";
         shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadBIN(path);
-    
-        shared_ptr<GameObject> mainObject = make_shared<GameObject>();
 
-        mainObject->SetName(L"Main");
-        mainObject->SetCheckFrustum(false);
+shared_ptr<GameObject> mainObject = make_shared<GameObject>();
 
-        mainObject->AddComponent(make_shared<Transform>());
-        shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
-        {
-            shared_ptr<Mesh> sphereMesh = GET_SINGLETON(Resources)->LoadPointMesh();
-            meshRenderer->SetMesh(sphereMesh);
-        }
-        {
-            shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Pebbles");
-            meshRenderer->SetMaterial(material->Clone());
-        }
-        mainObject->AddComponent(meshRenderer);
+mainObject->SetName(L"Main");
+mainObject->SetCheckFrustum(false);
 
-        mainObject->AddComponent(make_shared<BoxCollider>());
-        mainObject->AddComponent(make_shared<TestDragonScript>());
-        mainObject->AddComponent(make_shared<Rigidbody>());
-        dynamic_pointer_cast<BoxCollider>(mainObject->GetCollider())->SetExtents(Vec3(40.f, 30.f, 40.f));
-        dynamic_pointer_cast<BoxCollider>(mainObject->GetCollider())->SetCenter(Vec3(0.f, 10.f, 0.f));
-        mainObject->GetTransform()->SetLocalPosition(Vec3(0.f, 500.f, 0.f));
-        mainObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
-        mainObject->GetRigidbody()->SetUseGravity(false);
-        mainObject->GetRigidbody()->SetElasticity(0.0f);
-        mainObject->GetRigidbody()->SetDrag(0.90f);
+mainObject->AddComponent(make_shared<Transform>());
+shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+{
+    shared_ptr<Mesh> sphereMesh = GET_SINGLETON(Resources)->LoadPointMesh();
+    meshRenderer->SetMesh(sphereMesh);
+}
+{
+    shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Pebbles");
+    meshRenderer->SetMaterial(material->Clone());
+}
+mainObject->AddComponent(meshRenderer);
 
-        mainObject->SetStatic(false);
-        _scene->AddGameObject(mainObject);
+mainObject->AddComponent(make_shared<BoxCollider>());
+mainObject->AddComponent(make_shared<TestDragonScript>());
+mainObject->AddComponent(make_shared<Rigidbody>());
+dynamic_pointer_cast<BoxCollider>(mainObject->GetCollider())->SetExtents(Vec3(40.f, 30.f, 40.f));
+dynamic_pointer_cast<BoxCollider>(mainObject->GetCollider())->SetCenter(Vec3(0.f, 10.f, 0.f));
+mainObject->GetTransform()->SetLocalPosition(Vec3(0.f, 500.f, 0.f));
+mainObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
+mainObject->GetRigidbody()->SetUseGravity(false);
+mainObject->GetRigidbody()->SetElasticity(0.0f);
+mainObject->GetRigidbody()->SetDrag(0.999f);
 
-        vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
+mainObject->SetStatic(false);
+_scene->AddGameObject(mainObject);
 
-        for (auto& gameObject : gameObjects) {
-            gameObject->SetCheckFrustum(false);
+vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
 
-            gameObject->SetParent(mainObject);
+for (auto& gameObject : gameObjects) {
+    gameObject->SetCheckFrustum(false);
 
-            gameObject->SetStatic(false);
-            _scene->AddGameObject(gameObject);
-        }
+    gameObject->SetParent(mainObject);
+
+    gameObject->SetStatic(false);
+    _scene->AddGameObject(gameObject);
+}
 #pragma region Camera
-        {
-            shared_ptr<GameObject> camera = make_shared<GameObject>();
-            camera->SetName(L"Main_Camera");
-            camera->AddComponent(make_shared<Transform>());
-            camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, FOV=45��
-            camera->AddComponent(make_shared<TestCameraScript>());
-            camera->GetCamera()->SetFar(10000.f); // Far 10000 ����
-            camera->GetTransform()->SetLocalPosition(Vec3(0.f, 50.f, -200.f));
+{
+    shared_ptr<GameObject> camera = make_shared<GameObject>();
+    camera->SetName(L"Main_Camera");
+    camera->AddComponent(make_shared<Transform>());
+    camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, FOV=45��
+    camera->AddComponent(make_shared<TestCameraScript>());
+    camera->GetCamera()->SetFar(10000.f); // Far 10000 ����
+    camera->GetTransform()->SetLocalPosition(Vec3(0.f, 50.f, -200.f));
 
-            camera->SetParent(mainObject);
-            camera->GetTransform()->SetInheritRotation(false);
-            camera->GetTransform()->SetInheritScale(false);
+    camera->SetParent(mainObject);
+    camera->GetTransform()->SetInheritRotation(false);
+    camera->GetTransform()->SetInheritScale(false);
 
-            uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
-            camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UI�� �� ����
-            _scene->AddGameObject(camera);
+    uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
+    camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UI�� �� ����
+    _scene->AddGameObject(camera);
 
-            //#pragma region Player
-            //        {
-            //            shared_ptr<GameObject> player = make_shared<GameObject>();
-            //            player->SetName(L"Player");
-            //            player->AddComponent(make_shared<Transform>());
-            //
-            //            player->AddComponent(make_shared<BoxCollider>());
-            //
-            //            player->GetTransform()->SetLocalScale(Vec3(50.f, 50.f, 50.f));
-            //
-            //            player->AddComponent(make_shared<TestPlayerScript>());
-            //
-            //            player->GetTransform()->SetLocalPosition(Vec3(0.f, -50.f, 200.f));
-            //            player->SetStatic(false);
-            //            shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
-            //            {
-            //                shared_ptr<Mesh> playerMesh = GET_SINGLETON(Resources)->LoadCubeMesh();
-            //                meshRenderer->SetMesh(playerMesh);
-            //            }
-            //            {
-            //                shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Wood");
-            //                meshRenderer->SetMaterial(material->Clone());
-            //            }
-            //            player->GetTransform()->SetParent(camera->GetTransform());
-            //
-            //            player->GetTransform()->SetInheritRotation(false);
-            //            player->GetTransform()->SetInheritScale(false);
-            //
-            //            player->GetCollider()->SetExtents(Vec3(50.f, 50.f, 50.f));
-            //
-            //            player->AddComponent(meshRenderer);
-            //            scene->AddGameObject(player);
-            //        }
-            //#pragma endregion
-        }
+    //#pragma region Player
+    //        {
+    //            shared_ptr<GameObject> player = make_shared<GameObject>();
+    //            player->SetName(L"Player");
+    //            player->AddComponent(make_shared<Transform>());
+    //
+    //            player->AddComponent(make_shared<BoxCollider>());
+    //
+    //            player->GetTransform()->SetLocalScale(Vec3(50.f, 50.f, 50.f));
+    //
+    //            player->AddComponent(make_shared<TestPlayerScript>());
+    //
+    //            player->GetTransform()->SetLocalPosition(Vec3(0.f, -50.f, 200.f));
+    //            player->SetStatic(false);
+    //            shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+    //            {
+    //                shared_ptr<Mesh> playerMesh = GET_SINGLETON(Resources)->LoadCubeMesh();
+    //                meshRenderer->SetMesh(playerMesh);
+    //            }
+    //            {
+    //                shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Wood");
+    //                meshRenderer->SetMaterial(material->Clone());
+    //            }
+    //            player->GetTransform()->SetParent(camera->GetTransform());
+    //
+    //            player->GetTransform()->SetInheritRotation(false);
+    //            player->GetTransform()->SetInheritScale(false);
+    //
+    //            player->GetCollider()->SetExtents(Vec3(50.f, 50.f, 50.f));
+    //
+    //            player->AddComponent(meshRenderer);
+    //            scene->AddGameObject(player);
+    //        }
+    //#pragma endregion
+}
 #pragma endregion
     }
 #pragma endregion
+
+
+//#pragma region Water_Camera
+//    {
+//        shared_ptr<GameObject> camera = make_shared<GameObject>();
+//        camera->SetName(L"Water_Camera");
+//        camera->AddComponent(make_shared<Transform>());
+//        camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, 800*600
+//        camera->AddComponent(make_shared<TestCameraScript>());
+//        camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 0.f));
+//        camera->GetCamera()->SetProjectionType(PROJECTION_TYPE::ORTHOGRAPHIC);
+//        uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
+//        camera->GetCamera()->SetCullingMaskAll(); // �� ����
+//        camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, false); // UI�� ����
+//        _scene->AddGameObject(camera);
+//    }
+//#pragma endregion
 
 #pragma region UI_Camera
     {
@@ -203,6 +220,7 @@ TestScene::TestScene() {
         obj->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
         obj->GetTransform()->SetLocalPosition(Vec3(200, 1000.f, 50.f));
 
+        obj->SetCheckFrustum(false);
         obj->SetStatic(false);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
@@ -229,6 +247,7 @@ TestScene::TestScene() {
         obj->AddComponent(make_shared<Terrain>());
         obj->AddComponent(make_shared<BoxCollider>());
         obj->AddComponent(make_shared<MeshRenderer>());
+        obj->SetCheckFrustum(false);
 
         obj->GetTransform()->SetLocalScale(Vec3(50.f, 400.f, 50.f));
         obj->GetTransform()->SetLocalPosition(Vec3(-1600.f, -200.f, -1600.f));
@@ -347,6 +366,29 @@ TestScene::TestScene() {
         particle->SetCheckFrustum(false);
         particle->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, -200.f));
         _scene->AddGameObject(particle);
+    }
+#pragma endregion
+
+
+#pragma region Water
+    {
+        shared_ptr<GameObject> obj = make_shared<GameObject>();
+        obj->AddComponent(make_shared<Transform>());
+        obj->GetTransform()->SetLocalScale(Vec3(1000.f, 1.f, 1000.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(0, 80.f, 50.f));
+        obj->SetStatic(true);
+        shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+        {
+            shared_ptr<Mesh> cubeMesh = GET_SINGLETON(Resources)->LoadCubeMesh();
+            meshRenderer->SetMesh(cubeMesh);
+        }
+        {
+            shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Water");
+            meshRenderer->SetMaterial(material->Clone());
+        }
+        obj->AddComponent(meshRenderer);
+
+        _scene->AddGameObject(obj);
     }
 #pragma endregion
 

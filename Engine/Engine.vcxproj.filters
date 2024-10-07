@@ -216,6 +216,7 @@
     <ClCompile Include="DDSTextureLoader12.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="TestWaterScript.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -405,6 +406,7 @@
     <ClInclude Include="DDSTextureLoader12.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="TestWaterScript.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl">
@@ -452,6 +454,9 @@
       <Filter>Shader</Filter>
     </FxCompile>
     <FxCompile Include="..\Resources\Shader\skysphere.fx">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resources\Shader\water.fx">
       <Filter>Shader</Filter>
     </FxCompile>
   </ItemGroup>

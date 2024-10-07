@@ -420,7 +420,6 @@ shared_ptr<class MeshData> Resources::LoadBIN(const wstring& path) {
 }
 
 void Resources::CreateDefaultShader() {
-
     // Skysphere
     {
         ShaderInfo info =
@@ -699,6 +698,30 @@ void Resources::CreateDefaultShader() {
         shader->CreateGraphicsShader(L"..\\Resources\\Shader\\forward.fx", info);
         Add<Shader>(L"Collider", shader);
     }
+
+    // Water
+    {
+        ShaderInfo info =
+        {
+            SHADER_TYPE::DEFERRED,
+            RASTERIZER_TYPE::CULL_BACK,
+            DEPTH_STENCIL_TYPE::LESS,
+            BLEND_TYPE::ALPHA_BLEND,
+        };
+
+        ShaderArg arg =
+        {
+            "VS_Main",
+            "",
+            "",
+            "",
+            "PS_Main",
+        };
+
+        shared_ptr<Shader> shader = make_shared<Shader>();
+        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\water.fx", info, arg);
+        Add<Shader>(L"Water", shader);
+    }
 }
 
 void Resources::CreateDefaultMaterial() {
@@ -881,5 +904,18 @@ void Resources::CreateDefaultMaterial() {
         shared_ptr<Material> material = make_shared<Material>();
         material->SetShader(shader);
         Add<Material>(L"Collider", material);
+    }
+
+    // Water
+    {
+        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Water");
+        shared_ptr<Texture> texture = GET_SINGLETON(Resources)->Load<Texture>(L"Water", L"..\\Resources\\Texture\\Wood.jpg");
+        shared_ptr<Texture> normalTexture = GET_SINGLETON(Resources)->Load<Texture>(L"Water_Normal", L"..\\Resources\\Texture\\Water_Normal.jpg");
+        shared_ptr<Material> material = make_shared<Material>();
+        material->SetShader(shader);
+        material->SetTexture(0, texture);
+        material->SetTexture(1, normalTexture);
+
+        Add<Material>(L"Water", material);
     }
 }
