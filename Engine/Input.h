@@ -19,6 +19,10 @@ public:
     // 마우스 휠 값 가져오기
     int GetMouseWheel() const { return _mouseWheel; }
     POINT GetMousePos() const { return _mousePos; }
+    HCURSOR GetCurrentCursor() const { return _currentCursor; }
+
+    // 커서 설정
+    void SetCurrentCursor(const wstring& name);
 private:
     bool ReadKeyboard();
     bool ReadMouse();
@@ -41,6 +45,6 @@ private:
     POINT _mousePos;
 
     int _mouseWheel = 0;  // 마우스 휠 상태
-
-    HCURSOR _arrowCursor = nullptr;
+    map<wstring, HCURSOR> Cursors;
+    HCURSOR _currentCursor = nullptr;
 };

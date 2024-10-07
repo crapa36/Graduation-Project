@@ -90,34 +90,62 @@ void PhysicsManager::HandleCollision(std::shared_ptr<GameObject> objA, std::shar
         }
     }
 
-    // 충돌 처리 로직
-    if (auto Rigidbody = objA->GetRigidbody()) {
-        Rigidbody->OnCollisionEnter(objB);
-    }
-
-    if (auto otherRigidbody = objB->GetRigidbody()) {
-        otherRigidbody->OnCollisionEnter(objA);
-    }
-
-    // 충돌이 발생하지 않도록 위치 조정
     auto colliderA = objA->GetCollider();
     auto colliderB = objB->GetCollider();
     Vec3 collisionNormal = colliderA->GetCollisionNormal(colliderB);
     float collisionDepth = colliderA->GetCollisionDepth(colliderB);
 
+    // 충돌 처리 로직
+    if (auto RigidbodyA = objA->GetRigidbody()) {
+
+        // objA의 충돌 노말은 그대로 사용
+        RigidbodyA->OnCollisionEnter(objB, collisionNormal, collisionDepth);
+    }
+
+    if (auto RigidbodyB = objB->GetRigidbody()) {
+
+        // objB의 충돌 노말은 반대 방향으로 적용
+        RigidbodyB->OnCollisionEnter(objA, -collisionNormal, collisionDepth);
+    }
+
+    // 충돌이 발생하지 않도록 위치 조정
     if (collisionDepth > 0.0f) {
         auto transformA = objA->GetTransform();
         auto transformB = objB->GetTransform();
         auto positionA = transformA->GetLocalPosition();
         auto positionB = transformB->GetLocalPosition();
+        float MassA = 0.0f;
+        float MassB = 0.0f;
+        if (auto RigidbodyA = objA->GetRigidbody()) {
+            MassA=RigidbodyA->GetMass();
+        }
+        
+        if (auto RigidbodyB = objB->GetRigidbody()) {
+            MassB = RigidbodyB->GetMass();
+        }
+        
+        //Mass의 비율에 따라 위치 조정
+        Vec3 adjustmentA = collisionNormal * (collisionDepth * (MassB / (MassA + MassB)));
+        Vec3 adjustmentB = collisionNormal * (collisionDepth * (MassA / (MassA + MassB)));
+        /*Vec3 adjustmentA = collisionNormal * (collisionDepth / 2.0f);
+        Vec3 adjustmentB = collisionNormal * (collisionDepth / 2.0f);*/
 
-        Vec3 adjustment = Vec3(collisionNormal.x, collisionNormal.y, collisionNormal.z) * (collisionDepth / 2.0f);
+        // 위치 조정
+        if (objA->GetRigidbody()&&objB->GetRigidbody()) {
+            positionA -= adjustmentA;
+            positionB += adjustmentB;
 
-        positionA -= adjustment;
-        positionB += adjustment;
-
-        transformA->SetLocalPosition(positionA);
-        transformB->SetLocalPosition(positionB);
+            transformA->SetLocalPosition(positionA);
+            transformB->SetLocalPosition(positionB);
+        }
+        else if (objA->GetRigidbody()) {
+            positionA -= adjustmentB;
+            transformA->SetLocalPosition(positionA);
+        }
+        else if (objB->GetRigidbody()) {
+            positionB += adjustmentA;
+            transformB->SetLocalPosition(positionB);
+        }
     }
 
     // 충돌 시간 업데이트
@@ -186,10 +214,10 @@ void PhysicsManager::UpdatePhysics() {
 
                 auto terrainCollider = terrain->GetCollider();
                 if (terrainCollider->Intersects(rayOrigin, rayDir, OUT distance) && (heightValue - terrainPosition.y > distance)) {
-                    position.y = heightValue+ gameObject->GetCollider()->GetHeight()-colliderCenter.y;
+                    position.y = heightValue + gameObject->GetCollider()->GetHeight() - colliderCenter.y;
                     transform->SetLocalPosition(position);
                     if (gameObject->GetRigidbody()) {
-                        gameObject->GetRigidbody()->OnCollisionEnter(terrain);
+                        gameObject->GetRigidbody()->OnCollisionEnter(terrain, gameObject->GetCollider()->GetCollisionNormal(terrainCollider), gameObject->GetCollider()->GetCollisionDepth(terrainCollider));
                     }
                     break;  // 한 Terrain과 충돌 시 나머지 Terrain 검사는 필요 없음
                 }

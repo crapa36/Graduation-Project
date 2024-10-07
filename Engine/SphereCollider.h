@@ -17,10 +17,10 @@ public:
 
     virtual float GetHeight() override { return _radius/2; }
     virtual Vec3 GetCenter() override { return _center; }
-
+#ifdef _DEBUG
     virtual void CreateMesh() override;
     virtual void Render() override;
-
+#endif
     void SetRadius(float radius) override { _radius = radius; }
     void SetCenter(Vec3 center) override { _center = center; }
 

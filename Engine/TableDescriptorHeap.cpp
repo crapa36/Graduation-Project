@@ -155,7 +155,15 @@ void ImguiDescriptorHeap::CommitTable() {
     COMPUTE_CMD_LIST->SetComputeRootDescriptorTable(0, handle);
 }
 
+D3D12_CPU_DESCRIPTOR_HANDLE ImguiDescriptorHeap::GetCPUHandle(CBV_REGISTER reg) {
+    return GetCPUHandle(static_cast<uint8>(reg));
+}
+
 D3D12_CPU_DESCRIPTOR_HANDLE ImguiDescriptorHeap::GetCPUHandle(SRV_REGISTER reg) {
+    return GetCPUHandle(static_cast<uint8>(reg));
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE ImguiDescriptorHeap::GetCPUHandle(UAV_REGISTER reg) {
     return GetCPUHandle(static_cast<uint8>(reg));
 }
 

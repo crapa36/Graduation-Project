@@ -11,7 +11,7 @@
 #include <algorithm>
 
 SphereCollider::SphereCollider() : BaseCollider(ColliderType::Sphere) {
-    CreateMesh();
+    
 }
 
 SphereCollider::~SphereCollider() {

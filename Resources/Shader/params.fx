@@ -50,7 +50,10 @@ cbuffer MATERIAL_PARAMS : register(b2)
     int g_tex_on_1;
     int g_tex_on_2;
     int g_tex_on_3;
-
+    int g_tex_on_4;
+    int g_tex_on_5;
+    int g_tex_on_6;
+    int g_tex_on_7;
     float2 g_vec2_0;
     float2 g_vec2_1;
     float2 g_vec2_2;
@@ -71,10 +74,10 @@ Texture2D g_tex_1 : register(t1);
 Texture2D g_tex_2 : register(t2);
 Texture2D g_tex_3 : register(t3);
 Texture2D g_tex_4 : register(t4);
-
+Texture2D g_tex_5 : register(t5);
 
 // TextureCube 텍스처 정의 (큐브맵 추가)
-TextureCube g_texCube : register(t5);
+TextureCube g_texCube : register(t6);
 
 StructuredBuffer<Matrix> g_mat_bone : register(t7);
 
