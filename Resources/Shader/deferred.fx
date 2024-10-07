@@ -75,14 +75,14 @@ PS_OUT PS_Main(VS_OUT input)
     PS_OUT output = (PS_OUT) 0;
 
     float4 color = float4(1.f, 1.f, 1.f, 1.f);
-    if (g_tex_on_0 == 1)
-        color = g_tex_0.Sample(g_sam_0, input.uv);
+    if (g_tex_ons[0] == 1)
+        color = g_textures[0].Sample(g_sam_0, input.uv);
 
     float3 viewNormal = input.viewNormal;
-    if (g_tex_on_1 == 1)
+    if (g_tex_ons[1] == 1)
     {
         // [0,255] 범위에서 [0,1]로 변환
-        float3 tangentSpaceNormal = g_tex_1.Sample(g_sam_0, input.uv).xyz;
+        float3 tangentSpaceNormal = g_textures[1].Sample(g_sam_0, input.uv).xyz;
         // [0,1] 범위에서 [-1,1]로 변환
         tangentSpaceNormal = (tangentSpaceNormal - 0.5f) * 2.f;
         float3x3 matTBN = { input.viewTangent, input.viewBinormal, input.viewNormal };

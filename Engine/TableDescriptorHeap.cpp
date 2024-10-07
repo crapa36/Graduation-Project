@@ -35,6 +35,19 @@ void GraphicsDescriptorHeap::SetSRV(D3D12_CPU_DESCRIPTOR_HANDLE srcHandle, SRV_R
     DEVICE->CopyDescriptors(1, &destHandle, nullptr, 1, &srcHandle, nullptr, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
+
+void GraphicsDescriptorHeap::SetSRVArray(D3D12_CPU_DESCRIPTOR_HANDLE* srcHandles, uint32 count, SRV_REGISTER startRegister) {
+    // Get the starting CPU handle for the specified register
+    D3D12_CPU_DESCRIPTOR_HANDLE destHandle = GetCPUHandle(startRegister);
+
+    // Create descriptor for the texture array
+    for (uint32 i = 0; i < count; ++i) {
+        DEVICE->CopyDescriptorsSimple(1, destHandle, srcHandles[i], D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+        destHandle.ptr += DEVICE->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    }
+}
+
+
 void GraphicsDescriptorHeap::CommitTable() {
     if (_currentGroupIndex >= _groupCount) {
         throw std::out_of_range("Current group index exceeds the number of descriptor groups.");
@@ -90,6 +103,25 @@ void ComputeDescriptorHeap::SetCBV(D3D12_CPU_DESCRIPTOR_HANDLE srcHandle, CBV_RE
 void ComputeDescriptorHeap::SetSRV(D3D12_CPU_DESCRIPTOR_HANDLE srcHandle, SRV_REGISTER reg) {
     D3D12_CPU_DESCRIPTOR_HANDLE destHandle = GetCPUHandle(reg);
     DEVICE->CopyDescriptors(1, &destHandle, nullptr, 1, &srcHandle, nullptr, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+}
+
+
+void ComputeDescriptorHeap::SetSRVArray(D3D12_CPU_DESCRIPTOR_HANDLE* srcHandles, size_t count, SRV_REGISTER startRegister) {
+    
+
+    // Get the starting CPU handle for the specified register.
+    D3D12_CPU_DESCRIPTOR_HANDLE destHandle = GetCPUHandle(startRegister);
+
+    // Update the SRV array in the compute descriptor heap.
+    for (size_t i = 0; i < count; ++i) {
+        // Copy the source SRV handle to the destination handle.
+        DEVICE->CopyDescriptorsSimple(1, destHandle, srcHandles[i], D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+        // Move to the next descriptor handle.
+        destHandle.ptr += _handleSize;
+    }
+
+   
 }
 
 void ComputeDescriptorHeap::SetUAV(D3D12_CPU_DESCRIPTOR_HANDLE srcHandle, UAV_REGISTER reg) {

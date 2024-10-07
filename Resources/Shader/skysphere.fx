@@ -32,7 +32,7 @@ VS_OUT VS_Main(VS_IN input)
 
 float4 PS_Main(VS_OUT input) : SV_Target
 {
-     float4 color = g_tex_0.Sample(g_sam_0, input.uv);
+    float4 color = g_textures[0].Sample(g_sam_0, input.uv);
      return color;
 }
 

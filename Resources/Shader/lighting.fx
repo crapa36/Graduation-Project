@@ -44,11 +44,11 @@ PS_OUT PS_DirLight(VS_OUT input)
 {
     PS_OUT output = (PS_OUT) 0;
 
-    float3 viewPos = g_tex_0.Sample(g_sam_0, input.uv).xyz;
+    float3 viewPos = g_textures[0].Sample(g_sam_0, input.uv).xyz;
     if (viewPos.z <= 0.f)
         clip(-1);
 
-    float3 viewNormal = g_tex_1.Sample(g_sam_0, input.uv).xyz;
+    float3 viewNormal = g_textures[1].Sample(g_sam_0, input.uv).xyz;
 
     LightColor color = CalculateLightColor(g_int_0, viewNormal, viewPos);
 
@@ -69,7 +69,7 @@ PS_OUT PS_DirLight(VS_OUT input)
 
         if (0 < uv.x && uv.x < 1 && 0 < uv.y && uv.y < 1)
         {
-            float shadowDepth = g_tex_2.Sample(g_sam_0, uv).x;
+            float shadowDepth = g_textures[2].Sample(g_sam_0, uv).x;
             if (shadowDepth > 0 && depth > shadowDepth + 0.00001f)
             {
                 color.diffuse *= 0.5f;
@@ -107,7 +107,7 @@ PS_OUT PS_PointLight(VS_OUT input)
 
     // input.pos = SV_Position = Screen ÁÂÇ¥
     float2 uv = float2(input.pos.x / g_vec2_0.x, input.pos.y / g_vec2_0.y);
-    float3 viewPos = g_tex_0.Sample(g_sam_0, uv).xyz;
+    float3 viewPos = g_textures[0].Sample(g_sam_0, uv).xyz;
     if (viewPos.z <= 0.f)
         clip(-1);
 
@@ -117,7 +117,7 @@ PS_OUT PS_PointLight(VS_OUT input)
     if (distance > g_light[lightIndex].range)
         clip(-1);
 
-    float3 viewNormal = g_tex_1.Sample(g_sam_0, uv).xyz;
+    float3 viewNormal = g_textures[1].Sample(g_sam_0, uv).xyz;
 
     LightColor color = CalculateLightColor(g_int_0, viewNormal, viewPos);
 
@@ -147,12 +147,12 @@ float4 PS_Final(VS_OUT input) : SV_Target
 {
     float4 output = (float4) 0;
 
-    float4 lightPower = g_tex_1.Sample(g_sam_0, input.uv);
+    float4 lightPower = g_textures[1].Sample(g_sam_0, input.uv);
     if (lightPower.x == 0.f && lightPower.y == 0.f && lightPower.z == 0.f)
         clip(-1);
 
-    float4 color = g_tex_0.Sample(g_sam_0, input.uv);
-    float4 specular = g_tex_2.Sample(g_sam_0, input.uv);
+    float4 color = g_textures[0].Sample(g_sam_0, input.uv);
+    float4 specular = g_textures[2].Sample(g_sam_0, input.uv);
 
     output = (color * lightPower) + specular;
     return output;
