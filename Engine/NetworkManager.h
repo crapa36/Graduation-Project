@@ -20,6 +20,6 @@ private:
     void send_login_packet(const char* name);
     void cleanup();
 
-    void send_move_packet();
+    void send_move_packet(Vec3 Pos);
    
 };

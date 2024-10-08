@@ -79,10 +79,10 @@ struct CS_PLAYER_MOVE_PACKET {
     uint8_t size;
     PACKET_TYPE	type;
     int id;
-    Vector3_ Position;
+    float x, y, z;
     Vector3_ Rotation;
 
-    CS_PLAYER_MOVE_PACKET() : size(sizeof(CS_PLAYER_MOVE_PACKET)), type(CS_PLAYER_MOVE), id(-1), Position(0.0f, 0.0f, 0.0f), Rotation(0.0f, 0.0f, 0.0f) {}
+    CS_PLAYER_MOVE_PACKET() : size(sizeof(CS_PLAYER_MOVE_PACKET)), type(CS_PLAYER_MOVE), id(-1), x(0.f), y(0.f), z(0.f), Rotation(0.0f, 0.0f, 0.0f) {}
 
 };
 

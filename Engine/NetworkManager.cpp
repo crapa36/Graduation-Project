@@ -20,10 +20,8 @@ void NetworkManager::Init(){
     if (!initialize_winsock()) {
         std::cerr << "Failed to initialize Winsock" << std::endl;
     }
-
     if (!connect_to_server("127.0.0.1")) {
     }
-
     send_login_packet("PlayerName");
 }
 
@@ -32,6 +30,8 @@ void NetworkManager::Update(){
     for (auto gameObject : gameObjects) {
         if (gameObject->GetTransform()) {
             auto worldPos = gameObject->GetTransform()->GetWorldPosition();
+            //방향 가져오기
+            send_move_packet(worldPos);
         }
     }
 }
@@ -96,10 +96,12 @@ void NetworkManager::cleanup()
     WSACleanup();
 }
 
-void NetworkManager::send_move_packet(/*호출자로 컴퍼넌트나 오브젝트 받아와서*/) {
+void NetworkManager::send_move_packet(Vec3 Pos) {
     CS_PLAYER_MOVE_PACKET packet;
     //인자로 받은 애의 정보로 변환
-    /*packet.Position = Object.GetPosition();
-    packet.Rotation = Object.GetRotation();*/
+    packet.x = Pos.x;
+    packet.y = Pos.y;
+    packet.z = Pos.z;
+    //packet.Rotation = Object.GetRotation();
     send(g_socket, reinterpret_cast<char*>(&packet), sizeof(packet), 0);
 }
