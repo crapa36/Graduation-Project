@@ -301,6 +301,11 @@ void Shader::CreateGraphicsShader(ShaderInfo info)
         rt.LogicOpEnable = FALSE;
         rt.SrcBlend = D3D12_BLEND_SRC_ALPHA;
         rt.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+        rt.BlendOp = D3D12_BLEND_OP_ADD;
+        rt.SrcBlendAlpha = D3D12_BLEND_ONE;
+        rt.DestBlendAlpha = D3D12_BLEND_ZERO;
+        rt.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+        rt.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
         break;
     case BLEND_TYPE::ONE_TO_ONE_BLEND:
         rt.BlendEnable = TRUE;
