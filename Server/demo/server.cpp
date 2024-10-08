@@ -4,7 +4,6 @@
 #include <array>
 #include <vector>
 
-//#include "../../Engine/EnginePch.h"
 #include "protocol.h"
 
 
@@ -46,13 +45,13 @@ public:
 	OVER_EXP _recv_over;
 	int _prev_remain;
 	char _name[MAX_NAME_SIZE];
-	Vec3 Position;
+	Vector3_ Position;
 
 	SESSION()
 	{
 		_id = -1;
 		_socket = 0;
-		Position = Vec3(0.0f, 0.0f, 0.0f);
+		Position = Vector3_(0.0f, 0.0f, 0.0f);
 		_name[0] = 0;
 		_state = ST_FREE;
 		_prev_remain = 0;
@@ -82,7 +81,7 @@ public:
 		p.id = _id;
 		p.size = sizeof(SC_LOGIN_INFO_PACKET);
 		p.type = SC_LOGIN_INFO;
-		p.Position = Vec3(0.0f, 0.0f, 0.0f);
+		p.Position = Vector3_(0.0f, 0.0f, 0.0f);
 		do_send(&p);
 	}
 
@@ -182,7 +181,7 @@ void process_packet(int c_id, char* packet)
 	}
 	case CS_PLAYER_MOVE: {
 		CS_PLAYER_MOVE_PACKET* p = reinterpret_cast<CS_PLAYER_MOVE_PACKET*>(packet);
-		Vec3 Pos = clients[c_id].Position;
+		Vector3_ Pos = clients[c_id].Position;
 		
 		for (auto& cl : clients) {
 			if (cl._state != ST_INGAME) continue;

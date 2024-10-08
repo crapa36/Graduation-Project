@@ -24,7 +24,7 @@
 using namespace std;
 
 #include <filesystem>
-namespace fs = std::filesystem;
+namespace fs = filesystem;
 
 #include "d3dx12.h"
 #include "SimpleMath.h"

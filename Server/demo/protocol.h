@@ -1,5 +1,4 @@
 #pragma once
-#include "../../Engine/pch.h"
 #include <cstdint>
 
 constexpr int PORT_NUM = 4000;
@@ -7,7 +6,12 @@ constexpr int BUF_SIZE = 200;
 constexpr int MAX_USER = 10;
 constexpr int MAX_NAME_SIZE = 20;
 
-
+struct Vector3_
+{
+    float x{ 0.f }, y{ 0.f }, z{ 0.f };
+    Vector3_() {};
+    Vector3_(float a, float b, float c) : x(a), y(b), z(c) {}
+};
 
 //ÆÐÅ¶ ID
 enum PACKET_TYPE : uint8_t {
@@ -57,7 +61,7 @@ struct SC_LOGIN_INFO_PACKET {
     uint8_t size;
     PACKET_TYPE	type;
     int	id;
-    Vec3 Position;
+    Vector3_ Position;
     SC_LOGIN_INFO_PACKET() : size(sizeof(SC_LOGIN_INFO_PACKET)), type(PACKET_TYPE::SC_LOGIN_INFO), id(-1), Position(0.0f, 0.0f, 0.0f) {}
 };
 
@@ -65,7 +69,7 @@ struct SC_ADD_PLAYER_PACKET {
     uint8_t size;
     PACKET_TYPE	type;
     int	id;
-    Vec3 Position;
+    Vector3_ Position;
     char	name[MAX_NAME_SIZE];
     SC_ADD_PLAYER_PACKET() : size(sizeof(SC_ADD_PLAYER_PACKET)), type(PACKET_TYPE::SC_ADD_PLAYER), id(-1), Position(0.0f, 0.0f, 0.0f) {}
 };
@@ -75,8 +79,8 @@ struct CS_PLAYER_MOVE_PACKET {
     uint8_t size;
     PACKET_TYPE	type;
     int id;
-    Vec3 Position;
-    Vec3 Rotation;
+    Vector3_ Position;
+    Vector3_ Rotation;
 
     CS_PLAYER_MOVE_PACKET() : size(sizeof(CS_PLAYER_MOVE_PACKET)), type(CS_PLAYER_MOVE), id(-1), Position(0.0f, 0.0f, 0.0f), Rotation(0.0f, 0.0f, 0.0f) {}
 

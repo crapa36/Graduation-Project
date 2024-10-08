@@ -8,6 +8,7 @@
 #include "Light.h"
 #include "Resources.h"
 #include "InstancingManager.h"
+#include "NetworkManager.h"
 
 void Engine::Init(const WindowInfo& info) {
     _window = info;
@@ -25,6 +26,7 @@ void Engine::Init(const WindowInfo& info) {
     _computeDescriptorHeap->Init();
 
     _imguiDescriptorHeap->Init();
+    
 
     CreateConstantBuffer(CBV_REGISTER::b0, sizeof(LightParams), 1);
     CreateConstantBuffer(CBV_REGISTER::b1, sizeof(TransformParams), 256);
@@ -39,6 +41,7 @@ void Engine::Init(const WindowInfo& info) {
     GET_SINGLETON(Resources)->Init();
     GET_SINGLETON(SceneManager)->Init();
     GET_SINGLETON(ImguiManager)->Init(info.hwnd, _device->GetDevice(), *_imguiDescriptorHeap.get());
+    GET_SINGLETON(NetworkManager)->Init();
 }
 
 void Engine::Update() {
@@ -48,7 +51,7 @@ void Engine::Update() {
     GET_SINGLETON(InstancingManager)->ClearBuffer();
     if (_imguiMode)
         GET_SINGLETON(ImguiManager)->Update();
-
+    GET_SINGLETON(NetworkManager)->Update();
     Render();
 
     ShowFps();
