@@ -60,9 +60,7 @@ void Camera::SortGameObject() {
                 continue;
             }
         }
-        if (gameObject->GetParticleSystem()) {
-            _vecParticle.push_back(gameObject);
-        }
+        
         if (gameObject->GetMeshRenderer()) {
             SHADER_TYPE shaderType = gameObject->GetMeshRenderer()->GetMaterial()->GetShader()->GetShaderType();
             switch (shaderType) {
@@ -73,6 +71,9 @@ void Camera::SortGameObject() {
                 _vecForward.push_back(gameObject);
                 break;
             }
+        }
+        if (gameObject->GetParticleSystem()) {
+            _vecParticle.push_back(gameObject);
         }
 #ifdef _DEBUG
         if (GEngine->GetDebugMode()) {

@@ -154,6 +154,11 @@ void Shader::CreateGraphicsShader(const wstring& path, ShaderInfo info, ShaderAr
         rt.LogicOpEnable = FALSE;
         rt.SrcBlend = D3D12_BLEND_SRC_ALPHA;
         rt.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+        rt.BlendOp = D3D12_BLEND_OP_ADD;
+        rt.SrcBlendAlpha = D3D12_BLEND_ONE;
+        rt.DestBlendAlpha = D3D12_BLEND_ZERO;
+        rt.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+        rt.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
         break;
     case BLEND_TYPE::ONE_TO_ONE_BLEND:
         rt.BlendEnable = TRUE;
@@ -283,6 +288,11 @@ void Shader::CreateGraphicsShader(ShaderInfo info)
         _graphicsPipelineDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
         _graphicsPipelineDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
         break;
+    case DEPTH_STENCIL_TYPE::LESS_EQUAL_NO_WRITE:
+        _graphicsPipelineDesc.DepthStencilState.DepthEnable = TRUE;
+        _graphicsPipelineDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+        _graphicsPipelineDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; // 깊이 버퍼 쓰기 비활성화
+        break;
     }
 
     D3D12_RENDER_TARGET_BLEND_DESC& rt = _graphicsPipelineDesc.BlendState.RenderTarget[0];
@@ -298,9 +308,13 @@ void Shader::CreateGraphicsShader(ShaderInfo info)
         break;
     case BLEND_TYPE::ALPHA_BLEND:
         rt.BlendEnable = TRUE;
-        rt.LogicOpEnable = FALSE;
         rt.SrcBlend = D3D12_BLEND_SRC_ALPHA;
         rt.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+        rt.BlendOp = D3D12_BLEND_OP_ADD;
+        rt.SrcBlendAlpha = D3D12_BLEND_ONE;
+        rt.DestBlendAlpha = D3D12_BLEND_ZERO;
+        rt.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+        rt.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
         break;
     case BLEND_TYPE::ONE_TO_ONE_BLEND:
         rt.BlendEnable = TRUE;
