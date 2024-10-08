@@ -185,11 +185,10 @@ void process_packet(int c_id, char* packet)
 	}
 	case CS_PLAYER_MOVE: {
 		CS_PLAYER_MOVE_PACKET* p = reinterpret_cast<CS_PLAYER_MOVE_PACKET*>(packet);
-		float x, y, z;
-		x = p->x;
-		y = p->y;
-		z = p->z;
-		std::cout << x<< ", " << y  << ", " << z << std::endl;
+		clients[c_id].x = p->x;
+		clients[c_id].y = p->y;
+		clients[c_id].z = p->z;
+		//std::cout <<"clients["<< c_id << "] Pos : " << clients[c_id].x << ", " << clients[c_id].y << ", " << clients[c_id].z << std::endl;
 		for (auto& cl : clients) {
 			if (cl._state != ST_INGAME) continue;
 			cl.send_move_packet(c_id);
