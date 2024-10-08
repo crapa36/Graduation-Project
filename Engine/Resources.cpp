@@ -134,6 +134,28 @@ shared_ptr<Mesh> Resources::LoadRectangleMesh() {
     return mesh;
 }
 
+shared_ptr<Mesh> Resources::LoadPlaneMesh()
+{
+    float width = 2;
+    float height = 2;
+
+    std::vector<Vertex> vertices = {
+        Vertex(Vec3(-width / 2, 0, -height / 2), Vec2(0, 0), Vec3(0, 1, 0), Vec3(1, 0, 0)),
+        Vertex(Vec3(width / 2, 0, -height / 2), Vec2(1, 0), Vec3(0, 1, 0), Vec3(1, 0, 0)),
+        Vertex(Vec3(-width / 2, 0, height / 2), Vec2(0, 1), Vec3(0, 1, 0), Vec3(1, 0, 0)),
+        Vertex(Vec3(width / 2, 0, height / 2), Vec2(1, 1), Vec3(0, 1, 0), Vec3(1, 0, 0)),
+    };
+
+    std::vector<uint32> indices = {
+        0, 1, 2,
+        1, 3, 2
+    };
+
+    shared_ptr<Mesh> planeMesh = make_shared<Mesh>();
+    planeMesh->Create(vertices, indices);
+    return planeMesh;
+}
+
 shared_ptr<Mesh> Resources::LoadTerrainMesh(int32 sizeX, int32 sizeZ) {
     vector<Vertex> vec;
 
@@ -704,8 +726,8 @@ void Resources::CreateDefaultShader() {
         ShaderInfo info =
         {
             SHADER_TYPE::FORWARD,
-            RASTERIZER_TYPE::CULL_BACK,
-            DEPTH_STENCIL_TYPE::LESS,
+            RASTERIZER_TYPE::CULL_NONE,
+            DEPTH_STENCIL_TYPE::LESS_EQUAL_NO_WRITE,
             BLEND_TYPE::ALPHA_BLEND,
         };
 
@@ -734,7 +756,7 @@ void Resources::CreateDefaultMaterial() {
         Add<Material>(L"Skysphere", material);
     }
 
-    // Skysphere
+    // Skybox
     {
         shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Skybox");
         shared_ptr<Material> material = make_shared<Material>();
@@ -910,9 +932,12 @@ void Resources::CreateDefaultMaterial() {
     {
         shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Water");
         shared_ptr<Texture> normalTexture = GET_SINGLETON(Resources)->Load<Texture>(L"Water_Normal", L"..\\Resources\\Texture\\Water_Normal.jpg");
+        shared_ptr<CubeMapTexture> cubeTexture = GET_SINGLETON(Resources)->Load<CubeMapTexture>(L"Sky01", L"..\\Resources\\Texture\\SkyBox_0.dds");
+
         shared_ptr<Material> material = make_shared<Material>();
         material->SetShader(shader);
         material->SetTexture(0, normalTexture);
+        material->SetCubeMapTexture(cubeTexture);
 
         Add<Material>(L"Water", material);
     }

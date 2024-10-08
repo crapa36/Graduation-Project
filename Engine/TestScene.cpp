@@ -58,8 +58,6 @@ TestScene::TestScene() {
 
         shared_ptr<GameObject> mainObject = make_shared<GameObject>();
 
-shared_ptr<GameObject> mainObject = make_shared<GameObject>();
-
 mainObject->SetName(L"Main");
 mainObject->SetCheckFrustum(false);
 
@@ -97,7 +95,7 @@ for (auto& gameObject : gameObjects) {
     gameObject->SetParent(mainObject);
 
     gameObject->SetStatic(false);
-    _scene->AddGameObject(gameObject);
+    _scene->AddGameObject(gameObject);  
 }
 #pragma region Camera
 {
@@ -381,13 +379,13 @@ for (auto& gameObject : gameObjects) {
     {
         shared_ptr<GameObject> obj = make_shared<GameObject>();
         obj->AddComponent(make_shared<Transform>());
-        obj->GetTransform()->SetLocalScale(Vec3(1000.f, 1.f, 1000.f));
-        obj->GetTransform()->SetLocalPosition(Vec3(0, 80.f, 50.f));
+        obj->GetTransform()->SetLocalScale(Vec3(200.f, 200.f, 200.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(0.f, 80.f, 50.f));
         obj->SetStatic(true);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
-            shared_ptr<Mesh> cubeMesh = GET_SINGLETON(Resources)->LoadCubeMesh();
-            meshRenderer->SetMesh(cubeMesh);
+            shared_ptr<Mesh> waterMesh = GET_SINGLETON(Resources)->LoadPlaneMesh();
+            meshRenderer->SetMesh(waterMesh);
         }
         {
             shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Water");
