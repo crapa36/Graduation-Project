@@ -381,7 +381,6 @@ void Scene::LoadScene(wstring path) {
                         in >> size;
                         string path;
                         for (int i = 0; i < size; i++) {
-                            
                         }
                     }
                     if (str == "</MeshRenderer>") {

@@ -12,6 +12,8 @@ public:
     void SetCBV(D3D12_CPU_DESCRIPTOR_HANDLE srcHandle, CBV_REGISTER reg);
     void SetSRV(D3D12_CPU_DESCRIPTOR_HANDLE srcHandle, SRV_REGISTER reg);
 
+    void SetSRVArray(D3D12_CPU_DESCRIPTOR_HANDLE* srcHandles, uint32 count, SRV_REGISTER startRegister);
+
     void CommitTable();
 
     ComPtr<ID3D12DescriptorHeap> GetDescriptorHeap() { return _descHeap; }
@@ -42,6 +44,9 @@ public:
 
     void SetCBV(D3D12_CPU_DESCRIPTOR_HANDLE srcHandle, CBV_REGISTER reg);
     void SetSRV(D3D12_CPU_DESCRIPTOR_HANDLE srcHandle, SRV_REGISTER reg);
+   
+    void SetSRVArray(D3D12_CPU_DESCRIPTOR_HANDLE* srcHandles, size_t count, SRV_REGISTER startRegister);
+
     void SetUAV(D3D12_CPU_DESCRIPTOR_HANDLE srcHandle, UAV_REGISTER reg);
 
     void CommitTable();

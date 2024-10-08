@@ -9,28 +9,32 @@ enum {
     MATERIAL_ARG_COUNT = 4,
 };
 
+enum {
+    MAX_TEXTURES = 8,
+};
+
 struct MaterialParams {
     MaterialParams() {
         intParams.fill(0);
         floatParams.fill(0.0f);
-        texOnParams.fill(0);
         vec2Params.fill(Vec2(0.0f, 0.0f));
         vec4Params.fill(Vec4(0.0f, 0.0f, 0.0f, 0.0f));
         matrixParams.fill(Matrix());
+        texOnParams.fill(0);
     }
     void SetInt(uint8 index, int32 value) { intParams[index] = value; }
     void SetFloat(uint8 index, float value) { floatParams[index] = value; }
-    void SetTexOn(uint8 index, int32 value) { texOnParams[index] = value; }
     void SetVec2(uint8 index, Vec2 value) { vec2Params[index] = value; }
     void SetVec4(uint8 index, Vec4 value) { vec4Params[index] = value; }
     void SetMatrix(uint8 index, Matrix& value) { matrixParams[index] = value; }
+    void SetTexOn(uint8 index, int32 value) { texOnParams[index] = value; }
 
     array<int32, MATERIAL_ARG_COUNT> intParams;
     array<float, MATERIAL_ARG_COUNT> floatParams;
-    array<int32, MATERIAL_ARG_COUNT> texOnParams;
     array<Vec2, MATERIAL_ARG_COUNT> vec2Params;
     array<Vec4, MATERIAL_ARG_COUNT> vec4Params;
     array<Matrix, MATERIAL_ARG_COUNT> matrixParams;
+    array<int32, MATERIAL_ARG_COUNT * 2> texOnParams;
 };
 
 class Material : public Object {

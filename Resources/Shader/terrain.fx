@@ -127,7 +127,7 @@ DS_OUT DS_Main(const OutputPatch<HS_OUT, 3> input, float3 location : SV_DomainLo
     int mapHeight = g_vec2_0.y;
 
     float2 fullUV = float2(uv.x / (float) tileCountX, uv.y / (float) tileCountZ);
-    float height = g_tex_2.SampleLevel(g_sam_0, fullUV, 0).x;
+    float height = g_textures[2].SampleLevel(g_sam_0, fullUV, 0).x;
 
     // 높이맵 높이 적용
     localPos.y = height;
@@ -135,10 +135,10 @@ DS_OUT DS_Main(const OutputPatch<HS_OUT, 3> input, float3 location : SV_DomainLo
     float2 deltaUV = float2(1.f / mapWidth, 1.f / mapHeight);
     float2 deltaPos = float2(tileCountX * deltaUV.x, tileCountZ * deltaUV.y);
 
-    float upHeight = g_tex_2.SampleLevel(g_sam_0, float2(fullUV.x, fullUV.y - deltaUV.y), 0).x;
-    float downHeight = g_tex_2.SampleLevel(g_sam_0, float2(fullUV.x, fullUV.y + deltaUV.y), 0).x;
-    float rightHeight = g_tex_2.SampleLevel(g_sam_0, float2(fullUV.x + deltaUV.x, fullUV.y), 0).x;
-    float leftHeight = g_tex_2.SampleLevel(g_sam_0, float2(fullUV.x - deltaUV.x, fullUV.y), 0).x;
+    float upHeight = g_textures[2].SampleLevel(g_sam_0, float2(fullUV.x, fullUV.y - deltaUV.y), 0).x;
+    float downHeight = g_textures[2].SampleLevel(g_sam_0, float2(fullUV.x, fullUV.y + deltaUV.y), 0).x;
+    float rightHeight = g_textures[2].SampleLevel(g_sam_0, float2(fullUV.x + deltaUV.x, fullUV.y), 0).x;
+    float leftHeight = g_textures[2].SampleLevel(g_sam_0, float2(fullUV.x - deltaUV.x, fullUV.y), 0).x;
 
     float3 localTangent = float3(localPos.x + deltaPos.x, rightHeight, localPos.z) - float3(localPos.x - deltaPos.x, leftHeight, localPos.z);
     float3 localBinormal = float3(localPos.x, upHeight, localPos.z + deltaPos.y) - float3(localPos.x, downHeight, localPos.z - deltaPos.y);
@@ -171,21 +171,21 @@ PS_OUT PS_Main(DS_OUT input)
     PS_OUT output = (PS_OUT) 0;
 
     float4 color = float4(1.f, 1.f, 1.f, 1.f);
-    if (g_tex_on_0 == 1)
-        color = g_tex_0.Sample(g_sam_0, input.uv);
+    if (g_tex_ons[0] == 1)
+        color = g_textures[0].Sample(g_sam_0, input.uv);
 
     // Detailed texture 적용
-    if (g_tex_on_3 == 1)
+    if (g_tex_ons[3] == 1)
     {
-        float4 detailedColor = g_tex_3.Sample(g_sam_0, input.uv * 5.0); // 텍스처 타일링
+        float4 detailedColor = g_textures[3].Sample(g_sam_0, input.uv * 5.0); // 텍스처 타일링
         color *= detailedColor;
     }
 
     float3 viewNormal = input.viewNormal;
-    if (g_tex_on_1 == 1)
+    if (g_tex_ons[1] == 1)
     {
         // [0,255] 범위에서 [0,1]로 변환
-        float3 tangentSpaceNormal = g_tex_1.Sample(g_sam_0, input.uv).xyz;
+        float3 tangentSpaceNormal = g_textures[1].Sample(g_sam_0, input.uv).xyz;
         // [0,1] 범위에서 [-1,1]로 변환
         tangentSpaceNormal = (tangentSpaceNormal - 0.5f) * 2.f;
         float3x3 matTBN = { input.viewTangent, input.viewBinormal, input.viewNormal };

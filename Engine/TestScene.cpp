@@ -56,6 +56,8 @@ TestScene::TestScene() {
         wstring path = L"../Resources/BIN/Gunship.bin";
         shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadBIN(path);
 
+        shared_ptr<GameObject> mainObject = make_shared<GameObject>();
+
 shared_ptr<GameObject> mainObject = make_shared<GameObject>();
 
 mainObject->SetName(L"Main");
@@ -73,16 +75,16 @@ shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
 }
 mainObject->AddComponent(meshRenderer);
 
-mainObject->AddComponent(make_shared<BoxCollider>());
-mainObject->AddComponent(make_shared<TestDragonScript>());
-mainObject->AddComponent(make_shared<Rigidbody>());
-dynamic_pointer_cast<BoxCollider>(mainObject->GetCollider())->SetExtents(Vec3(40.f, 30.f, 40.f));
-dynamic_pointer_cast<BoxCollider>(mainObject->GetCollider())->SetCenter(Vec3(0.f, 10.f, 0.f));
-mainObject->GetTransform()->SetLocalPosition(Vec3(0.f, 500.f, 0.f));
-mainObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
-mainObject->GetRigidbody()->SetUseGravity(false);
-mainObject->GetRigidbody()->SetElasticity(0.0f);
-mainObject->GetRigidbody()->SetDrag(0.999f);
+        mainObject->AddComponent(make_shared<BoxCollider>());
+        mainObject->AddComponent(make_shared<TestDragonScript>());
+        mainObject->AddComponent(make_shared<Rigidbody>());
+        dynamic_pointer_cast<BoxCollider>(mainObject->GetCollider())->SetExtents(Vec3(40.f, 30.f, 40.f));
+        dynamic_pointer_cast<BoxCollider>(mainObject->GetCollider())->SetCenter(Vec3(0.f, 10.f, 0.f));
+        mainObject->GetTransform()->SetLocalPosition(Vec3(0.f, 500.f, 0.f));
+        mainObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
+        mainObject->GetRigidbody()->SetUseGravity(false);
+        mainObject->GetRigidbody()->SetElasticity(0.0f);
+        mainObject->GetRigidbody()->SetDrag(0.95f);
 
 mainObject->SetStatic(false);
 _scene->AddGameObject(mainObject);
@@ -263,12 +265,19 @@ for (auto& gameObject : gameObjects) {
 #pragma endregion
 
 #pragma region UI_Test
+    auto height = GEngine->GetWindow().clientHeight;
+    auto width = GEngine->GetWindow().clientWidth;
+
     for (int32 i = 0; i < 6; i++) {
         shared_ptr<GameObject> obj = make_shared<GameObject>();
         obj->SetLayerIndex(GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI")); // UI
         obj->AddComponent(make_shared<Transform>());
-        obj->GetTransform()->SetLocalScale(Vec3(200.f, 200.f, 200.f));
-        obj->GetTransform()->SetLocalPosition(Vec3(-700.f + (i * 260), 350.f, 500.f));
+
+        // 비율로 설정
+
+        obj->GetTransform()->SetLocalScale(Vec3(width / 8, width / 8, 200.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(-width / 2 + ((i + 0.5) * (width / 6)), height / 8 * 3, 500.f));
+
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
             shared_ptr<Mesh> mesh = GET_SINGLETON(Resources)->LoadRectangleMesh();
@@ -320,7 +329,6 @@ for (auto& gameObject : gameObjects) {
     }
 #pragma endregion
 
-
 #pragma region Point Light
     {
         shared_ptr<GameObject> light = make_shared<GameObject>();
@@ -351,7 +359,7 @@ for (auto& gameObject : gameObjects) {
         light->GetLight()->SetAmbient(Vec3(0.0f, 0.0f, 0.1f));
         light->GetLight()->SetSpecular(Vec3(0.0f, 0.0f, 0.1f));
         light->GetLight()->SetLightRange(1000.f);
-        light->GetLight()->SetLightAngle(3.14f / 4);
+        light->GetLight()->SetLightAngle(3.14f / 2);
 
         _scene->AddGameObject(light);
     }
@@ -368,7 +376,6 @@ for (auto& gameObject : gameObjects) {
         _scene->AddGameObject(particle);
     }
 #pragma endregion
-
 
 #pragma region Water
     {
@@ -391,7 +398,6 @@ for (auto& gameObject : gameObjects) {
         _scene->AddGameObject(obj);
     }
 #pragma endregion
-
 }
 TestScene::~TestScene() {
 }
