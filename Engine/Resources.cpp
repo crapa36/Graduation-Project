@@ -523,7 +523,7 @@ void Resources::CreateDefaultShader() {
         {
             SHADER_TYPE::LIGHTING,
             RASTERIZER_TYPE::CULL_NONE,
-            DEPTH_STENCIL_TYPE::GREATER_EQUAL,
+            DEPTH_STENCIL_TYPE::GREATER_EQUAL_NO_WRITE,
             BLEND_TYPE::ONE_TO_ONE_BLEND
         };
 
@@ -796,10 +796,12 @@ void Resources::CreateDefaultMaterial() {
         shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Deferred");
         shared_ptr<Texture> texture = GET_SINGLETON(Resources)->Load<Texture>(L"Pebbles", L"..\\Resources\\Texture\\Pebbles.jpg");
         shared_ptr<Texture> texture2 = GET_SINGLETON(Resources)->Load<Texture>(L"Pebbles_Normal", L"..\\Resources\\Texture\\Pebbles_Normal.jpg");
+
         shared_ptr<Material> material = make_shared<Material>();
         material->SetShader(shader);
         material->SetTexture(0, texture);
         material->SetTexture(1, texture2);
+
         Add<Material>(L"Pebbles", material);
     }
 

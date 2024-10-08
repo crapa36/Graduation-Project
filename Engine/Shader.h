@@ -19,12 +19,15 @@ enum class RASTERIZER_TYPE : uint8 {
 
 enum class DEPTH_STENCIL_TYPE : uint8 {
     LESS,
+    LESS_NO_WRITE,
     LESS_EQUAL,
+    LESS_EQUAL_NO_WRITE,
     GREATER,
+    GREATER_NO_WRITE,
     GREATER_EQUAL,
-    NO_DEPTH_TEST,          // ±Ì¿Ã ≈◊Ω∫∆Æ(x) + ±Ì¿Ã ±‚∑œ(o)
-    NO_DEPTH_TEST_NO_WRITE, // ±Ì¿Ã ≈◊Ω∫∆Æ(x) + ±Ì¿Ã ±‚∑œ(x)
-    LESS_NO_WRITE,          // ±Ì¿Ã ≈◊Ω∫∆Æ(o) + ±Ì¿Ã ±‚∑œ(x)
+    GREATER_EQUAL_NO_WRITE,
+    NO_DEPTH_TEST,
+    NO_DEPTH_TEST_NO_WRITE,
 };
 
 enum class BLEND_TYPE : uint8 {
@@ -71,7 +74,7 @@ public:
     void SetDsBlob(ComPtr<ID3DBlob> Blob) { _dsBlob = Blob; }
     void SetGsBlob(ComPtr<ID3DBlob> Blob) { _gsBlob = Blob; }
     void SetPsBlob(ComPtr<ID3DBlob> Blob) { _psBlob = Blob; }
-    void SetCsBlob(ComPtr<ID3DBlob> Blob){ _csBlob = Blob; }
+    void SetCsBlob(ComPtr<ID3DBlob> Blob) { _csBlob = Blob; }
 
     ComPtr<ID3DBlob> GetVsBlob() { return _vsBlob; }
     ComPtr<ID3DBlob> GetHsBlob() { return _hsBlob; }
