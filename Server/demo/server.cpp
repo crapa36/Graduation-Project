@@ -129,6 +129,7 @@ int get_new_client_id()
 {
 	for (int i = 0; i < MAX_USER; ++i) {
 		if (clients[i]._state == ST_FREE)
+			clients[i]._state = ST_INGAME;
 			return i;
 	}
 	return -1;
@@ -154,10 +155,8 @@ void process_accept(SOCKET client_socket, SOCKADDR_IN& addr, HANDLE h_iocp)
 		closesocket(client_socket);
 		return;
 	}
-
 	clients[new_id]._id = new_id;
 	clients[new_id]._socket = client_socket;
-	clients[new_id]._state = ST_INGAME;
 
 	CreateIoCompletionPort(reinterpret_cast<HANDLE>(client_socket), h_iocp, new_id, 0);
 	clients[new_id].do_recv();
@@ -283,8 +282,6 @@ int main() {
 		}
 
 	}
-
-
 
 	closesocket(server_socket);
 	CloseHandle(h_iocp);
