@@ -129,7 +129,6 @@ int get_new_client_id()
 {
 	for (int i = 0; i < MAX_USER; ++i) {
 		if (clients[i]._state == ST_FREE)
-			clients[i]._state = ST_INGAME;
 			return i;
 	}
 	return -1;
@@ -141,13 +140,13 @@ void disconnect(int c_id)
 		if (ST_INGAME != pl._state) continue;
 		if (pl._id == c_id) continue;
 		pl.send_remove_player_packet(c_id);
-		std::cout << "Client [" << c_id << "] Connected\n";
+		std::cout << "for client number [" << pl._id << "], " << "Client [" << c_id << "] Disconnected\n";
 	}
 	closesocket(clients[c_id]._socket);
 	clients[c_id]._state = ST_FREE;
 }
 
-void process_accept(SOCKET client_socket, SOCKADDR_IN& addr, HANDLE h_iocp)
+void process_accept(SOCKET& client_socket, SOCKADDR_IN& addr, HANDLE h_iocp)
 {
 	int new_id = get_new_client_id();
 	if (new_id == -1) {
@@ -160,11 +159,12 @@ void process_accept(SOCKET client_socket, SOCKADDR_IN& addr, HANDLE h_iocp)
 
 	CreateIoCompletionPort(reinterpret_cast<HANDLE>(client_socket), h_iocp, new_id, 0);
 	clients[new_id].do_recv();
+
 	client_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 	std::cout << "Client [" << new_id << "] Connected\n";
 
-	DWORD flags = 0;
-	WSARecv(client_socket, &clients[new_id]._recv_over._wsabuf, 1, NULL, &flags, &clients[new_id]._recv_over._over, NULL);
+	//DWORD flags = 0;
+	//WSARecv(client_socket, &clients[new_id]._recv_over._wsabuf, 1, NULL, &flags, &clients[new_id]._recv_over._over, NULL);
 }
 
 void process_packet(int c_id, char* packet)
@@ -187,7 +187,7 @@ void process_packet(int c_id, char* packet)
 		clients[c_id].x = p->x;
 		clients[c_id].y = p->y;
 		clients[c_id].z = p->z;
-		//std::cout <<"clients["<< c_id << "] Pos : " << clients[c_id].x << ", " << clients[c_id].y << ", " << clients[c_id].z << std::endl;
+		std::cout <<"clients["<< c_id << "] Pos : " << clients[c_id].x << ", " << clients[c_id].y << ", " << clients[c_id].z << std::endl;
 		for (auto& cl : clients) {
 			if (cl._state != ST_INGAME) continue;
 			cl.send_move_packet(c_id);
@@ -217,11 +217,12 @@ int main() {
 	HANDLE h_iocp;
 	h_iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
 	CreateIoCompletionPort(reinterpret_cast<HANDLE>(server_socket), h_iocp, 9999, 0);
-	SOCKET client_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+	std::vector<SOCKET> client_socket;
+	client_socket.emplace_back(WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED));
 
 	OVER_EXP a_over;
 	a_over._comp_type = OP_ACCEPT;
-	AcceptEx(server_socket, client_socket, a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &a_over._over);
+	AcceptEx(server_socket, client_socket[0], a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &a_over._over);
 
 	while (true) {
 		DWORD num_bytes;
@@ -234,6 +235,7 @@ int main() {
 			else {
 				std::cout << "GQCS Error on client[" << key << "]\n";
 				disconnect(static_cast<int>(key));
+				client_socket.erase(client_socket.begin() + static_cast<int>(key));
 				if (ex_over->_comp_type == OP_SEND) delete ex_over;
 				continue;
 			}
@@ -247,10 +249,25 @@ int main() {
 
 		switch (ex_over->_comp_type) {
 		case OP_ACCEPT: {
-			process_accept(client_socket, cl_addr, h_iocp);
+			int new_id = get_new_client_id();
+			if (new_id != -1) {
+				clients[new_id]._id = new_id;
+				clients[new_id]._state = ST_INGAME;
+				clients[new_id]._socket = client_socket[new_id];
+				clients[new_id]._prev_remain = 0;
+				CreateIoCompletionPort(reinterpret_cast<HANDLE>(client_socket[new_id]), h_iocp, new_id, 0);
+				clients[new_id].do_recv();
 
+				client_socket.emplace_back( WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED));
+				std::cout << "Client [" << new_id << "] Connected\n";
+			}
+			else
+			{
+				std::cout << "no more space" << std::endl;
+			}
 			ZeroMemory(&a_over._over, sizeof(a_over._over));
-			AcceptEx(server_socket, client_socket, a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &a_over._over);
+			new_id = get_new_client_id();
+			AcceptEx(server_socket, client_socket[new_id], a_over._send_buf, 0, addr_size + 16, addr_size + 16, 0, &a_over._over);
 			break;
 		}
 		case OP_RECV: {

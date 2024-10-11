@@ -50,10 +50,12 @@ void NetworkManager::Init(){
 void NetworkManager::Update(){
     auto gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
     for (auto gameObject : gameObjects) {
-        if (gameObject->GetTransform()) {
-            auto worldPos = gameObject->GetTransform()->GetWorldPosition();
-            //방향 가져오기
-            send_move_packet(worldPos);
+        if (gameObject->GetName() == L"Main") {
+            if (gameObject->GetTransform()) {
+                auto worldPos = gameObject->GetTransform()->GetWorldPosition();
+                //방향 가져오기
+                send_move_packet(worldPos);
+            }
         }
     }
     DWORD flags = 0;
@@ -175,7 +177,6 @@ void NetworkManager::cleanup()
 
 void NetworkManager::send_move_packet(Vec3 Pos) {
     CS_PLAYER_MOVE_PACKET packet;
-    //인자로 받은 애의 정보로 변환
     packet.id = client_id;
     packet.x = Pos.x;
     packet.y = Pos.y;
