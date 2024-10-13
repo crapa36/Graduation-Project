@@ -185,6 +185,7 @@ struct TransformParams {
     Matrix matWV;
     Matrix matWVP;
     Matrix matViewInv;
+    Matrix matProjectionInv;
 };
 
 struct AnimFrameParams {

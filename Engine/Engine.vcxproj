@@ -238,8 +238,8 @@
     <ClInclude Include="TestCameraScript.h" />
     <ClInclude Include="TestDragonScript.h" />
     <ClInclude Include="TestPlayerScript.h" />
+    <ClInclude Include="TestReflection.h" />
     <ClInclude Include="TestScene.h" />
-    <ClInclude Include="TestWaterScript.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="TitleScene.h" />
@@ -306,8 +306,8 @@
     <ClCompile Include="TestCameraScript.cpp" />
     <ClCompile Include="TestDragonScript.cpp" />
     <ClCompile Include="TestPlayerScript.cpp" />
+    <ClCompile Include="TestReflection.cpp" />
     <ClCompile Include="TestScene.cpp" />
-    <ClCompile Include="TestWaterScript.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="TitleScene.cpp" />

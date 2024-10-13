@@ -37,6 +37,7 @@ cbuffer TRANSFORM_PARAMS : register(b1)
     row_major matrix g_matWV;
     row_major matrix g_matWVP;
     row_major matrix g_matViewInv;
+    row_major matrix g_matProjectionInv;
 };
 
 cbuffer MATERIAL_PARAMS : register(b2)
@@ -67,13 +68,11 @@ cbuffer MATERIAL_PARAMS : register(b2)
 // Texture2D 텍스처 정의
 Texture2D g_textures[MAX_TEXTURES] : register(t0);
 
-
+Texture2D g_depth : register(t1);
 
 // TextureCube 텍스처 정의 (큐브맵 추가)
 TextureCube g_texCube : register(t6);
 
-// 반사 및 굴절 텍스처 정의
-Texture2D g_reflectionTex : register(t8); // 반사 텍스처
 Texture2D g_refractionTex : register(t9); // 굴절 텍스처
 
 StructuredBuffer<Matrix> g_mat_bone : register(t7);

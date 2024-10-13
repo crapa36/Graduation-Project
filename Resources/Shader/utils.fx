@@ -128,4 +128,44 @@ void Skinning(inout float3 pos, inout float3 normal, inout float3 tangent,
     tangent = normalize(info.tangent);
     normal = normalize(info.normal);
 }
+// 깊이 값을 이용하여 스크린 좌표를 월드 좌표로 변환
+float3 ReconstructPosition(float2 uv, float depth)
+{
+    // NDC 좌표로 변환
+    float4 clipPos = float4(uv * 2.0f - 1.0f, depth, 1.0f);
+    
+    // 월드 좌표로 변환
+    float4 viewPos = mul(g_matProjection, clipPos);
+    viewPos /= viewPos.w; // 동차 좌표 변환
+    return viewPos.xyz;
+}
+
+// 화면 공간에서 레이 트레이싱
+float3 ScreenSpaceRayTracing(float2 uv, float3 rayDir, float currentDepth)
+{
+    float3 reflectedColor = float3(0, 0, 0);
+    float2 currentUV = uv;
+    
+    // 레이의 방향을 따라 이동하면서 깊이 버퍼 샘플링
+    for (int i = 0; i < 50; ++i)
+    {
+        currentUV += rayDir.xy * 0.01; // 이동 거리
+
+        // 화면 경계를 넘어가는 경우 중지
+        if (currentUV.x < 0.0f || currentUV.x > 1.0f || currentUV.y < 0.0f || currentUV.y > 1.0f)
+            break;
+
+        // 현재 위치의 깊이 값 샘플링
+        float sceneDepth = g_textures[2].Sample(g_sam_0, currentUV).r;
+
+        // 깊이 값과 현재 깊이 비교
+        if (sceneDepth < currentDepth) // 깊이를 비교하는 조건 수정
+        {
+            reflectedColor = g_textures[1].Sample(g_sam_0, currentUV).rgb;
+            break;
+        }
+    }
+
+    return reflectedColor;
+}
 #endif

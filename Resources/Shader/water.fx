@@ -2,6 +2,7 @@
 #define _WATER_FX_
 
 #include "params.fx"
+#include "utils.fx"
 
 // 정점 셰이더로 전달될 입력 구조체
 struct VS_IN
@@ -19,22 +20,23 @@ struct VS_OUT
     float2 uv : TEXCOORD;
     float3 viewPos : POSITION;
     float3 viewNormal : NORMAL;
-    float3 viewTangent : TANGENT;
-    float3 viewBinormal : BINORMAL;
+    float3 viewDir : TEXCOORD1;
+    float2 texCoord : TEXCOORD2;
 };
 
 // 정점 셰이더: 정점을 변환하고 필요한 데이터를 픽셀 셰이더로 전달
 VS_OUT VS_Main(VS_IN input)
 {
-    VS_OUT output = (VS_OUT) 0;
+    VS_OUT output;
 
-    output.pos = mul(float4(input.pos, 1.f), g_matWVP);
-    output.uv = input.uv;
+    float4 worldPos = mul(float4(input.pos, 1.0), g_matWorld);
+    float4 viewPos = mul(worldPos, g_matView);
+    output.pos = mul(viewPos, g_matProjection);
 
-    output.viewPos = mul(float4(input.pos, 1.f), g_matWV).xyz;
     output.viewNormal = normalize(mul(float4(input.normal, 0.f), g_matWV).xyz);
-    output.viewTangent = normalize(mul(float4(input.tangent, 0.f), g_matWV).xyz);
-    output.viewBinormal = normalize(cross(output.viewTangent, output.viewNormal));
+    output.uv = worldPos.xyz;
+    output.viewDir = normalize(g_matViewInv[3].xyz - worldPos.xyz);
+    output.texCoord = input.uv;
 
     return output;
 }
@@ -42,34 +44,36 @@ VS_OUT VS_Main(VS_IN input)
 // 픽셀 셰이더: 물의 기본 색상(파란색)을 설정하고 반사, 굴절, 노멀맵 효과를 추가
 float4 PS_Main(VS_OUT input) : SV_TARGET
 {
-    // 기본 물 색상 - 파란색
-    float4 baseColor = float4(0.0, 0.5, 1.0, 1.0); // 파란색 기본 색상
+    // 텍스처 샘플링을 위한 기본 설정
+    float3 normal = normalize(input.viewNormal);
+    float3 viewDir = normalize(input.viewDir);
 
-    // 기본 노멀을 사용
-    float3 perturbedNormal = normalize(input.viewNormal);
+    // **1. 노멀 맵 적용**
+    //float3 normalMapSample = g_textures[0].Sample(g_sam_0, input.texCoord).rgb; // 노멀 맵 샘플링
+    //normalMapSample = normalMapSample * 2.0 - 1.0; // [0, 1] 범위를 [-1, 1]로 변환
+    //normal = normalize(normal + normalMapSample); // 노멀 벡터 보정
 
-    // 반사 벡터 계산
-    float3 viewDir = normalize(g_matViewInv[3].xyz - input.viewPos);
-    float3 reflectionVector = reflect(viewDir, perturbedNormal);
+    // **2. 큐브 맵 반사 적용**
+    float3 reflectedDir = reflect(viewDir, normal);
+    float3 cubeReflection = g_texCube.Sample(g_sam_0, reflectedDir).rgb;
 
-    // 굴절 벡터 계산 (노멀에 기반하여 굴절)
-    float3 refractionVector = refract(viewDir, perturbedNormal, 0.97); // 물의 굴절률(약 0.97)
+    // **3. 실시간 반사(Real-Time Reflection) 적용**
+    float3 reflectionColor = g_textures[1].Sample(g_sam_0, input.texCoord).rgb;
 
-    // 반사 텍스처 샘플링 (큐브 맵을 이용한 환경 맵핑)
-    float4 reflectionColor = g_texCube.Sample(g_sam_0, reflectionVector);
+    // **4. 굴절 계산**
+    float3 refractedDir = refract(viewDir, normal, 1.0 / 1.33); // 물 굴절률 1.33 적용
+    float3 refractionColor = g_refractionTex.Sample(g_sam_0, input.texCoord).rgb;
 
-    // 굴절 텍스처 샘플링 (물 표면의 왜곡을 표현)
-    float4 refractionColor = g_refractionTex.Sample(g_sam_0, input.uv); // 노멀맵 사용하지 않음
+    // **5. Fresnel 효과**
+    float fresnelFactor = pow(1.0 - saturate(dot(viewDir, normal)), 3.0);
 
-    // 반사와 굴절 색상 혼합
-    float4 finalColor = lerp(refractionColor, reflectionColor, 0.5);
+    // **6. 최종 반사 색상 합성**
+    float3 finalReflection = lerp(cubeReflection, reflectionColor, fresnelFactor); // Fresnel 비율에 따라 반사 조합
 
-    // 기본 물 색상에 반사와 굴절을 혼합하여 최종 색상 계산
-    finalColor = lerp(baseColor, reflectionColor, 0.5);
+    // 굴절과의 최종 합성
+    float3 finalColor = lerp(refractionColor, finalReflection, fresnelFactor);
 
-    finalColor.a = 0.5;
-
-    return finalColor;
+    return float4(cubeReflection, 1.0);
 }
 
 #endif

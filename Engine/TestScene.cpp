@@ -16,6 +16,7 @@
 #include "TestCameraScript.h"
 #include "TestPlayerScript.h"
 #include "TestDragonScript.h"
+#include "TestReflection.h"
 
 #include "Resources.h"
 #include "Terrain.h"
@@ -112,64 +113,13 @@ for (auto& gameObject : gameObjects) {
     camera->GetTransform()->SetInheritScale(false);
 
     uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
+    //camera->GetCamera()->SetCullingMaskAll(); // �� ����
     camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UI�� �� ����
     _scene->AddGameObject(camera);
-
-    //#pragma region Player
-    //        {
-    //            shared_ptr<GameObject> player = make_shared<GameObject>();
-    //            player->SetName(L"Player");
-    //            player->AddComponent(make_shared<Transform>());
-    //
-    //            player->AddComponent(make_shared<BoxCollider>());
-    //
-    //            player->GetTransform()->SetLocalScale(Vec3(50.f, 50.f, 50.f));
-    //
-    //            player->AddComponent(make_shared<TestPlayerScript>());
-    //
-    //            player->GetTransform()->SetLocalPosition(Vec3(0.f, -50.f, 200.f));
-    //            player->SetStatic(false);
-    //            shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
-    //            {
-    //                shared_ptr<Mesh> playerMesh = GET_SINGLETON(Resources)->LoadCubeMesh();
-    //                meshRenderer->SetMesh(playerMesh);
-    //            }
-    //            {
-    //                shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Wood");
-    //                meshRenderer->SetMaterial(material->Clone());
-    //            }
-    //            player->GetTransform()->SetParent(camera->GetTransform());
-    //
-    //            player->GetTransform()->SetInheritRotation(false);
-    //            player->GetTransform()->SetInheritScale(false);
-    //
-    //            player->GetCollider()->SetExtents(Vec3(50.f, 50.f, 50.f));
-    //
-    //            player->AddComponent(meshRenderer);
-    //            scene->AddGameObject(player);
-    //        }
-    //#pragma endregion
 }
 #pragma endregion
     }
 #pragma endregion
-
-
-//#pragma region Water_Camera
-//    {
-//        shared_ptr<GameObject> camera = make_shared<GameObject>();
-//        camera->SetName(L"Water_Camera");
-//        camera->AddComponent(make_shared<Transform>());
-//        camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, 800*600
-//        camera->AddComponent(make_shared<TestCameraScript>());
-//        camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 0.f));
-//        camera->GetCamera()->SetProjectionType(PROJECTION_TYPE::ORTHOGRAPHIC);
-//        uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
-//        camera->GetCamera()->SetCullingMaskAll(); // �� ����
-//        camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, false); // UI�� ����
-//        _scene->AddGameObject(camera);
-//    }
-//#pragma endregion
 
 #pragma region UI_Camera
     {
@@ -378,9 +328,10 @@ for (auto& gameObject : gameObjects) {
 #pragma region Water
     {
         shared_ptr<GameObject> obj = make_shared<GameObject>();
+        obj->SetName(L"Water");
         obj->AddComponent(make_shared<Transform>());
-        obj->GetTransform()->SetLocalScale(Vec3(200.f, 200.f, 200.f));
-        obj->GetTransform()->SetLocalPosition(Vec3(0.f, 80.f, 50.f));
+        obj->GetTransform()->SetLocalScale(Vec3(2000.f, 1.f, 2000.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(0.f, 20.f, 50.f));
         obj->SetStatic(true);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
@@ -389,9 +340,30 @@ for (auto& gameObject : gameObjects) {
         }
         {
             shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Water");
-            meshRenderer->SetMaterial(material->Clone());
+            meshRenderer->SetMaterial(material);
         }
         obj->AddComponent(meshRenderer);
+
+    #pragma region Reflection_Camera
+            {
+                shared_ptr<GameObject> reflection_camera = make_shared<GameObject>();
+                reflection_camera->SetName(L"Reflection_Camera");
+                reflection_camera->AddComponent(make_shared<Transform>());
+                reflection_camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, 800*600
+                reflection_camera->AddComponent(make_shared<TestReflection>());
+                reflection_camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 0.f));
+                reflection_camera->GetTransform()->SetParent(obj->GetTransform());
+                reflection_camera->GetTransform()->SetInheritPosition(false);
+                reflection_camera->GetTransform()->SetInheritRotation(false);
+                reflection_camera->GetTransform()->SetInheritScale(false);
+
+                uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
+
+                reflection_camera->GetCamera()->SetCullingMaskAll(); // �� ����
+                reflection_camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UI�� ����
+                _scene->AddGameObject(reflection_camera);
+            }
+    #pragma endregion
 
         _scene->AddGameObject(obj);
     }

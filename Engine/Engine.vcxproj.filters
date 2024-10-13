@@ -216,7 +216,9 @@
     <ClCompile Include="DDSTextureLoader12.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="TestWaterScript.cpp" />
+    <ClCompile Include="TestReflection.cpp">
+      <Filter>Scenes\Scripts</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -406,7 +408,9 @@
     <ClInclude Include="DDSTextureLoader12.h">
       <Filter>Utils</Filter>
     </ClInclude>
-    <ClInclude Include="TestWaterScript.h" />
+    <ClInclude Include="TestReflection.h">
+      <Filter>Scenes\Scripts</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleMath.inl">

@@ -134,8 +134,29 @@ void Texture::CreateFromResource(ComPtr<ID3D12Resource> tex2D) {
         heapDesc.NodeMask = 0;
         DEVICE->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&_dsvHeap));
 
-        D3D12_CPU_DESCRIPTOR_HANDLE hDSVHandle = _dsvHeap->GetCPUDescriptorHandleForHeapStart();
-        DEVICE->CreateDepthStencilView(_tex2D.Get(), nullptr, hDSVHandle);
+        D3D12_CPU_DESCRIPTOR_HANDLE _dsvHeapBegin = _dsvHeap->GetCPUDescriptorHandleForHeapStart();
+        DEVICE->CreateDepthStencilView(_tex2D.Get(), nullptr, _dsvHeapBegin);
+
+        // SRV를 저장할 디스크립터 힙 생성
+        D3D12_DESCRIPTOR_HEAP_DESC srvHeapDesc = {};
+        srvHeapDesc.NumDescriptors = 1;
+        srvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+        srvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE; // 셰이더에서 참조 가능하게 설정
+        DEVICE->CreateDescriptorHeap(&srvHeapDesc, IID_PPV_ARGS(&_srvHeap));
+
+        // SRV 핸들 가져오기
+        _srvHeapBegin = _srvHeap->GetCPUDescriptorHandleForHeapStart();
+
+        // 텍스처의 Shader Resource View(SRV) 생성
+        D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+        srvDesc.Format = DXGI_FORMAT_R32_FLOAT; // SRV는 깊이 값을 플로트로 저장해야 함
+        srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+        srvDesc.Texture2D.MostDetailedMip = 0;
+        srvDesc.Texture2D.MipLevels = 1;
+        srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+        srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+        DEVICE->CreateShaderResourceView(_tex2D.Get(), &srvDesc, _srvHeapBegin);
     }
     else {
         if (_desc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) {

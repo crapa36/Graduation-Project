@@ -1,12 +1,15 @@
 #pragma once
 #include "MonoBehaviour.h"
 
-class TestWaterScript : public MonoBehaviour {
+class TestReflection : public MonoBehaviour
+{
 public:
-    TestWaterScript();
-    virtual ~TestWaterScript();
+    TestReflection();
+    virtual ~TestReflection();
 
     virtual void LateUpdate() override;
 
 private:
+
 };
+
