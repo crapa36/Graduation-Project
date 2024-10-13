@@ -61,17 +61,21 @@ struct SC_LOGIN_INFO_PACKET {
     uint8_t size;
     PACKET_TYPE	type;
     int	id;
-    Vector3_ Position;
-    SC_LOGIN_INFO_PACKET() : size(sizeof(SC_LOGIN_INFO_PACKET)), type(PACKET_TYPE::SC_LOGIN_INFO), id(-1), Position(0.0f, 0.0f, 0.0f) {}
+    float x;
+    float y;
+    float z;
+    SC_LOGIN_INFO_PACKET() : size(sizeof(SC_LOGIN_INFO_PACKET)), type(PACKET_TYPE::SC_LOGIN_INFO), id(-1), x(0.f), y(0.f), z(0.f) {}
 };
 
 struct SC_ADD_PLAYER_PACKET {
     uint8_t size;
     PACKET_TYPE	type;
     int	id;
-    Vector3_ Position;
+    float x;
+    float y;
+    float z;
     char	name[MAX_NAME_SIZE];
-    SC_ADD_PLAYER_PACKET() : size(sizeof(SC_ADD_PLAYER_PACKET)), type(PACKET_TYPE::SC_ADD_PLAYER), id(-1), Position(0.0f, 0.0f, 0.0f) {}
+    SC_ADD_PLAYER_PACKET() : size(sizeof(SC_ADD_PLAYER_PACKET)), type(PACKET_TYPE::SC_ADD_PLAYER), id(-1), x(0.f), y(0.f), z(0.f) {}
 };
 
 
@@ -80,9 +84,9 @@ struct CS_PLAYER_MOVE_PACKET {
     PACKET_TYPE	type;
     int id;
     float x, y, z;
-    Vector3_ Rotation;
+    float rx, ry, rz;
 
-    CS_PLAYER_MOVE_PACKET() : size(sizeof(CS_PLAYER_MOVE_PACKET)), type(CS_PLAYER_MOVE), id(-1), x(0.f), y(0.f), z(0.f), Rotation(0.0f, 0.0f, 0.0f) {}
+    CS_PLAYER_MOVE_PACKET() : size(sizeof(CS_PLAYER_MOVE_PACKET)), type(CS_PLAYER_MOVE), id(-1), x(0.f), y(0.f), z(0.f), rx(0.f), ry(0.f), rz(0.f) {}
 
 };
 

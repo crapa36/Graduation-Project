@@ -130,6 +130,7 @@ void ProcessPacket(char* packet, DWORD dataLength)
     case SC_ADD_PLAYER: {
         SC_ADD_PLAYER_PACKET* p = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(packet);
         std::cout << "New player added. ID: " << p->id << ", Name: " << p->name << std::endl;
+        
         // 여기서 새로운 플레이어 오브젝트를 생성하고 씬에 추가
         // GameObject* newPlayer = CREATE_OBJECT(Player);
         // newPlayer->GetTransform()->SetPosition(p->Position);

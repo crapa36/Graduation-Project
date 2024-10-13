@@ -84,7 +84,9 @@ public:
 		p.id = _id;
 		p.size = sizeof(SC_LOGIN_INFO_PACKET);
 		p.type = SC_LOGIN_INFO;
-		p.Position = Vector3_(0.0f, 0.0f, 0.0f);
+		p.x = x;
+		p.y = y;
+		p.z = z;
 		do_send(&p);
 	}
 
@@ -122,7 +124,9 @@ void SESSION::send_add_player_packet(int c_id)
 	strcpy_s(add_packet.name, clients[c_id]._name);
 	add_packet.size = sizeof(add_packet);
 	add_packet.type = SC_ADD_PLAYER;
-	//add_packet.Position = clients[c_id].Position;
+	add_packet.x = clients[c_id].x;
+	add_packet.y = clients[c_id].y;
+	add_packet.z = clients[c_id].z;
 	do_send(&add_packet);
 }
 
