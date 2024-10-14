@@ -46,7 +46,8 @@ public:
 	OVER_EXP _recv_over;
 	int _prev_remain;
 	char _name[MAX_NAME_SIZE];
-	float x, y, z;
+	float x, y, z;			//위치값
+	float rx, ry, rz;			//방향값
 
 	SESSION()
 	{
@@ -87,6 +88,7 @@ public:
 		p.x = x;
 		p.y = y;
 		p.z = z;
+		
 		do_send(&p);
 	}
 
@@ -114,6 +116,9 @@ void SESSION::send_move_packet(int c_id)
 	p.x = clients[c_id].x;
 	p.y = clients[c_id].y;
 	p.z = clients[c_id].z;
+	p.rx = clients[c_id].rx;
+	p.ry = clients[c_id].ry;
+	p.rz = clients[c_id].rz;
 	do_send(&p);
 }
 

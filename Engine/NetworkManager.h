@@ -4,6 +4,8 @@
 extern SOCKET g_socket;
 extern int client_id;
 
+
+
 void CALLBACK RecvCallback(DWORD error, DWORD dataLength, LPWSAOVERLAPPED overlapped, DWORD flags);
 void ProcessPacket(char* packet, DWORD dataLength);
 class NetworkManager {
@@ -18,11 +20,15 @@ public:
     
 
 private:
+    Vec3 lastSentPosition;
+    float positionThreshold = 0.1f;  // 위치 변경 임계값
+    std::chrono::steady_clock::time_point lastSendTime;
+
     bool initialize_winsock();
     bool connect_to_server(const char* ip_address);
     void send_login_packet(const char* name);
     void cleanup();
 
-    void send_move_packet(Vec3 Pos);
+    void send_move_packet(Vec3 Pos, Vec3 Rot);
    
 };

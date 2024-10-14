@@ -13,6 +13,11 @@ struct Vector3_
     Vector3_(float a, float b, float c) : x(a), y(b), z(c) {}
 };
 
+struct PacketHeader {
+    unsigned short size;
+    unsigned char type;
+};
+
 //ÆÐÅ¶ ID
 enum PACKET_TYPE : uint8_t {
     CS_LOGIN = 0,
