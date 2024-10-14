@@ -4,6 +4,7 @@ enum class CONSTANT_BUFFER_TYPE {
     GLOBAL,
     TRANSFORM,
     MATERIAL,
+    TIME,
     END
 };
 

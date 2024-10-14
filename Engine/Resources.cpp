@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "Frustum.h"
 #include "Mesh.h"
+#include "Timer.h"
 
 void Resources::Init() {
     CreateDefaultShader();
@@ -940,6 +941,7 @@ void Resources::CreateDefaultMaterial() {
         shared_ptr<Texture> screenTexture = GEngine->GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE::REFLECTION)->GetRTTexture(0);
         shared_ptr<CubeMapTexture> cubeTexture = GET_SINGLETON(Resources)->Load<CubeMapTexture>(L"Sky01", L"..\\Resources\\Texture\\SkyBox_0.dds");
 
+       
         shared_ptr<Material> material = make_shared<Material>();
         material->SetShader(shader);
         material->SetTexture(0, normalTexture);
@@ -947,6 +949,8 @@ void Resources::CreateDefaultMaterial() {
         material->SetTexture(2, depthTexture);
         material->SetCubeMapTexture(cubeTexture);
 
+        material->SetFloat(0, GET_SINGLETON(Timer)->GetDeltaTime());
+        material->SetFloat(1, GET_SINGLETON(Timer)->GetTotalTime());
 
         Add<Material>(L"Water", material);
     }

@@ -25,6 +25,7 @@ public:
 
 private:
     void PushLightData();
+    void PushTimeData();
 
 public:
     void AddGameObject(shared_ptr<GameObject> gameObject);

@@ -29,6 +29,7 @@ void Engine::Init(const WindowInfo& info) {
     CreateConstantBuffer(CBV_REGISTER::b0, sizeof(LightParams), 1);
     CreateConstantBuffer(CBV_REGISTER::b1, sizeof(TransformParams), 256);
     CreateConstantBuffer(CBV_REGISTER::b2, sizeof(MaterialParams), 256);
+    CreateConstantBuffer(CBV_REGISTER::b3, sizeof(TimeParams), 256);
 
     CreateRenderTargetGroups();
 

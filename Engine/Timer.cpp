@@ -4,12 +4,15 @@
 void Timer::Init(){
     
     _prevTime = Clock::now();
+    _firstTime = Clock::now();
 }
 
 void Timer::Update() {
     TimePoint currentTime = Clock::now();
     std::chrono::duration<float> elapsedTime = currentTime - _prevTime;
+    std::chrono::duration<float> totalTime = currentTime - _firstTime;
     _deltaTime = elapsedTime.count();
+    _totalTime = totalTime.count();
     _prevTime = currentTime;
 
     _frameCount++;

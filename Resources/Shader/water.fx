@@ -49,8 +49,15 @@ float4 PS_Main(VS_OUT input) : SV_TARGET
     float3 viewDir = normalize(input.viewDir);
     float3 baseColor = float3(0.0f, 0.5f, 1.0f);
     
+    // **0. 물의 흐름
+    float time = g_float_0; // 시간 값
+    float2 scrollSpeed = float2(0.1, 0.05); // 물 흐름의 속도 (x, y 방향)
+
+    float2 scrolledTexCoord = input.texCoord + scrollSpeed * time; // UV 좌표 이동
+
+    
     // **1. 노멀 맵 적용**
-    float3 normalMapSample = g_textures[0].Sample(g_sam_0, input.texCoord).rgb; // 노멀 맵 샘플링
+    float3 normalMapSample = g_textures[0].Sample(g_sam_0, scrolledTexCoord).rgb; // 노멀 맵 샘플링
     normalMapSample = normalMapSample * 2.0 - 1.0; // [0, 1] 범위를 [-1, 1]로 변환
     
     // **2. 큐브 맵 반사 적용**
@@ -74,7 +81,13 @@ float4 PS_Main(VS_OUT input) : SV_TARGET
     //float3 finalColor = lerp(refractionColor, finalReflection, fresnelFactor);
     float3 finalColor = lerp(cubeReflection, baseColor, 0.5f);
 
-    return float4(cubeReflection, 0.5f);
+    //return float4(cubeReflection, 1.0f);
+    
+    // 시간값이 제대로 넘어오는지 확인하기 위한 테스트
+    float testValue = g_float_0; // g_totalTime 사용
+
+    // 테스트로 시간값을 기반으로 색상을 변화시킴
+    return float4(0.f, 0.f, testValue, 1.0);
 }
 
 #endif

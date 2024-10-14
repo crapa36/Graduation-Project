@@ -188,11 +188,19 @@ struct TransformParams {
     Matrix matProjectionInv;
 };
 
+struct TimeParams
+{
+    float totalTime;  // 전체 시간 (누적 시간)
+    float deltaTime;  // 프레임 시간 (델타 시간)
+    float padding[2]; // 패딩으로 16바이트 정렬 맞추기
+};
+
 struct AnimFrameParams {
     Vec4 scale;
     Vec4 rotation;
     Vec4 translate;
 };
+
 
 extern unique_ptr<class Engine> GEngine;
 
