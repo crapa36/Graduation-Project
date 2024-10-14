@@ -20,9 +20,9 @@ public:
     
 
 private:
-    Vec3 lastSentPosition;
-    float positionThreshold = 0.1f;  // 위치 변경 임계값
-    std::chrono::steady_clock::time_point lastSendTime;
+    Vec3 lastSentPosition;                              //최근 위치
+    float positionThreshold = 0.1f;                     // 위치 변경 임계값
+    std::chrono::steady_clock::time_point lastSendTime; //최근 위치수정시간
 
     bool initialize_winsock();
     bool connect_to_server(const char* ip_address);
