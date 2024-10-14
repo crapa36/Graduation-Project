@@ -4,6 +4,7 @@
 #include <array>
 #include <vector>
 #include <unordered_map>
+#include <string>
 
 #include "protocol.h"
 
@@ -45,7 +46,7 @@ public:
 	S_STATE _state;
 	OVER_EXP _recv_over;
 	int _prev_remain;
-	char _name[MAX_NAME_SIZE];
+	std::wstring _name;
 	float x, y, z;			//위치값
 	float rx, ry, rz;			//방향값
 
@@ -56,7 +57,7 @@ public:
 		x = 0.f;
 		y = 0.f;
 		z = 0.f;
-		_name[0] = 0;
+		_name = L"\0";
 		_state = ST_FREE;
 		_prev_remain = 0;
 	}
@@ -126,7 +127,7 @@ void SESSION::send_add_player_packet(int c_id)
 {
 	SC_ADD_PLAYER_PACKET add_packet;
 	add_packet.id = c_id;
-	strcpy_s(add_packet.name, clients[c_id]._name);
+	add_packet.name = clients[c_id]._name;
 	add_packet.size = sizeof(add_packet);
 	add_packet.type = SC_ADD_PLAYER;
 	add_packet.x = clients[c_id].x;
@@ -161,7 +162,10 @@ void process_packet(int c_id, char* packet)
 	switch (packet[1]) {
 	case CS_LOGIN: {
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
-		strcpy_s(clients[c_id]._name, p->name);
+		clients[c_id]._name = p->name;
+		clients[c_id].x = p->x;
+		clients[c_id].y = p->y;
+		clients[c_id].z = p->z;
 		clients[c_id].send_login_info_packet();
 		for (auto& pl : clients) {
 			if (ST_INGAME != pl._state) continue;

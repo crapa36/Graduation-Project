@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <cstdint>
 
 constexpr int PORT_NUM = 4000;
@@ -35,11 +36,11 @@ enum PACKET_TYPE : uint8_t {
 struct CS_LOGIN_PACKET {
     uint8_t size;
     PACKET_TYPE type;
-    char name[MAX_NAME_SIZE];
-
-    CS_LOGIN_PACKET() : size(sizeof(CS_LOGIN_PACKET)), type(CS_LOGIN) {
-        name[0] = '\0';
-    }
+    std::wstring name;
+    float x;
+    float y;
+    float z;
+    CS_LOGIN_PACKET() : size(sizeof(CS_LOGIN_PACKET)), type(CS_LOGIN),name(L"\0"), x(0.f), y(0.f), z(0.f) {}
 };
 
 
@@ -79,8 +80,8 @@ struct SC_ADD_PLAYER_PACKET {
     float x;
     float y;
     float z;
-    char	name[MAX_NAME_SIZE];
-    SC_ADD_PLAYER_PACKET() : size(sizeof(SC_ADD_PLAYER_PACKET)), type(PACKET_TYPE::SC_ADD_PLAYER), id(-1), x(0.f), y(0.f), z(0.f), name("\0") {}
+    std::wstring name;
+    SC_ADD_PLAYER_PACKET() : size(sizeof(SC_ADD_PLAYER_PACKET)), type(PACKET_TYPE::SC_ADD_PLAYER), id(-1), x(0.f), y(0.f), z(0.f), name(L"\0") {}
 };
 
 

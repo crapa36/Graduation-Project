@@ -1,4 +1,5 @@
 #pragma once
+#include "GameObject.h"
 #pragma comment(lib, "ws2_32.lib")
 
 extern SOCKET g_socket;
@@ -17,7 +18,7 @@ public:
     void Update();
     void LateUpdate();
     void FinalUpdate();
-    
+    void send_login_packet(GameObject oj);
 
 private:
     Vec3 lastSentPosition;                              //최근 위치
@@ -26,7 +27,7 @@ private:
 
     bool initialize_winsock();
     bool connect_to_server(const char* ip_address);
-    void send_login_packet(const char* name);
+    
     void cleanup();
 
     void send_move_packet(Vec3 Pos, Vec3 Rot);

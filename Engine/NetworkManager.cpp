@@ -52,12 +52,14 @@ void NetworkManager::Init(){
     }
     if (!connect_to_server("127.0.0.1")) {
     }
-    send_login_packet("PlayerName");
+    
     g_recv_over._wsabuf.len = BUF_SIZE;
     g_recv_over._wsabuf.buf = g_recv_over._send_buf;
     DWORD flags = 0;
     WSARecv(g_socket, &g_recv_over._wsabuf, 1, NULL, &flags, &g_recv_over._over, RecvCallback);
 }
+
+
 
 void NetworkManager::Update(){
     auto gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
@@ -120,11 +122,14 @@ bool NetworkManager::connect_to_server(const char* ip_address)
     return true;
 }
 
-void NetworkManager::send_login_packet(const char* name)
+void NetworkManager::send_login_packet(GameObject oj)
 {
     CS_LOGIN_PACKET packet;
-    strncpy_s(packet.name, name, MAX_NAME_SIZE);
-    packet.name[MAX_NAME_SIZE - 1] = '\0'; // Ensure null-termination
+    
+    packet.name = oj.GetName();
+    packet.x = oj.GetTransform()->GetLocalPosition().x;
+    packet.y = oj.GetTransform()->GetLocalPosition().y;
+    packet.z = oj.GetTransform()->GetLocalPosition().z;
     
     
 
@@ -154,7 +159,7 @@ void ProcessPacket(char* packet, DWORD dataLength)
     }
     case SC_ADD_PLAYER: {
         SC_ADD_PLAYER_PACKET* p = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(packet);
-        std::cout << "New player added. ID: " << p->id << ", Name: " << p->name << std::endl;
+        //std::cout << "New player added. ID: " << p->id << ", Name: " << p->name << std::endl;
         {
             wstring path = L"../Resources/BIN/Gunship.bin";
             shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadBIN(path);
@@ -188,8 +193,8 @@ void ProcessPacket(char* packet, DWORD dataLength)
             mainObject->GetRigidbody()->SetDrag(0.95f);
 
             mainObject->SetStatic(false);
-            shared_ptr<Scene> scene = GET_SINGLETON(SceneManager)->GetActiveScene();
-            scene->AddGameObject(mainObject);
+            GET_SINGLETON(SceneManager)->GetActiveScene()->AddGameObject(mainObject);
+           
 
             vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
 
@@ -199,7 +204,7 @@ void ProcessPacket(char* packet, DWORD dataLength)
                 gameObject->SetParent(mainObject);
 
                 gameObject->SetStatic(false);
-                scene->AddGameObject(gameObject);
+                GET_SINGLETON(SceneManager)->GetActiveScene()->AddGameObject(gameObject);
             }
         }
         break;
