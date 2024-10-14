@@ -144,13 +144,8 @@ void ProcessPacket(char* packet, DWORD dataLength)
         return;
     }
 
-    PacketHeader* header = reinterpret_cast<PacketHeader*>(packet);
-    if (header->size != dataLength) {
-        std::cerr << "Packet size mismatch" << std::endl;
-        return;
-    }
-
-    switch (header->type) {  // packet[1]은 패킷 타입을 나타낸다고 가정
+    
+    switch (packet[1]) {  // packet[1]은 패킷 타입을 나타낸다고 가정
     case SC_LOGIN_INFO: {
         SC_LOGIN_INFO_PACKET* p = reinterpret_cast<SC_LOGIN_INFO_PACKET*>(packet);
         std::cout << "Login confirmed. Assigned ID: " << p->id << std::endl;
@@ -235,18 +230,8 @@ void CALLBACK RecvCallback(DWORD error, DWORD dataLength, LPWSAOVERLAPPED overla
         return;
     }
 
-    // 완전한 패킷이 도착했는지 확인하고 처리
-    while (g_packetBuffer.dataSize >= sizeof(PacketHeader)) {
-        PacketHeader* header = reinterpret_cast<PacketHeader*>(g_packetBuffer.buffer);
-        if (g_packetBuffer.dataSize >= header->size) {
-            ProcessPacket(g_packetBuffer.buffer, header->size);
-            memmove(g_packetBuffer.buffer, g_packetBuffer.buffer + header->size, g_packetBuffer.dataSize - header->size);
-            g_packetBuffer.dataSize -= header->size;
-        }
-        else {
-            break;  // 완전한 패킷이 아직 도착하지 않음
-        }
-    }
+    // 패킷 처리
+    ProcessPacket(g_recv_over._send_buf, dataLength);
 
     // 다음 수신 대기
     flags = 0;

@@ -26,7 +26,7 @@ enum PACKET_TYPE : uint8_t {
     SC_LOGIN_INFO,
     SC_ADD_PLAYER,
     CS_PLAYER_MOVE,
-    SC_REMOVE_PLAYER = 5,
+    SC_REMOVE_PLAYER,
 
     // ... other packet types ...
 };
@@ -80,7 +80,7 @@ struct SC_ADD_PLAYER_PACKET {
     float y;
     float z;
     char	name[MAX_NAME_SIZE];
-    SC_ADD_PLAYER_PACKET() : size(sizeof(SC_ADD_PLAYER_PACKET)), type(PACKET_TYPE::SC_ADD_PLAYER), id(-1), x(0.f), y(0.f), z(0.f) {}
+    SC_ADD_PLAYER_PACKET() : size(sizeof(SC_ADD_PLAYER_PACKET)), type(PACKET_TYPE::SC_ADD_PLAYER), id(-1), x(0.f), y(0.f), z(0.f), name("\0") {}
 };
 
 
