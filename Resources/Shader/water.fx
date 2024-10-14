@@ -33,7 +33,7 @@ VS_OUT VS_Main(VS_IN input)
     float4 viewPos = mul(worldPos, g_matView);
     output.pos = mul(viewPos, g_matProjection);
 
-    output.viewNormal = normalize(mul(float4(input.normal, 0.f), g_matWV).xyz);
+    output.viewNormal = normalize(mul(float4(input.normal, 0.f), g_matWorld).xyz);
     output.uv = worldPos.xyz;
     output.viewDir = normalize(g_matViewInv[3].xyz - worldPos.xyz);
     output.texCoord = input.uv;
@@ -47,14 +47,14 @@ float4 PS_Main(VS_OUT input) : SV_TARGET
     // 텍스처 샘플링을 위한 기본 설정
     float3 normal = normalize(input.viewNormal);
     float3 viewDir = normalize(input.viewDir);
-
+    float3 baseColor = float3(0.0f, 0.5f, 1.0f);
+    
     // **1. 노멀 맵 적용**
-    //float3 normalMapSample = g_textures[0].Sample(g_sam_0, input.texCoord).rgb; // 노멀 맵 샘플링
-    //normalMapSample = normalMapSample * 2.0 - 1.0; // [0, 1] 범위를 [-1, 1]로 변환
-    //normal = normalize(normal + normalMapSample); // 노멀 벡터 보정
-
+    float3 normalMapSample = g_textures[0].Sample(g_sam_0, input.texCoord).rgb; // 노멀 맵 샘플링
+    normalMapSample = normalMapSample * 2.0 - 1.0; // [0, 1] 범위를 [-1, 1]로 변환
+    
     // **2. 큐브 맵 반사 적용**
-    float3 reflectedDir = reflect(viewDir, normal);
+    float3 reflectedDir = reflect(viewDir, normalMapSample);
     float3 cubeReflection = g_texCube.Sample(g_sam_0, reflectedDir).rgb;
 
     // **3. 실시간 반사(Real-Time Reflection) 적용**
@@ -71,9 +71,10 @@ float4 PS_Main(VS_OUT input) : SV_TARGET
     float3 finalReflection = lerp(cubeReflection, reflectionColor, fresnelFactor); // Fresnel 비율에 따라 반사 조합
 
     // 굴절과의 최종 합성
-    float3 finalColor = lerp(refractionColor, finalReflection, fresnelFactor);
+    //float3 finalColor = lerp(refractionColor, finalReflection, fresnelFactor);
+    float3 finalColor = lerp(cubeReflection, baseColor, 0.5f);
 
-    return float4(cubeReflection, 1.0);
+    return float4(cubeReflection, 0.5f);
 }
 
 #endif
