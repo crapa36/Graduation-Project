@@ -170,6 +170,7 @@ void Engine::CreateRenderTargetGroups() {
 
     // Lighting Group
     {
+        shared_ptr<Texture> lightingDSTexture = dsTexture->Clone();
         vector<RenderTarget> rtVec(RENDER_TARGET_LIGHTING_GROUP_MEMBER_COUNT);
 
         rtVec[0].target = GET_SINGLETON(Resources)->CreateTexture(L"DiffuseLightTarget",
@@ -183,6 +184,6 @@ void Engine::CreateRenderTargetGroups() {
                                                                   D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
         _renderTargetGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::LIGHTING)] = make_shared<RenderTargetGroup>();
-        _renderTargetGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::LIGHTING)]->Create(RENDER_TARGET_GROUP_TYPE::LIGHTING, rtVec, dsTexture);
+        _renderTargetGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::LIGHTING)]->Create(RENDER_TARGET_GROUP_TYPE::LIGHTING, rtVec, lightingDSTexture);
     }
 }

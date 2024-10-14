@@ -41,6 +41,8 @@ public:
     // 픽셀 데이터를 반환하는 메서드
     Vec4 GetPixel(uint32 x, uint32 y);
 
+    shared_ptr<Texture> Clone();
+
 protected:
     // 멤버 변수들
     std::wstring                    _path = L"";                 // 텍스처 파일 경로
