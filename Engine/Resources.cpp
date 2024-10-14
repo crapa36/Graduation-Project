@@ -595,8 +595,8 @@ void Resources::CreateDefaultShader() {
         ShaderInfo info =
         {
             SHADER_TYPE::PARTICLE,
-            RASTERIZER_TYPE::CULL_BACK,
-            DEPTH_STENCIL_TYPE::LESS,
+            RASTERIZER_TYPE::CULL_NONE,
+            DEPTH_STENCIL_TYPE::LESS_EQUAL_NO_WRITE,
             BLEND_TYPE::ALPHA_BLEND,
             D3D_PRIMITIVE_TOPOLOGY_POINTLIST
         };
@@ -714,6 +714,8 @@ void Resources::CreateDefaultShader() {
         {
             SHADER_TYPE::FORWARD,
             RASTERIZER_TYPE::WIREFRAME,
+            DEPTH_STENCIL_TYPE::NO_DEPTH_TEST_NO_WRITE,
+
         };
 
         shared_ptr<Shader> shader = make_shared<Shader>();

@@ -314,3 +314,23 @@ Vec4 Texture::GetPixel(uint32 x, uint32 y) {
 
     return color;
 }
+
+shared_ptr<Texture> Texture::Clone() {
+    shared_ptr<Texture> texture = make_shared<Texture>();
+
+    texture->_path = _path;
+    HRESULT hr = texture->_image.Initialize(_image.GetMetadata());
+    if (SUCCEEDED(hr)) {
+        memcpy(texture->_image.GetPixels(), _image.GetPixels(), _image.GetPixelsSize());
+    }
+    texture->_desc = _desc;
+    texture->_tex2D = _tex2D;
+    texture->_srvHeap = _srvHeap;
+    texture->_rtvHeap = _rtvHeap;
+    texture->_dsvHeap = _dsvHeap;
+    texture->_uavHeap = _uavHeap;
+    texture->_srvHeapBegin = _srvHeapBegin;
+    texture->_uavHeapBegin = _uavHeapBegin;
+
+    return texture;
+}

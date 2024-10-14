@@ -58,6 +58,7 @@ void Scene::Render() {
     RenderFinal();
 
     RenderForward();
+
 }
 
 void Scene::ClearRTV() {
@@ -127,6 +128,8 @@ void Scene::RenderFinal() {
 }
 
 void Scene::RenderForward() {
+
+
     shared_ptr<Camera> mainCamera = _cameras[0];
     mainCamera->Render_Forward();
 
