@@ -70,7 +70,6 @@ void GraphicsCommandQueue::RenderBegin() {
 
     GEngine->GetConstantBuffer(CONSTANT_BUFFER_TYPE::TRANSFORM)->Clear();
     GEngine->GetConstantBuffer(CONSTANT_BUFFER_TYPE::MATERIAL)->Clear();
-    GEngine->GetConstantBuffer(CONSTANT_BUFFER_TYPE::TIME)->Clear();
 
     GEngine->GetGraphicsDescriptorHeap()->Clear();
 

@@ -46,7 +46,6 @@ void Scene::FinalUpdate() {
 
 void Scene::Render() {
     PushLightData();
-    PushTimeData();
 
     ClearRTV();
 
@@ -164,15 +163,6 @@ void Scene::PushLightData() {
 
     CONST_BUFFER(CONSTANT_BUFFER_TYPE::GLOBAL)->SetGraphicsGlobalData(&lightParams, sizeof(lightParams));
 }
-
-void Scene::PushTimeData() {
-    TimeParams timeParams = {};
-    timeParams.deltaTime = GET_SINGLETON(Timer)->GetDeltaTime();
-    timeParams.totalTime = GET_SINGLETON(Timer)->GetTotalTime();
- 
-    CONST_BUFFER(CONSTANT_BUFFER_TYPE::TIME)->PushGraphicsData(&timeParams, sizeof(timeParams));
-}
-
 
 void Scene::AddGameObject(shared_ptr<GameObject> gameObject) {
     if (gameObject->GetCamera() != nullptr) {

@@ -2,12 +2,14 @@
 #include "Material.h"
 #include "Engine.h"
 #include "CubeMapTexture.h"
+#include "Timer.h"
 
 Material::Material() : Object(OBJECT_TYPE::MATERIAL) {
 }
 
 Material::~Material() {
 }
+
 void Material::PushGraphicsData() {
     // CBV upload (constant buffer for material parameters)
     CONST_BUFFER(CONSTANT_BUFFER_TYPE::MATERIAL)->PushGraphicsData(&_params, sizeof(_params));

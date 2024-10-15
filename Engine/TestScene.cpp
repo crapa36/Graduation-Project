@@ -17,6 +17,7 @@
 #include "TestPlayerScript.h"
 #include "TestDragonScript.h"
 #include "TestReflection.h"
+#include "TestWaterScript.h"
 
 #include "Resources.h"
 #include "Terrain.h"
@@ -330,6 +331,7 @@ for (auto& gameObject : gameObjects) {
         shared_ptr<GameObject> obj = make_shared<GameObject>();
         obj->SetName(L"Water");
         obj->AddComponent(make_shared<Transform>());
+        obj->AddComponent(make_shared<TestWaterScript>());
         obj->GetTransform()->SetLocalScale(Vec3(2000.f, 1.f, 2000.f));
         obj->GetTransform()->SetLocalPosition(Vec3(0.f, 20.f, 50.f));
         obj->SetStatic(true);
