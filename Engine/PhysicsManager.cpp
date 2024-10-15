@@ -36,6 +36,9 @@ shared_ptr<GameObject> PhysicsManager::Pick(int32 screenX, int32 screenY) {
     shared_ptr<GameObject> picked;
 
     for (auto& gameObject : gameObjects) {
+        if (!gameObject->IsEnable())
+            continue;
+
         if (gameObject->GetCollider() == nullptr)
             continue;
 
@@ -166,7 +169,11 @@ void PhysicsManager::UpdatePhysics() {
     size_t gameObjectCount = gameObjects.size();
 
     for (size_t i = 0; i < gameObjectCount; ++i) {
+
         const auto& gameObject = gameObjects[i];
+
+        if (!gameObject->IsEnable())
+            continue;
         auto collider = gameObject->GetCollider();
         auto rigidbody = gameObject->GetRigidbody();
 

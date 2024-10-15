@@ -47,6 +47,8 @@ void Camera::SortGameObject() {
 #endif
 
     for (auto& gameObject : gameObjects) {
+        if (!gameObject->IsEnable())
+            continue;
         if (IsCulled(gameObject->GetLayerIndex()))
             continue;
 
@@ -92,6 +94,8 @@ void Camera::SortShadowObject() {
     _vecShadow.clear();
 
     for (auto& gameObject : gameObjects) {
+        if (!gameObject->IsEnable())
+            continue;
         if (gameObject->GetMeshRenderer() == nullptr)
             continue;
 

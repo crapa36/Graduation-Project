@@ -16,6 +16,7 @@
 #include "TestCameraScript.h"
 #include "TestPlayerScript.h"
 #include "TestDragonScript.h"
+#include "MenuScript.h"
 #include "TestReflection.h"
 
 #include "Resources.h"
@@ -212,7 +213,7 @@ for (auto& gameObject : gameObjects) {
     }
 #pragma endregion
 
-#pragma region UI_Test
+/*#pragma region UI_Test
     auto height = GEngine->GetWindow().clientHeight;
     auto width = GEngine->GetWindow().clientWidth;
 
@@ -250,7 +251,88 @@ for (auto& gameObject : gameObjects) {
         obj->AddComponent(meshRenderer);
         _scene->AddGameObject(obj);
     }
+#pragma endregion*/
+
+
+#pragma region Menu
+    {
+        auto height = GEngine->GetWindow().clientHeight;
+        auto width = GEngine->GetWindow().clientWidth;
+
+
+        shared_ptr<GameObject> obj = make_shared<GameObject>();
+        obj->SetName(L"Menu");
+        obj->SetLayerIndex(GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI")); // UI
+        obj->AddComponent(make_shared<Transform>());
+
+        // 비율로 설정
+
+        obj->GetTransform()->SetLocalScale(Vec3(3 * width / 4, 3 * height / 4, 100.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(0, 0, 200.f));
+
+        shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+        {
+            shared_ptr<Mesh> mesh = GET_SINGLETON(Resources)->LoadRectangleMesh();
+            meshRenderer->SetMesh(mesh);
+        }
+        {
+            shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Texture");
+
+            shared_ptr<Texture> texture = GET_SINGLETON(Resources)->Load<Texture>(L"Menu", L"..\\Resources\\Texture\\Menu.png");
+
+
+            shared_ptr<Material> material = make_shared<Material>();
+            material->SetShader(shader);
+            material->SetTexture(0, texture);
+
+            material->SetInt(0, 1); // uv 수정 활성화
+            material->SetVec4(0, Vec4(0, 0, 1, 0.5)); // uv 수정 범위
+            meshRenderer->SetMaterial(material);
+        }
+        obj->AddComponent(make_shared<MenuScript>()); // 메뉴 스크립트 추가
+        obj->AddComponent(meshRenderer);
+        _scene->AddGameObject(obj);
+    }
 #pragma endregion
+
+#pragma region MenuExitButton
+        {
+        auto height = GEngine->GetWindow().clientHeight;
+        auto width = GEngine->GetWindow().clientWidth;
+            shared_ptr<GameObject> exitButton = make_shared<GameObject>();
+            exitButton->SetName(L"MenuExitButton");
+            exitButton->SetLayerIndex(GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI")); // UI
+            exitButton->AddComponent(make_shared<Transform>());
+            int32 exitButtonScale = width / 10;
+            int32 exitButtonPosX = 3 * width / 4 - exitButtonScale / 2;
+            int32 exitButtonPosY = 3 * height / 4 - exitButtonScale / 2;
+            exitButton->GetTransform()->SetLocalScale(Vec3(exitButtonScale, exitButtonScale, 200.f));
+            exitButton->GetTransform()->SetLocalPosition(Vec3(exitButtonPosX, exitButtonPosY, 100.f));
+
+            shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+            {
+                shared_ptr<Mesh> mesh = GET_SINGLETON(Resources)->LoadRectangleMesh();
+                meshRenderer->SetMesh(mesh);
+            }
+            {
+                shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Texture");
+
+                shared_ptr<Texture> texture = GET_SINGLETON(Resources)->Load<Texture>(L"MenuExitButton", L"..\\Resources\\Texture\\X.png");
+
+
+                shared_ptr<Material> material = make_shared<Material>();
+                material->SetShader(shader);
+                material->SetTexture(0, texture);
+
+
+                meshRenderer->SetMaterial(material);
+            }
+
+            exitButton->AddComponent(meshRenderer);
+            _scene->AddGameObject(exitButton);
+        }
+#pragma endregion
+
 
 #pragma region Directional Light
     {
@@ -306,7 +388,7 @@ for (auto& gameObject : gameObjects) {
         light->GetLight()->SetDiffuse(Vec3(0.0f, 0.f, 1.f));
         light->GetLight()->SetAmbient(Vec3(0.0f, 0.0f, 0.1f));
         light->GetLight()->SetSpecular(Vec3(0.0f, 0.0f, 0.1f));
-        light->GetLight()->SetLightRange(1000.f);
+        light->GetLight()->SetLightRange(200.f);
         light->GetLight()->SetLightAngle(3.14f / 2);
 
         _scene->AddGameObject(light);

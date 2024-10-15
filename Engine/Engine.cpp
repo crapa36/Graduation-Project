@@ -8,6 +8,7 @@
 #include "Light.h"
 #include "Resources.h"
 #include "InstancingManager.h"
+#include "PhysicsManager.h"
 
 void Engine::Init(const WindowInfo& info) {
     _window = info;
@@ -39,6 +40,7 @@ void Engine::Init(const WindowInfo& info) {
     GET_SINGLETON(Resources)->Init();
     GET_SINGLETON(SceneManager)->Init();
     GET_SINGLETON(ImguiManager)->Init(info.hwnd, _device->GetDevice(), *_imguiDescriptorHeap.get());
+
 }
 
 void Engine::Update() {
@@ -170,7 +172,7 @@ void Engine::CreateRenderTargetGroups() {
 
     // Lighting Group
     {
-        shared_ptr<Texture> lightingDSTexture = dsTexture->Clone();
+        
         vector<RenderTarget> rtVec(RENDER_TARGET_LIGHTING_GROUP_MEMBER_COUNT);
 
         rtVec[0].target = GET_SINGLETON(Resources)->CreateTexture(L"DiffuseLightTarget",
@@ -184,7 +186,7 @@ void Engine::CreateRenderTargetGroups() {
                                                                   D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
         _renderTargetGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::LIGHTING)] = make_shared<RenderTargetGroup>();
-        _renderTargetGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::LIGHTING)]->Create(RENDER_TARGET_GROUP_TYPE::LIGHTING, rtVec, lightingDSTexture);
+        _renderTargetGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::LIGHTING)]->Create(RENDER_TARGET_GROUP_TYPE::LIGHTING, rtVec, dsTexture);
     }
 
     // Reflection Group

@@ -5,6 +5,9 @@
 #include "PhysicsManager.h"
 #include "Timer.h"
 #include "Animator.h"
+#include "SceneManager.h"
+#include "GameObject.h"
+#include "Scene.h"
 
 void TestDragonScript::Update() {
 
@@ -32,9 +35,17 @@ void TestDragonScript::LateUpdate() {
 
         // 화면 중심 좌표 계산
 
-        // ESC 키로 종료
-        if (INPUT->IsKeyPressed(DIK_ESCAPE))
-            PostQuitMessage(0);
+        // ESC 키로 메뉴 토글
+        if (INPUT->IsKeyJustPressed(DIK_ESCAPE)) {
+            //PostQuitMessage(0);
+            auto gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
+            for (auto& gameObject : gameObjects) {
+                if (gameObject->GetName() == L"Menu")
+                    gameObject->SetEnable(!gameObject->IsEnable());
+                else if (gameObject->GetName() == L"MenuExitButton")
+                    gameObject->SetEnable(!gameObject->IsEnable());
+            }
+        }
 
         // DEL 키로 디버그 모드 전환
         if (INPUT->IsKeyJustPressed(DIK_DELETE)) {

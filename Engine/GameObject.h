@@ -52,6 +52,9 @@ public:
     void SetParent(shared_ptr<GameObject> parent);
     weak_ptr<GameObject> GetParent() { return _parent; }
 
+    void SetEnable(bool isEnable) { _isEnable = isEnable; }
+    bool IsEnable() { return _isEnable; }
+
 private:
     array<shared_ptr<Component>, FIXED_COMPONENT_COUNT> _components;
     vector<shared_ptr<MonoBehaviour>> _scripts;
@@ -62,4 +65,5 @@ private:
     bool _checkFrustum = true;
     uint8 _layerIndex = 0;
     bool _isStatic = true;
+    bool _isEnable = true;
 };

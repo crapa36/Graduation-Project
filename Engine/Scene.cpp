@@ -26,20 +26,23 @@ void Scene::Start() {
 
 void Scene::Update() {
     for (const shared_ptr<GameObject>& gameObject : _gameObjects) {
-        gameObject->Update();
+        if (gameObject->IsEnable())
+            gameObject->Update();
     }
     GET_SINGLETON(PhysicsManager)->Update();
 }
 
 void Scene::LateUpdate() {
     for (const shared_ptr<GameObject>& gameObject : _gameObjects) {
-        gameObject->LateUpdate();
+        if (gameObject->IsEnable())
+            gameObject->LateUpdate();
     }
     GET_SINGLETON(PhysicsManager)->FinalUpdate();
 }
 void Scene::FinalUpdate() {
     for (const shared_ptr<GameObject>& gameObject : _gameObjects) {
-        gameObject->FinalUpdate();
+        if (gameObject->IsEnable())
+            gameObject->FinalUpdate();
     }
     GET_SINGLETON(PhysicsManager)->FinalUpdate();
 }

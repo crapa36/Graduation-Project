@@ -219,6 +219,9 @@
     <ClCompile Include="TestReflection.cpp">
       <Filter>Scenes\Scripts</Filter>
     </ClCompile>
+    <ClCompile Include="MenuScript.cpp">
+      <Filter>Scenes\Scripts</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -409,6 +412,9 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="TestReflection.h">
+      <Filter>Scenes\Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuScript.h">
       <Filter>Scenes\Scripts</Filter>
     </ClInclude>
   </ItemGroup>
