@@ -37,6 +37,31 @@ bool BoxCollider::Intersects(const shared_ptr<BaseCollider>& other) {
     }
 }
 
+Vec3 BoxCollider::GetCollisionNormal(const Vec4& rayOrigin, const Vec4& rayDir) {
+    Vec3 normal(0, 0, 0);
+    float distance;
+
+    if (!Intersects(rayOrigin, rayDir, OUT distance)) {
+        return normal; // 충돌이 없으면 빈 벡터 반환
+    }
+
+    Vec4 hitPoint = rayOrigin + rayDir * distance;
+    Vec3 localHitPoint = XMVector3TransformCoord(XMLoadFloat4(&hitPoint), XMMatrixInverse(nullptr, GetRotationMatrix()));
+
+    // 박스의 가장 가까운 면을 찾기
+    const float epsilon = FLT_EPSILON;
+    if (abs(localHitPoint.x - _boundingBox.Extents.x) < epsilon) normal = Vec3(1, 0, 0);
+    else if (abs(localHitPoint.x + _boundingBox.Extents.x) < epsilon) normal = Vec3(-1, 0, 0);
+    else if (abs(localHitPoint.y - _boundingBox.Extents.y) < epsilon) normal = Vec3(0, 1, 0);
+    else if (abs(localHitPoint.y + _boundingBox.Extents.y) < epsilon) normal = Vec3(0, -1, 0);
+    else if (abs(localHitPoint.z - _boundingBox.Extents.z) < epsilon) normal = Vec3(0, 0, 1);
+    else if (abs(localHitPoint.z + _boundingBox.Extents.z) < epsilon) normal = Vec3(0, 0, -1);
+
+    // 월드 좌표계로 변환
+    normal = XMVector3TransformNormal(XMLoadFloat3(&normal), GetRotationMatrix());
+    return normal;
+}
+
 Vec3 BoxCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
     Vec3 normal;
 

@@ -120,13 +120,13 @@ void PhysicsManager::HandleCollision(std::shared_ptr<GameObject> objA, std::shar
         float MassA = 0.0f;
         float MassB = 0.0f;
         if (auto RigidbodyA = objA->GetRigidbody()) {
-            MassA=RigidbodyA->GetMass();
+            MassA = RigidbodyA->GetMass();
         }
-        
+
         if (auto RigidbodyB = objB->GetRigidbody()) {
             MassB = RigidbodyB->GetMass();
         }
-        
+
         //Mass의 비율에 따라 위치 조정
         Vec3 adjustmentA = collisionNormal * (collisionDepth * (MassB / (MassA + MassB)));
         Vec3 adjustmentB = collisionNormal * (collisionDepth * (MassA / (MassA + MassB)));
@@ -134,7 +134,7 @@ void PhysicsManager::HandleCollision(std::shared_ptr<GameObject> objA, std::shar
         Vec3 adjustmentB = collisionNormal * (collisionDepth / 2.0f);*/
 
         // 위치 조정
-        if (objA->GetRigidbody()&&objB->GetRigidbody()) {
+        if (objA->GetRigidbody() && objB->GetRigidbody()) {
             positionA -= adjustmentA;
             positionB += adjustmentB;
 
@@ -231,4 +231,31 @@ void PhysicsManager::UpdatePhysics() {
             }
         }
     }
+}
+
+bool PhysicsManager::Raycast(const Vec4& origin, const Vec4& direction, float maxDistance, RaycastHit* hitInfo) {
+    auto& gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
+    bool hitDetected = false;
+    float closestDistance = maxDistance;
+
+    for (const auto& gameObject : gameObjects) {
+        auto collider = gameObject->GetCollider();
+        if (!collider)
+            continue;
+
+        float distance = 0.0f;
+        if (collider->Intersects(origin, direction, OUT distance) && distance < closestDistance) {
+            closestDistance = distance;
+            hitDetected = true;
+
+            if (hitInfo) {
+                hitInfo->distance = distance;
+                hitInfo->point = origin + direction * distance;
+                hitInfo->normal = collider->GetCollisionNormal(origin, direction);
+                hitInfo->gameObject = gameObject; // 충돌한 객체를 저장
+            }
+        }
+    }
+
+    return hitDetected;
 }
