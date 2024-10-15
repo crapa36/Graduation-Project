@@ -89,7 +89,6 @@ TestScene::TestScene() {
 
         mainObject->SetStatic(false);
         _scene->AddGameObject(mainObject);
-        GET_SINGLETON(NetworkManager)->send_login_packet(*mainObject.get());
 
         vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
 

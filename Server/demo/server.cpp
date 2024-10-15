@@ -5,38 +5,13 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
-
+#include <Windows.h>
 #include "protocol.h"
 
 
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
 
-
-
-enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND };
-class OVER_EXP {
-public:
-	WSAOVERLAPPED _over;
-	WSABUF _wsabuf;
-	char _send_buf[BUF_SIZE];
-	COMP_TYPE _comp_type;
-	OVER_EXP()
-	{
-		_wsabuf.len = BUF_SIZE;
-		_wsabuf.buf = _send_buf;
-		_comp_type = OP_RECV;
-		ZeroMemory(&_over, sizeof(_over));
-	}
-	OVER_EXP(char* packet)
-	{
-		_wsabuf.len = packet[0];
-		_wsabuf.buf = _send_buf;
-		ZeroMemory(&_over, sizeof(_over));
-		_comp_type = OP_SEND;
-		memcpy(_send_buf, packet, packet[0]);
-	}
-};
 
 enum S_STATE { ST_FREE, ST_INGAME };
 class SESSION {
@@ -89,7 +64,7 @@ public:
 		p.x = x;
 		p.y = y;
 		p.z = z;
-		
+		std::cout << "send login_info_paket to " << _id << std::endl;
 		do_send(&p);
 	}
 
@@ -133,6 +108,7 @@ void SESSION::send_add_player_packet(int c_id)
 	add_packet.x = clients[c_id].x;
 	add_packet.y = clients[c_id].y;
 	add_packet.z = clients[c_id].z;
+	std::cout << "send add_player_packet to " << clients[c_id]._id << std::endl;
 	do_send(&add_packet);
 }
 
@@ -180,7 +156,7 @@ void process_packet(int c_id, char* packet)
 		clients[c_id].x = p->x;
 		clients[c_id].y = p->y;
 		clients[c_id].z = p->z;
-		std::cout <<"clients["<< c_id << "] Pos : " << clients[c_id].x << ", " << clients[c_id].y << ", " << clients[c_id].z << std::endl;
+		//std::cout <<"clients["<< c_id << "] Pos : " << clients[c_id].x << ", " << clients[c_id].y << ", " << clients[c_id].z << std::endl;
 		for (auto& cl : clients) {
 			if (cl._state != ST_INGAME) continue;
 			cl.send_move_packet(c_id);

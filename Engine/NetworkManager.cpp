@@ -11,29 +11,6 @@
 #include "BoxCollider.h"
 #include "Rigidbody.h"
 
-enum COMP_TYPE { OP_ACCEPT, OP_RECV, OP_SEND };
-class OVER_EXP {
-public:
-    WSAOVERLAPPED _over;
-    WSABUF _wsabuf;
-    char _send_buf[BUF_SIZE];
-    COMP_TYPE _comp_type;
-    OVER_EXP()
-    {
-        _wsabuf.len = BUF_SIZE;
-        _wsabuf.buf = _send_buf;
-        _comp_type = OP_RECV;
-        ZeroMemory(&_over, sizeof(_over));
-    }
-    OVER_EXP(char* packet)
-    {
-        _wsabuf.len = packet[0];
-        _wsabuf.buf = _send_buf;
-        ZeroMemory(&_over, sizeof(_over));
-        _comp_type = OP_SEND;
-        memcpy(_send_buf, packet, packet[0]);
-    }
-};
 
 struct PacketBuffer {
     char buffer[BUF_SIZE];
@@ -57,6 +34,7 @@ void NetworkManager::Init(){
     g_recv_over._wsabuf.buf = g_recv_over._send_buf;
     DWORD flags = 0;
     WSARecv(g_socket, &g_recv_over._wsabuf, 1, NULL, &flags, &g_recv_over._over, RecvCallback);
+    send_login_packet();
 }
 
 
@@ -122,17 +100,10 @@ bool NetworkManager::connect_to_server(const char* ip_address)
     return true;
 }
 
-void NetworkManager::send_login_packet(GameObject oj)
+void NetworkManager::send_login_packet()
 {
     CS_LOGIN_PACKET packet;
     
-    packet.name = oj.GetName();
-    packet.x = oj.GetTransform()->GetLocalPosition().x;
-    packet.y = oj.GetTransform()->GetLocalPosition().y;
-    packet.z = oj.GetTransform()->GetLocalPosition().z;
-    
-    
-
     int result = send(g_socket, reinterpret_cast<char*>(&packet), sizeof(packet), 0);
     if (result == SOCKET_ERROR) {
         std::cerr << "Error sending login packet. Error code: " << WSAGetLastError() << std::endl;
@@ -164,13 +135,14 @@ void ProcessPacket(char* packet, DWORD dataLength)
             wstring path = L"../Resources/BIN/Gunship.bin";
             shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadBIN(path);
 
-            shared_ptr<GameObject> mainObject = make_shared<GameObject>();
+            shared_ptr<GameObject> client = make_shared<GameObject>();
 
             
-            mainObject->SetName(L"Main");
-            mainObject->SetCheckFrustum(false);
+            client->SetName(L"Main");
+            client->SetCheckFrustum(false);
+            //id? 
 
-            mainObject->AddComponent(make_shared<Transform>());
+            client->AddComponent(make_shared<Transform>());
             shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
             {
                 shared_ptr<Mesh> sphereMesh = GET_SINGLETON(Resources)->LoadPointMesh();
@@ -180,20 +152,20 @@ void ProcessPacket(char* packet, DWORD dataLength)
                 shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Pebbles");
                 meshRenderer->SetMaterial(material->Clone());
             }
-            mainObject->AddComponent(meshRenderer);
+            client->AddComponent(meshRenderer);
 
-            mainObject->AddComponent(make_shared<BoxCollider>());
-            mainObject->AddComponent(make_shared<Rigidbody>());
-            dynamic_pointer_cast<BoxCollider>(mainObject->GetCollider())->SetExtents(Vec3(40.f, 30.f, 40.f));
-            dynamic_pointer_cast<BoxCollider>(mainObject->GetCollider())->SetCenter(Vec3(0.f, 10.f, 0.f));
-            mainObject->GetTransform()->SetLocalPosition(Vec3(p->x, p->y, p->z)); //여기가 좌표
-            mainObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f)); // 여기가 크기
-            mainObject->GetRigidbody()->SetUseGravity(false);
-            mainObject->GetRigidbody()->SetElasticity(0.0f);
-            mainObject->GetRigidbody()->SetDrag(0.95f);
+            client->AddComponent(make_shared<BoxCollider>());
+            client->AddComponent(make_shared<Rigidbody>());
+            dynamic_pointer_cast<BoxCollider>(client->GetCollider())->SetExtents(Vec3(40.f, 30.f, 40.f));
+            dynamic_pointer_cast<BoxCollider>(client->GetCollider())->SetCenter(Vec3(0.f, 10.f, 0.f));
+            client->GetTransform()->SetLocalPosition(Vec3(p->x, p->y, p->z)); //여기가 좌표
+            client->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f)); // 여기가 크기
+            client->GetRigidbody()->SetUseGravity(false);
+            client->GetRigidbody()->SetElasticity(0.0f);
+            client->GetRigidbody()->SetDrag(0.95f);
 
-            mainObject->SetStatic(false);
-            GET_SINGLETON(SceneManager)->GetActiveScene()->AddGameObject(mainObject);
+            client->SetStatic(false);
+            GET_SINGLETON(SceneManager)->GetActiveScene()->AddGameObject(client);
            
 
             vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
@@ -201,7 +173,7 @@ void ProcessPacket(char* packet, DWORD dataLength)
             for (auto& gameObject : gameObjects) {
                 gameObject->SetCheckFrustum(false);
 
-                gameObject->SetParent(mainObject);
+                gameObject->SetParent(client);
 
                 gameObject->SetStatic(false);
                 GET_SINGLETON(SceneManager)->GetActiveScene()->AddGameObject(gameObject);
@@ -215,16 +187,17 @@ void ProcessPacket(char* packet, DWORD dataLength)
         // 여기서 해당 ID를 가진 플레이어 오브젝트를 찾아 제거
         break;
     }
-    //case SC_PLAYER_MOVE: {
-        //SC_PLAYER_MOVE_PACKET* p = reinterpret_cast<SC_PLAYER_MOVE_PACKET*>(packet);
-        // 다른 플레이어의 위치 업데이트
-        // GameObject* player = FindPlayerById(p->id);
-        // if (player)
-        //     player->GetTransform()->SetPosition(Vec3(p->x, p->y, p->z));
-        //break;
-    //}
+    case CS_PLAYER_MOVE: {
+        CS_PLAYER_MOVE_PACKET* p = reinterpret_cast<CS_PLAYER_MOVE_PACKET*>(packet);
+         
+         //GameObject* player = FindPlayerById(p->id);
+         //if (player)
+             //player->GetTransform()->SetPosition(Vec3(p->x, p->y, p->z));
+        break;
+    }
     default:
-        std::cout << "Unknown packet type received: " << (int)packet[1] << std::endl;
+        int num = static_cast<int>(packet[0]);
+        std::cout << "Unknown packet type received: " << num << std::endl;
         break;
     }
 }
