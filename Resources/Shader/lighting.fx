@@ -46,13 +46,13 @@ PS_OUT PS_DirLight(VS_OUT input)
 
     float3 viewPos = g_textures[0].Sample(g_sam_0, input.uv).xyz;
     if (viewPos.z <= 0.f)
-        clip(-1);
+        discard; // clip(-1) 대신 discard로 변경하여 유연하게 처리
 
     float3 viewNormal = g_textures[1].Sample(g_sam_0, input.uv).xyz;
 
     LightColor color = CalculateLightColor(g_int_0, viewNormal, viewPos);
 
-    // 그림자
+    // 그림자 처리
     if (length(color.diffuse) != 0)
     {
         matrix shadowCameraVP = g_mat_0;
@@ -105,17 +105,18 @@ PS_OUT PS_PointLight(VS_OUT input)
 {
     PS_OUT output = (PS_OUT) 0;
 
-    // input.pos = SV_Position = Screen 좌표
     float2 uv = float2(input.pos.x / g_vec2_0.x, input.pos.y / g_vec2_0.y);
     float3 viewPos = g_textures[0].Sample(g_sam_0, uv).xyz;
     if (viewPos.z <= 0.f)
-        clip(-1);
+        discard;
 
     int lightIndex = g_int_0;
     float3 viewLightPos = mul(float4(g_light[lightIndex].position.xyz, 1.f), g_matView).xyz;
     float distance = length(viewPos - viewLightPos);
+    
+    // 라이트 볼륨 내부일 때 처리
     if (distance > g_light[lightIndex].range)
-        clip(-1);
+        discard;
 
     float3 viewNormal = g_textures[1].Sample(g_sam_0, uv).xyz;
 
@@ -149,7 +150,7 @@ float4 PS_Final(VS_OUT input) : SV_Target
 
     float4 lightPower = g_textures[1].Sample(g_sam_0, input.uv);
     if (lightPower.x == 0.f && lightPower.y == 0.f && lightPower.z == 0.f)
-        clip(-1);
+        discard;
 
     float4 color = g_textures[0].Sample(g_sam_0, input.uv);
     float4 specular = g_textures[2].Sample(g_sam_0, input.uv);

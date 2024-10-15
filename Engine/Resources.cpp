@@ -544,7 +544,7 @@ void Resources::CreateDefaultShader() {
         {
             SHADER_TYPE::LIGHTING,
             RASTERIZER_TYPE::CULL_NONE,
-            DEPTH_STENCIL_TYPE::GREATER_EQUAL_NO_WRITE,
+            DEPTH_STENCIL_TYPE::Always,
             BLEND_TYPE::ONE_TO_ONE_BLEND
         };
 
