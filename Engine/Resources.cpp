@@ -949,7 +949,7 @@ void Resources::CreateDefaultMaterial() {
         material->SetTexture(2, depthTexture);
         material->SetCubeMapTexture(cubeTexture);
 
-        material->SetFloat(0, GET_SINGLETON(Timer)->GetDeltaTime());
+        material->SetFloat(0, 0.5f);
         material->SetFloat(1, GET_SINGLETON(Timer)->GetTotalTime());
 
         Add<Material>(L"Water", material);

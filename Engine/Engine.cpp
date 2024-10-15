@@ -27,9 +27,9 @@ void Engine::Init(const WindowInfo& info) {
     _imguiDescriptorHeap->Init();
 
     CreateConstantBuffer(CBV_REGISTER::b0, sizeof(LightParams), 1);
-    CreateConstantBuffer(CBV_REGISTER::b1, sizeof(TransformParams), 256);
-    CreateConstantBuffer(CBV_REGISTER::b2, sizeof(MaterialParams), 256);
-    CreateConstantBuffer(CBV_REGISTER::b3, sizeof(TimeParams), 256);
+    CreateConstantBuffer(CBV_REGISTER::b1, sizeof(TimeParams), 256);
+    CreateConstantBuffer(CBV_REGISTER::b2, sizeof(TransformParams), 256);
+    CreateConstantBuffer(CBV_REGISTER::b3, sizeof(MaterialParams), 256);
 
     CreateRenderTargetGroups();
 

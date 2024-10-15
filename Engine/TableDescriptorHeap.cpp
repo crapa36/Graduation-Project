@@ -55,8 +55,8 @@ void GraphicsDescriptorHeap::CommitTable() {
 
     D3D12_GPU_DESCRIPTOR_HANDLE handle = _descHeap->GetGPUDescriptorHandleForHeapStart();
     handle.ptr += _currentGroupIndex * _groupSize;
-    GRAPHICS_CMD_LIST->SetGraphicsRootDescriptorTable(1, handle);
-
+    GRAPHICS_CMD_LIST->SetGraphicsRootDescriptorTable(2, handle);
+    
     _currentGroupIndex++;
 }
 

@@ -24,6 +24,7 @@ public:
 
 public:
     shared_ptr<Scene> GetActiveScene() { return _activeScene; }
+    shared_ptr<Scene> GetScene() { return _activeScene; }
 
 private:
     map<wstring, shared_ptr<Scene>> Scenes;
