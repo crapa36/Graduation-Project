@@ -237,7 +237,7 @@ for (auto& gameObject : gameObjects) {
 
             shared_ptr<Texture> texture;
             if (i < 3)
-                texture = GEngine->GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE::G_BUFFER)->GetRTTexture(i);
+                texture = GET_SINGLETON(Resources)->Get<Texture>(L"ReflectionDiffuseTarget");
             else if (i < 5)
                 texture = GEngine->GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE::LIGHTING)->GetRTTexture(i - 3);
             else
@@ -332,8 +332,8 @@ for (auto& gameObject : gameObjects) {
         obj->SetName(L"Water");
         obj->AddComponent(make_shared<Transform>());
         obj->AddComponent(make_shared<TestWaterScript>());
-        obj->GetTransform()->SetLocalScale(Vec3(2000.f, 1.f, 2000.f));
-        obj->GetTransform()->SetLocalPosition(Vec3(0.f, 20.f, 50.f));
+        obj->GetTransform()->SetLocalScale(Vec3(1000.f, 1.f, 1000.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 50.f));
         obj->SetStatic(true);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
@@ -354,6 +354,7 @@ for (auto& gameObject : gameObjects) {
                 reflection_camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, 800*600
                 reflection_camera->AddComponent(make_shared<TestReflection>());
                 reflection_camera->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 0.f));
+                reflection_camera->GetCamera()->SetFar(10000.f); // Far 10000 ����
                 reflection_camera->GetTransform()->SetParent(obj->GetTransform());
                 reflection_camera->GetTransform()->SetInheritPosition(false);
                 reflection_camera->GetTransform()->SetInheritRotation(false);

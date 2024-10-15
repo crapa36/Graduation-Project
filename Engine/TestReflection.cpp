@@ -16,22 +16,17 @@ TestReflection::~TestReflection()
 void TestReflection::LateUpdate()
 {
 	shared_ptr<Scene> scene = GET_SINGLETON(SceneManager)->GetActiveScene();
-	shared_ptr<Transform> parent = GetTransform()->GetParent().lock();
-	shared_ptr<Transform> cameraParent = scene->GetMainCamera()->GetTransform()->GetParent().lock();
+	shared_ptr<Transform> camera = scene->GetMainCamera()->GetTransform();
 
-	Vec3 cameraParentPos = cameraParent->GetTransform()->GetLocalPosition();
-	Vec3 cameraRevolution = scene->GetMainCamera()->GetTransform()->GetLocalRevolution();
-	Vec3 parentPos = parent->GetTransform()->GetLocalPosition();
-	Vec3 pos = GetTransform()->GetLocalPosition();
-	Vec3 revolution = GetTransform()->GetLocalRotation();
+	Matrix cameraM = camera->GetLocalToWorldMatrix();
+	Quaternion quaternion;
+	Vec3 cameraPos, cameraRotation, cameraScale;
 
-	pos = cameraParentPos;
-	pos.y = parentPos.y - (cameraParentPos.y - parentPos.y);
+	DecomposeMatrix(cameraM, cameraPos, quaternion, cameraScale);
 
-	revolution = cameraRevolution;
-	revolution.x = -cameraRevolution.x;
+	cameraRotation = camera->GetLocalRevolution();
+	cameraRotation.x = -cameraRotation.x;
 
-	GetTransform()->SetLocalPosition(pos);
-	GetTransform()->SetLocalRevolution(revolution);
-
+	GetTransform()->SetLocalPosition(cameraPos);
+	GetTransform()->SetLocalRotation(cameraRotation);
 }

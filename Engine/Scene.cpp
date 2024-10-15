@@ -51,16 +51,16 @@ void Scene::Render() {
 
     RenderShadow();
 
+    RenderReflection();
+
     RenderDeferred();
     
+
     RenderLights();
     
     RenderFinal();
 
     RenderForward();
-
-    RenderReflection();
-
 }
 
 void Scene::ClearRTV() {

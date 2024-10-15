@@ -146,3 +146,11 @@ void Camera::Render_Shadow() {
         gameObject->GetMeshRenderer()->RenderShadow();
     }
 }
+
+void Camera::Render_Reflection()
+{
+    S_MatView = _matView;
+    S_MatProjection = _matProjection;
+
+    GET_SINGLETON(InstancingManager)->Render(_vecReflection);
+}

@@ -206,3 +206,6 @@ extern unique_ptr<class Engine> GEngine;
 
 wstring s2ws(const string& str);
 string ws2s(const wstring& wstr);
+bool IsMatrixValid(const XMFLOAT4X4& matrix);
+void DecomposeMatrix(const XMFLOAT4X4& matrix, Vec3& position, Quaternion& rotation, Vec3& scale);
+Vec3 QuaternionToEuler(const Quaternion& q);
