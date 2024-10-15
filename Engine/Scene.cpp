@@ -59,6 +59,7 @@ void Scene::Render() {
     RenderFinal();
 
     RenderForward();
+
 }
 
 void Scene::ClearRTV() {
@@ -166,14 +167,10 @@ void Scene::PushLightData() {
 
 void Scene::PushTimeData() {
     TimeParams timeParams = {};
-    timeParams.totalTime = GET_SINGLETON(Timer)->GetTotalTime();
     timeParams.deltaTime = GET_SINGLETON(Timer)->GetDeltaTime();
-
-    timeParams.totalTime = 0.5f;
-
-    CONST_BUFFER(CONSTANT_BUFFER_TYPE::TIME)->SetGraphicsTimerData(&timeParams, sizeof(timeParams));
-
-    
+    timeParams.totalTime = GET_SINGLETON(Timer)->GetTotalTime();
+ 
+    CONST_BUFFER(CONSTANT_BUFFER_TYPE::TIME)->PushGraphicsData(&timeParams, sizeof(timeParams));
 }
 
 

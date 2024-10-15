@@ -29,14 +29,7 @@ cbuffer GLOBAL_PARAMS : register(b0)
     LightInfo g_light[50];
 }
 
-cbuffer TIME_PARAMS : register(b1)
-{
-    float g_totalTime; // 전체 시간
-    float g_deltaTime; // 프레임 시간 (델타)
-    float g_timePadding[2];
-};
-
-cbuffer TRANSFORM_PARAMS : register(b2)
+cbuffer TRANSFORM_PARAMS : register(b1)
 {
     row_major matrix g_matWorld;
     row_major matrix g_matView;
@@ -47,7 +40,7 @@ cbuffer TRANSFORM_PARAMS : register(b2)
     row_major matrix g_matProjectionInv;
 };
 
-cbuffer MATERIAL_PARAMS : register(b3)
+cbuffer MATERIAL_PARAMS : register(b2)
 {
     int g_int_0;
     int g_int_1;
@@ -72,6 +65,12 @@ cbuffer MATERIAL_PARAMS : register(b3)
     int g_tex_ons[MAX_TEXTURES];
 };
 
+cbuffer TIME_PARAMS : register(b3)
+{
+    float g_totalTime; // 전체 시간
+    float g_deltaTime; // 프레임 시간 (델타)
+    float2 g_timePadding; 
+};
 
 // Texture2D 텍스처 정의
 Texture2D g_textures[MAX_TEXTURES] : register(t0);

@@ -308,6 +308,7 @@ for (auto& gameObject : gameObjects) {
         light->GetLight()->SetSpecular(Vec3(0.0f, 0.0f, 0.1f));
         light->GetLight()->SetLightRange(1000.f);
         light->GetLight()->SetLightAngle(3.14f / 2);
+
         _scene->AddGameObject(light);
     }
 #pragma endregion

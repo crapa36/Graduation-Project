@@ -84,7 +84,7 @@ float4 PS_Main(VS_OUT input) : SV_TARGET
     //return float4(cubeReflection, 1.0f);
     
     // 시간값이 제대로 넘어오는지 확인하기 위한 테스트
-    float testValue = g_totalTime; // g_totalTime 사용
+    float testValue = g_float_0; // g_totalTime 사용
 
     // 테스트로 시간값을 기반으로 색상을 변화시킴
     return float4(0.f, 0.f, testValue, 1.0);
