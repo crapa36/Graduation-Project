@@ -135,10 +135,26 @@ void Shader::CreateGraphicsShader(const wstring& path, ShaderInfo info, ShaderAr
         _graphicsPipelineDesc.DepthStencilState.DepthEnable = TRUE;
         _graphicsPipelineDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
         _graphicsPipelineDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+
         break;
     case DEPTH_STENCIL_TYPE::LESS_NO_WRITE:
         _graphicsPipelineDesc.DepthStencilState.DepthEnable = TRUE;
         _graphicsPipelineDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+        _graphicsPipelineDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+        break;
+    case DEPTH_STENCIL_TYPE::GREATER_NO_WRITE:
+        _graphicsPipelineDesc.DepthStencilState.DepthEnable = TRUE;
+        _graphicsPipelineDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_GREATER;
+        _graphicsPipelineDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+        break;
+    case DEPTH_STENCIL_TYPE::GREATER_EQUAL_NO_WRITE:
+        _graphicsPipelineDesc.DepthStencilState.DepthEnable = TRUE;
+        _graphicsPipelineDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_GREATER_EQUAL;
+        _graphicsPipelineDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+        break;
+    case DEPTH_STENCIL_TYPE::Always:
+        _graphicsPipelineDesc.DepthStencilState.DepthEnable = TRUE;
+        _graphicsPipelineDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
         _graphicsPipelineDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
         break;
     }
@@ -165,6 +181,8 @@ void Shader::CreateGraphicsShader(const wstring& path, ShaderInfo info, ShaderAr
         rt.LogicOpEnable = FALSE;
         rt.SrcBlend = D3D12_BLEND_ONE;
         rt.DestBlend = D3D12_BLEND_ONE;
+        rt.BlendOp = D3D12_BLEND_OP_ADD;
+
         break;
     }
 

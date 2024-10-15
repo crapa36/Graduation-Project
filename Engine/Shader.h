@@ -28,6 +28,8 @@ enum class DEPTH_STENCIL_TYPE : uint8 {
     GREATER_EQUAL_NO_WRITE,
     NO_DEPTH_TEST,
     NO_DEPTH_TEST_NO_WRITE,
+    Always,
+    
 };
 
 enum class BLEND_TYPE : uint8 {
