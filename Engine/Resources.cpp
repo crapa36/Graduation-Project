@@ -937,7 +937,6 @@ void Resources::CreateDefaultMaterial() {
     {
         shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Water");
         shared_ptr<Texture> normalTexture = GET_SINGLETON(Resources)->Load<Texture>(L"Water_Normal", L"..\\Resources\\Texture\\Water_Normal.jpg");
-        shared_ptr<Texture> depthTexture = GET_SINGLETON(Resources)->Get<Texture>(L"DepthStencil");
         shared_ptr<Texture> screenTexture = GEngine->GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE::REFLECTION)->GetRTTexture(0);
         shared_ptr<CubeMapTexture> cubeTexture = GET_SINGLETON(Resources)->Load<CubeMapTexture>(L"Sky01", L"..\\Resources\\Texture\\SkyBox_0.dds");
 
@@ -946,11 +945,7 @@ void Resources::CreateDefaultMaterial() {
         material->SetShader(shader);
         material->SetTexture(0, normalTexture);
         material->SetTexture(1, screenTexture);
-        material->SetTexture(2, depthTexture);
         material->SetCubeMapTexture(cubeTexture);
-
-        material->SetFloat(0, GET_SINGLETON(Timer)->GetDeltaTime());
-        material->SetFloat(1, GET_SINGLETON(Timer)->GetTotalTime());
 
         Add<Material>(L"Water", material);
     }

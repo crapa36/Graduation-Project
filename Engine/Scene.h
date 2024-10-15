@@ -16,12 +16,14 @@ public:
 
     void RenderShadow();
     void RenderDeferred();
+    void RenderReflection();
     void RenderLights();
     void RenderFinal();
 
     void RenderForward();
 
     shared_ptr<class Camera> GetMainCamera();
+    shared_ptr<class Camera> GetReflectionCamera();
 
 private:
     void PushLightData();

@@ -81,7 +81,7 @@ float4 PS_Main(VS_OUT input) : SV_TARGET
     //float3 finalColor = lerp(refractionColor, finalReflection, fresnelFactor);
     float3 finalColor = lerp(cubeReflection, baseColor, 0.5f);
 
-    return float4(cubeReflection, 1.0f);
+    return float4(reflectionColor, 1.0f);
 }
 
 #endif

@@ -361,7 +361,7 @@ for (auto& gameObject : gameObjects) {
 
                 uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
 
-                reflection_camera->GetCamera()->SetCullingMaskAll(); // �� ����
+                //reflection_camera->GetCamera()->SetCullingMaskAll(); // �� ����
                 reflection_camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UI�� ����
                 _scene->AddGameObject(reflection_camera);
             }

@@ -52,12 +52,14 @@ void Scene::Render() {
     RenderShadow();
 
     RenderDeferred();
-
+    
     RenderLights();
-
+    
     RenderFinal();
 
     RenderForward();
+
+    RenderReflection();
 
 }
 
@@ -75,6 +77,9 @@ void Scene::ClearRTV() {
 
     // Lighting Group 초기화
     GEngine->GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE::LIGHTING)->ClearRenderTargetView();
+
+    // Reflection Group 초기화
+    GEngine->GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE::REFLECTION)->ClearRenderTargetView();
 }
 
 void Scene::RenderShadow() {
@@ -100,6 +105,18 @@ void Scene::RenderDeferred() {
     mainCamera->Render_Deferred();
 
     GEngine->GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE::G_BUFFER)->WaitTargetToResource();
+}
+
+void Scene::RenderReflection() {
+    shared_ptr<Camera> reflectionCamera = GetReflectionCamera();
+    if (reflectionCamera) {
+        GEngine->GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE::REFLECTION)->OMSetRenderTargets();
+
+        reflectionCamera->SortGameObject();
+        reflectionCamera->Render_Deferred();
+
+        GEngine->GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE::REFLECTION)->WaitTargetToResource();
+    }
 }
 
 void Scene::RenderLights() {
@@ -131,10 +148,12 @@ void Scene::RenderForward() {
 
 
     shared_ptr<Camera> mainCamera = _cameras[0];
+    shared_ptr<Camera> reflectionCamera = GetReflectionCamera();
     mainCamera->Render_Forward();
-
     for (auto& camera : _cameras) {
         if (camera == mainCamera)
+            continue;
+        if (camera == reflectionCamera)
             continue;
 
         camera->SortGameObject();
@@ -147,6 +166,17 @@ shared_ptr<Camera> Scene::GetMainCamera() {
         return nullptr;
 
     return _cameras[0];
+}
+
+shared_ptr<class Camera> Scene::GetReflectionCamera()
+{
+    for (shared_ptr<GameObject> obj : _gameObjects) {
+        if (obj->GetName() == L"Reflection_Camera") {
+            return obj->GetCamera();
+        }
+    }
+
+    return nullptr;
 }
 
 void Scene::PushLightData() {
