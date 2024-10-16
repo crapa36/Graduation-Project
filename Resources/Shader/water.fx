@@ -62,7 +62,7 @@ float4 PS_Main(VS_OUT input) : SV_TARGET
     
     // **2. 큐브 맵 반사 적용**
     float3 reflectedDir = reflect(viewDir, normalMapSample);
-    float3 cubeReflection = g_texCube.Sample(g_sam_0, reflectedDir).rgb;
+    float3 cubeReflection = g_texCube.Sample(g_sam_0, float3(-reflectedDir.x, reflectedDir.y, reflectedDir.z)).rgb;
 
     // **3. 실시간 반사(Real-Time Reflection) 적용**
     float3 reflectionColor = g_textures[1].Sample(g_sam_0, input.texCoord).rgb;
@@ -81,7 +81,7 @@ float4 PS_Main(VS_OUT input) : SV_TARGET
     //float3 finalColor = lerp(refractionColor, finalReflection, fresnelFactor);
     float3 finalColor = lerp(cubeReflection, baseColor, 0.5f);
 
-    return float4(reflectionColor, 1.0f);
+    return float4(finalReflection, 0.5f);
 }
 
 #endif
