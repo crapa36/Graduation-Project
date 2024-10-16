@@ -3,7 +3,6 @@
 // std::byte 사용하지 않음
 #define _HAS_STD_BYTE 0
 
-
 #define PIE 3.1415
 
 // 각종 include
@@ -70,8 +69,6 @@ using namespace Microsoft::WRL;
 #pragma comment(lib, "FBX\\release\\libxml2-md.lib")
 #pragma comment(lib, "FBX\\release\\zlib-md.lib")
 #endif
-
-
 
 // 각종 typedef
 using int8 = __int8;

@@ -17,6 +17,13 @@ struct TupleEqual {
     }
 };
 
+struct RaycastHit {
+    float distance;
+    Vec4 point;
+    Vec4 normal;
+    shared_ptr<class GameObject> gameObject;
+};
+
 class PhysicsManager {
     DECLARE_SINGLETON(PhysicsManager);
 
@@ -26,6 +33,9 @@ public:
     void Update();
     void LateUpdate();
     void FinalUpdate();
+
+    bool Raycast(const Vec4& origin, const Vec4& direction, float maxDistance, RaycastHit* hitInfo);
+
 private:
     void HandleCollision(shared_ptr<GameObject> objA, shared_ptr<GameObject> objB);
     void UpdatePhysics();

@@ -73,7 +73,8 @@ float4 PS_Main(VS_OUT input) : SV_Target
 
 // [Texture Shader]
 // g_tex_0 : Output Texture
-// AlphaBlend : true
+// g_int_0 : uv 수정 ON/OFF
+// g_vec4_0 : uv 수정 값 (x, y, width, height)
 struct VS_TEX_IN
 {
     float3 pos : POSITION;
@@ -88,7 +89,7 @@ struct VS_TEX_OUT
 
 VS_TEX_OUT VS_Tex(VS_TEX_IN input)
 {
-    VS_TEX_OUT output = (VS_TEX_OUT)0;
+    VS_TEX_OUT output = (VS_TEX_OUT) 0;
 
     output.pos = mul(float4(input.pos, 1.f), g_matWVP);
     output.uv = input.uv;
@@ -98,9 +99,19 @@ VS_TEX_OUT VS_Tex(VS_TEX_IN input)
 
 float4 PS_Tex(VS_TEX_OUT input) : SV_Target
 {
+    float2 uv = input.uv;
+
+    // UV 수정 ON/OFF 체크
+    if (g_int_0)
+    {
+        // g_vec4_0 : (x, y, width, height)
+        uv.x = g_vec4_0.x + uv.x * g_vec4_0.z;
+        uv.y = g_vec4_0.y + uv.y * g_vec4_0.w;
+    }
+
     float4 color = float4(1.f, 1.f, 1.f, 1.f);
     if (g_tex_ons[0])
-        color = g_textures[0].Sample(g_sam_0, input.uv);
+        color = g_textures[0].Sample(g_sam_0, uv);
 
     return color;
 }

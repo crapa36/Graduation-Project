@@ -204,6 +204,9 @@
     <ClCompile Include="TitleScript.cpp">
       <Filter>Scenes\Scripts</Filter>
     </ClCompile>
+    <ClCompile Include="TestScene.cpp">
+      <Filter>Scenes</Filter>
+    </ClCompile>
     <ClCompile Include="TitleScene.cpp">
       <Filter>Scenes</Filter>
     </ClCompile>
@@ -216,11 +219,8 @@
     <ClCompile Include="TestReflection.cpp">
       <Filter>Scenes\Scripts</Filter>
     </ClCompile>
-    <ClCompile Include="TestWaterScript.cpp">
+    <ClCompile Include="MenuScript.cpp">
       <Filter>Scenes\Scripts</Filter>
-    </ClCompile>
-    <ClCompile Include="TestScene.cpp">
-      <Filter>Scenes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -414,7 +414,7 @@
     <ClInclude Include="TestReflection.h">
       <Filter>Scenes\Scripts</Filter>
     </ClInclude>
-    <ClInclude Include="TestWaterScript.h">
+    <ClInclude Include="MenuScript.h">
       <Filter>Scenes\Scripts</Filter>
     </ClInclude>
   </ItemGroup>

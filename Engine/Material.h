@@ -57,6 +57,8 @@ public:
     void SetVec4(uint8 index, Vec4 value) { _params.SetVec4(index, value); }
     void SetMatrix(uint8 index, const Matrix& value) { _params.matrixParams[index] = value; }
 
+    Vec4 GetVec4(uint8 index) { return _params.vec4Params[index]; }
+
     void PushGraphicsData();
     void PushComputeData();
     void Dispatch(uint32 x, uint32 y, uint32 z);

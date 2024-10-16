@@ -515,6 +515,7 @@ void Resources::CreateDefaultShader() {
         shader->CreateGraphicsShader(L"..\\Resources\\Shader\\forward.fx", info, arg);
         Add<Shader>(L"Texture", shader);
     }
+    
 
     // DirLight
     {

@@ -11,6 +11,8 @@ public:
     virtual bool Intersects(Vec4 rayOrigin, Vec4 rayDir, OUT float& distance) override;
     virtual bool Intersects(const shared_ptr<BaseCollider>& other) override;
 
+    virtual Vec3 GetCollisionNormal(const Vec4& rayOrigin, const Vec4& rayDir) override;
+
     virtual Vec3 GetCollisionNormal(const shared_ptr<BaseCollider>& other) override;
     virtual float GetCollisionDepth(const shared_ptr<BaseCollider>& other) override;
 
@@ -18,6 +20,8 @@ public:
 
     virtual float GetHeight() override { return _extents.y / 2; }
     virtual Vec3 GetCenter() override { return _center; }
+    virtual float GetRadius() override { return 0; }
+    virtual Vec3 GetExtents() override { return _extents; }
 #ifdef _DEBUG
     virtual void CreateMesh() override;
     virtual void Render() override;

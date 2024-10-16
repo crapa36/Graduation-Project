@@ -11,7 +11,6 @@
 #include <algorithm>
 
 SphereCollider::SphereCollider() : BaseCollider(ColliderType::Sphere) {
-    
 }
 
 SphereCollider::~SphereCollider() {
@@ -40,7 +39,23 @@ bool SphereCollider::Intersects(const shared_ptr<BaseCollider>& other) {
 
     return false;
 }
+Vec3 SphereCollider::GetCollisionNormal(const Vec4& rayOrigin, const Vec4& rayDir) {
+    Vec3 normal(0, 0, 0);
+    float distance;
 
+    if (!Intersects(rayOrigin, rayDir, OUT distance)) {
+        return normal; // 충돌이 없으면 빈 벡터 반환
+    }
+
+    Vec4 hitPoint = rayOrigin + rayDir * distance;
+    XMVECTOR sphereCenter = XMLoadFloat3(&_boundingSphere.Center);
+    XMVECTOR hitPointVec = XMLoadFloat4(&hitPoint);
+    XMVECTOR normalVec = XMVectorSubtract(hitPointVec, sphereCenter);
+    normalVec = XMVector3Normalize(normalVec);
+    XMStoreFloat3(&normal, normalVec);
+
+    return normal;
+}
 Vec3 SphereCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
     Vec3 normal;
 
