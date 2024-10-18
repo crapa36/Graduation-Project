@@ -25,7 +25,8 @@ void Scene::Start() {
 }
 
 void Scene::Update() {
-    for (const shared_ptr<GameObject>& gameObject : _gameObjects) {
+    for (shared_ptr<GameObject>& gameObject : _gameObjects) {
+        gameObject->GetName();
         if (gameObject->IsEnable())
             gameObject->Update();
     }

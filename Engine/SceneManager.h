@@ -23,7 +23,7 @@ public:
     uint8 LayerNameToIndex(const wstring& name);
 
 public:
-    shared_ptr<Scene> GetActiveScene() { return _activeScene; }
+    shared_ptr<Scene>& GetActiveScene() { return _activeScene; }
 
 private:
     map<wstring, shared_ptr<Scene>> Scenes;
