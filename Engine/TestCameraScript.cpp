@@ -9,6 +9,7 @@
 #include "Rigidbody.h"
 #include "Engine.h"
 #include "BaseCollider.h"
+#include <cmath>
 
 // 상수 정의
 const float DEFAULT_SPEED = 50.f;
@@ -70,7 +71,6 @@ void TestCameraScript::LateUpdate() {
     // Shift 키로 이동 속도 변경 (가속 효과 적용)
     float targetSpeed = INPUT->IsKeyPressed(DIK_LSHIFT) ? BOOSTED_SPEED : DEFAULT_SPEED;
     _speed = _speed + (targetSpeed - _speed) * DELTA_TIME * 5.0f; // 부드러운 가속
-   
 
     shared_ptr<GameObject> parent = GetGameObject()->GetParent().lock();
     shared_ptr<Transform> parentTransform = parent->GetTransform();
@@ -108,7 +108,6 @@ void TestCameraScript::LateUpdate() {
     auto parentRigidbody = parent->GetRigidbody();
 
     // 광선 쏘기
-   
 
     // WASD 이동 처리
     if (INPUT->IsKeyPressed(DIK_W) || INPUT->IsKeyPressed(DIK_S) ||
@@ -135,45 +134,8 @@ void TestCameraScript::LateUpdate() {
         Vec3 downVec = -parentTransform->GetUp();
         parentRigidbody->SetVelocity(downVec * _speed);
     }
-    Vec4 rayDirection(parentRigidbody->GetVelocity().x, parentRigidbody->GetVelocity().y, parentRigidbody->GetVelocity().z, 0.0f);
-    if (rayDirection.Length() <= 0.0f) {
-        rayDirection = Vec4(parentTransform->GetLook().x, parentTransform->GetLook().y, parentTransform->GetLook().z, 0.0f);
-        
-    }
-    rayDirection.Normalize();
+    AvoidObstaclesWithRays();
 
-
-    Vec3 localPosition = parentTransform->GetLocalPosition();
-    Vec4 rayOrigin(localPosition.x, localPosition.y, localPosition.z, 1.0f);
-
-    if (shared_ptr<BaseCollider> collider = parent->GetCollider()) {
-        rayOrigin.x += collider->GetCenter().x;
-        rayOrigin.y += collider->GetCenter().y;
-        rayOrigin.z += collider->GetCenter().z;
-
-        if (collider->GetColliderType() == ColliderType::Sphere) {
-            rayOrigin += rayDirection * collider->GetRadius();
-        }
-    }
-    float rayDistance = 10.0f;
-    RaycastHit hitInfo;
-    if (GET_SINGLETON(PhysicsManager)->Raycast(rayOrigin, rayDirection, rayDistance, &hitInfo)) {
-
-        // 충돌이 예상됨 - 회피 벡터 계산
-        Vec3 rayDir3(rayDirection.x, rayDirection.y, rayDirection.z);   // 물체의 진행 방향
-        Vec3 hitNormal3(hitInfo.normal.x, hitInfo.normal.y, hitInfo.normal.z);  // 장애물의 법선 벡터
-
-        // 회피 벡터와 현재 진행 벡터 혼합
-        Vec3 crossProduct = rayDir3.Cross(hitNormal3);
-        crossProduct.Normalize();
-        Vec3 desiredVelocity = crossProduct * parentRigidbody->GetVelocity().Length();
-
-
-        Vec3 steeringForce = (desiredVelocity - parentRigidbody->GetVelocity()) * 0.7f;  // 조종 힘 계산
-
-        // 새 속도 적용
-        parentRigidbody->SetVelocity(parentRigidbody->GetVelocity() + steeringForce);
-    }
     // 마우스 휠로 줌 기능 추가 (부드러운 줌 적용)
     int mouseWheel = INPUT->GetMouseWheel();
     Vec3 vectorToOrigin = pos - Vec3(0.f, 0.f, 0.f);
@@ -184,4 +146,95 @@ void TestCameraScript::LateUpdate() {
 
     // 부모 객체 위치 적용
     GetTransform()->SetLocalPosition(pos);
+}
+
+Vec4 RotateVector(const Vec4& vector, float angleDegrees) {
+
+    // 각도를 라디안으로 변환
+    float angleRadians = angleDegrees * (3.14f / 180.0f);
+
+    // Y축을 기준으로 회전
+    float cosAngle = cos(angleRadians);
+    float sinAngle = sin(angleRadians);
+
+    Vec4 rotatedVector;
+    rotatedVector.x = vector.x * cosAngle - vector.z * sinAngle; // Y축 회전
+    rotatedVector.y = vector.y; // Y축 회전은 Y좌표에는 영향을 주지 않음
+    rotatedVector.z = vector.x * sinAngle + vector.z * cosAngle; // Y축 회전
+    rotatedVector.w = vector.w; // w 좌표는 그대로 유지
+
+    return rotatedVector;
+}
+
+void TestCameraScript::AvoidObstaclesWithRays() {
+
+    // 부모 객체 캐싱
+    shared_ptr<GameObject> parent = GetGameObject()->GetParent().lock();
+    shared_ptr<Transform> parentTransform = parent->GetTransform();
+    shared_ptr<Rigidbody> parentRigidbody = parent->GetRigidbody();
+
+    const int rayCount = 5;  // 발사할 광선의 개수
+    const float raySpreadAngle = 15.0f;  // 각 광선 사이의 각도 (단위: 도)
+    const float rayDistance = 10.0f;  // 광선의 최대 거리
+    Vec4 velocity(parentRigidbody->GetVelocity().x, parentRigidbody->GetVelocity().y, parentRigidbody->GetVelocity().z, 0.0f);
+    Vec4 rayDirection = velocity;
+
+    // 속도가 거의 없는 경우 현재 바라보는 방향으로 대체
+    if (rayDirection.LengthSquared() <= 0.01f * 0.01f) {
+        rayDirection = Vec4(parentTransform->GetLook().x, parentTransform->GetLook().y, parentTransform->GetLook().z, 0.0f);
+    }
+    rayDirection.Normalize();
+
+    // 회피 벡터를 저장할 변수 초기화
+    Vec3 accumulatedSteeringForce(0.0f, 0.0f, 0.0f);
+    Vec3 localPosition = parentTransform->GetLocalPosition();
+    Vec4 rayOrigin(localPosition.x, localPosition.y, localPosition.z, 1.0f);  // w 값 1.0f 설정
+
+    // Collider 보정
+    if (shared_ptr<BaseCollider> collider = parent->GetCollider()) {
+        rayOrigin.x += collider->GetCenter().x;
+        rayOrigin.y += collider->GetCenter().y;
+        rayOrigin.z += collider->GetCenter().z;
+
+        if (collider->GetColliderType() == ColliderType::Sphere) {
+            rayOrigin += rayDirection * collider->GetRadius();
+        }
+    }
+
+    // 여러 방향으로 광선을 발사하여 장애물 감지
+    for (int i = 0; i < rayCount; ++i) {
+
+        // 광선 방향 회전
+        float angle = (i - rayCount / 2) * raySpreadAngle;  // 중앙을 기준으로 회전 각도 계산
+        Vec4 rotatedRayDirection = RotateVector(rayDirection, angle);  // rayDirection을 각도만큼 회전
+
+        RaycastHit hitInfo;
+        if (GET_SINGLETON(PhysicsManager)->Raycast(rayOrigin, rotatedRayDirection, rayDistance, &hitInfo)) {
+            Vec3 rayDir3(rotatedRayDirection.x, rotatedRayDirection.y, rotatedRayDirection.z);  // 물체의 진행 방향
+            Vec3 hitNormal3(hitInfo.normal.x, hitInfo.normal.y, hitInfo.normal.z);  // 장애물의 법선 벡터
+            Vec3 hitPosition(hitInfo.point.x, hitInfo.point.y, hitInfo.point.z);  // 충돌 지점
+
+            // 현재 위치와 충돌 위치를 고려하여 회피 벡터 계산
+            Vec3 toHit = hitPosition - localPosition;  // 부모 객체에서 충돌 지점까지의 벡터
+            float distanceToHit = toHit.Length();
+            if (distanceToHit > 0.0f) {
+                toHit.Normalize();  // 충돌 지점 방향으로 정규화
+                Vec3 crossProduct = rayDir3.Cross(hitNormal3);
+
+                if (crossProduct.LengthSquared() > 0.01f * 0.01f) {
+                    crossProduct.Normalize();
+                    Vec3 desiredVelocity = crossProduct * velocity.Length();
+
+                    // 조종 힘 계산
+                    Vec3 steeringForce = (desiredVelocity - parentRigidbody->GetVelocity()) * 0.7f;
+                    accumulatedSteeringForce += steeringForce;  // 누적 회피 벡터
+                }
+            }
+        }
+    }
+
+    // 최종 회피 벡터 적용
+    if (accumulatedSteeringForce.LengthSquared() > 0.01f * 0.01f) {
+        parentRigidbody->SetVelocity(parentRigidbody->GetVelocity() + accumulatedSteeringForce);
+    }
 }

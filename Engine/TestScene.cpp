@@ -41,10 +41,10 @@ TestScene::TestScene() {
 
             gameObject->AddComponent(make_shared<BoxCollider>());
             gameObject->AddComponent(make_shared<Rigidbody>());
-            dynamic_pointer_cast<BoxCollider>(gameObject->GetCollider())->SetExtents(Vec3(40.f, 30.f, 40.f));
-            dynamic_pointer_cast<BoxCollider>(gameObject->GetCollider())->SetCenter(Vec3(0.f, 10.f, 0.f));
+            dynamic_pointer_cast<BoxCollider>(gameObject->GetCollider())->SetExtents(Vec3(200.f, 150.f, 200.f));
+            dynamic_pointer_cast<BoxCollider>(gameObject->GetCollider())->SetCenter(Vec3(0.f, 70.f, 0.f));
             gameObject->GetTransform()->SetLocalPosition(Vec3(210.f, 500.f, 0.f));
-            gameObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f));
+            gameObject->GetTransform()->SetLocalScale(Vec3(5.f, 5.f, 5.f));
             gameObject->GetRigidbody()->SetUseGravity(true);
             gameObject->GetRigidbody()->SetElasticity(0.0f);
 

@@ -38,7 +38,7 @@ void TestDragonScript::Update() {
 
     auto gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
 
-    if (INPUT->IsKeyPressed(DIK_F)) {
+    if (INPUT->IsKeyJustPressed(DIK_F)) {
 
         //for (auto& gameObject : gameObjects) {
         //    if (gameObject->GetName() == L"Bullet" && gameObject->IsEnable()) {

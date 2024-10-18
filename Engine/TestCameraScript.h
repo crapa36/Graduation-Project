@@ -13,8 +13,9 @@ public:
     TestCameraScript();
     virtual ~TestCameraScript();
 
-
     virtual void LateUpdate() override;
+
+    void AvoidObstaclesWithRays();
 
 private:
     float		_speed = 100.f;

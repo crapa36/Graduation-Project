@@ -36,6 +36,8 @@ public:
 
     bool Raycast(const Vec4& origin, const Vec4& direction, float maxDistance, RaycastHit* hitInfo);
 
+    void ApplyCollisionResponse(const shared_ptr<GameObject>& A, const shared_ptr<GameObject>& B, const Vec3& collisionNormal, float collisionDepth);
+
 private:
     void HandleCollision(shared_ptr<GameObject> objA, shared_ptr<GameObject> objB);
     void UpdatePhysics();

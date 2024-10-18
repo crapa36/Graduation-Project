@@ -99,17 +99,7 @@ void PhysicsManager::HandleCollision(std::shared_ptr<GameObject> objA, std::shar
     float collisionDepth = colliderA->GetCollisionDepth(colliderB);
 
     // 충돌 처리 로직
-    if (auto RigidbodyA = objA->GetRigidbody()) {
-
-        // objA의 충돌 노말은 그대로 사용
-        RigidbodyA->OnCollisionEnter(objB, collisionNormal, collisionDepth);
-    }
-
-    if (auto RigidbodyB = objB->GetRigidbody()) {
-
-        // objB의 충돌 노말은 반대 방향으로 적용
-        RigidbodyB->OnCollisionEnter(objA, -collisionNormal, collisionDepth);
-    }
+    ApplyCollisionResponse(objA, objB, collisionNormal, collisionDepth);
 
     // 충돌이 발생하지 않도록 위치 조정
     if (collisionDepth > 0.0f) {
@@ -169,7 +159,6 @@ void PhysicsManager::UpdatePhysics() {
     size_t gameObjectCount = gameObjects.size();
 
     for (size_t i = 0; i < gameObjectCount; ++i) {
-
         const auto& gameObject = gameObjects[i];
 
         if (!gameObject->IsEnable())
@@ -223,9 +212,7 @@ void PhysicsManager::UpdatePhysics() {
                 if (terrainCollider->Intersects(rayOrigin, rayDir, OUT distance) && (heightValue - terrainPosition.y > distance)) {
                     position.y = heightValue + gameObject->GetCollider()->GetHeight() - colliderCenter.y;
                     transform->SetLocalPosition(position);
-                    if (gameObject->GetRigidbody()) {
-                        gameObject->GetRigidbody()->OnCollisionEnter(terrain, gameObject->GetCollider()->GetCollisionNormal(terrainCollider), gameObject->GetCollider()->GetCollisionDepth(terrainCollider));
-                    }
+                    ApplyCollisionResponse(gameObject, terrain, Vec3(0.0f, 1.0f, 0.0f), 0.0f);
                     break;  // 한 Terrain과 충돌 시 나머지 Terrain 검사는 필요 없음
                 }
             }
@@ -258,4 +245,70 @@ bool PhysicsManager::Raycast(const Vec4& origin, const Vec4& direction, float ma
     }
 
     return hitDetected;
+}
+
+void PhysicsManager::ApplyCollisionResponse(const shared_ptr<GameObject>& A, const shared_ptr<GameObject>& B, const Vec3& collisionNormal, float collisionDepth) {
+    if (!A->GetCollider() || !B->GetCollider()) {
+        return; // 충돌체가 없으면 충돌 처리를 하지 않음
+    }
+
+    // A와 B의 Rigidbody를 가져옴
+    auto rigidbodyA = A->GetRigidbody();
+    auto rigidbodyB = B->GetRigidbody();
+
+    // A나 B 중 하나라도 Rigidbody가 없으면 물리 반응을 적용하지 않음
+    if (!rigidbodyA && !rigidbodyB) {
+        return;
+    }
+
+    // A와 B의 원래 속도를 저장
+    Vec3 velocityA = rigidbodyA ? rigidbodyA->GetVelocity() : Vec3(0, 0, 0);
+    Vec3 velocityB = rigidbodyB ? rigidbodyB->GetVelocity() : Vec3(0, 0, 0);
+
+    // 각 객체의 반발 계수(탄성) 계산 (탄성의 평균 사용)
+    float elasticityA = rigidbodyA ? rigidbodyA->GetElasticity() : 0.0f;
+    float elasticityB = rigidbodyB ? rigidbodyB->GetElasticity() : 0.0f;
+    float combinedElasticity = (elasticityA + elasticityB) * 0.5f;
+
+    // 충돌 방향에 따른 속도 계산
+    if (rigidbodyA) {
+        float velocityDotNormalA = velocityA.Dot(collisionNormal);
+        Vec3 newVelocityA = (velocityA - 2.0f * velocityDotNormalA * collisionNormal) * combinedElasticity;
+        rigidbodyA->SetVelocity(newVelocityA);
+
+        // 충돌 깊이에 따른 힘 적용 (A)
+        rigidbodyA->AddForce(collisionNormal * collisionDepth * 2.0f);
+
+        // B의 속도에 따른 상대 속도 적용 (B가 Rigidbody가 있을 때)
+        if (rigidbodyB) {
+            Vec3 relativeVelocityB = velocityB - velocityA;
+            rigidbodyA->AddForce(relativeVelocityB * 0.5f);
+        }
+
+        // A가 Terrain과 충돌한 경우, Grounded 설정
+        if (B->GetTerrain()) {
+            rigidbodyA->SetGrounded(true);
+        }
+    }
+
+    // B에 대한 충돌 반응 적용
+    if (rigidbodyB) {
+        float velocityDotNormalB = velocityB.Dot(collisionNormal);
+        Vec3 newVelocityB = (velocityB - 2.0f * velocityDotNormalB * collisionNormal) * combinedElasticity;
+        rigidbodyB->SetVelocity(newVelocityB);
+
+        // 충돌 깊이에 따른 힘 적용 (B)
+        rigidbodyB->AddForce(-collisionNormal * collisionDepth * 2.0f); // 반대 방향으로 힘 적용
+
+        // A의 속도에 따른 상대 속도 적용 (A가 Rigidbody가 있을 때)
+        if (rigidbodyA) {
+            Vec3 relativeVelocityA = velocityA - velocityB;
+            rigidbodyB->AddForce(relativeVelocityA * 0.5f);
+        }
+
+        // B가 Terrain과 충돌한 경우, Grounded 설정
+        if (A->GetTerrain()) {
+            rigidbodyB->SetGrounded(true);
+        }
+    }
 }

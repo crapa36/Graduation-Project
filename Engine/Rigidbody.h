@@ -16,8 +16,6 @@ public:
     void AddForce(const Vec3& force);
     void AddTorque(const Vec3& torque);
 
-    void OnCollisionEnter(const std::shared_ptr<GameObject>& other, const Vec3 collisionNormal, const float collisionDepth);
-
     void SetMass(float mass) { _mass = mass; }
     void SetDrag(float drag) { _drag = drag; }
     void SetAngularDrag(float angularDrag) { _angularDrag = angularDrag; }
@@ -25,6 +23,8 @@ public:
     void SetIsKinematic(bool isKinematic) { _isKinematic = isKinematic; }
     void SetElasticity(float elasticity) { _elasticity = elasticity; }
     void SetVelocity(Vec3 velocity) { _velocity = velocity; }
+    void SetAngularVelocity(Vec3 angularVelocity) { _angularVelocity = angularVelocity; }
+    void SetGrounded(bool isGrounded) { _isGrounded = isGrounded; }
 
     Vec3 GetVelocity() const { return _velocity; }
     Vec3 GetAngularVelocity() const { return _angularVelocity; }
@@ -34,6 +34,8 @@ public:
     float GetAngularDrag() const { return _angularDrag; }
     bool GetUseGravity() const { return _useGravity; }
     bool GetIsKinematic() const { return _isKinematic; }
+    float GetElasticity() const { return _elasticity; }
+    bool GetGrounded() const { return _isGrounded; }
 
 private:
 

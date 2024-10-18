@@ -68,23 +68,3 @@ void Rigidbody::AddTorque(const Vec3& torque) {
         _angularVelocity += angularAcceleration * DELTA_TIME;  // 시간에 따른 토크의 효과 반영
     }
 }
-
-void Rigidbody::OnCollisionEnter(const std::shared_ptr<GameObject>& other, const Vec3 collisionNormal, const float collisionDepth) {
-    if (!GetCollider() || !other->GetCollider()) {
-        return;
-    }
-
-    // 물리 반응 적용
-    float velocityDotNormal = _velocity.Dot(collisionNormal);
-    _velocity = (_velocity - 2.0f * velocityDotNormal * collisionNormal) * _elasticity;
-
-    // 충돌 깊이에 따른 힘 적용
-    //AddForce(collisionNormal * collisionDepth * 2.0f);
-
-    //상대 속도에 따른 힘 적용
-    //AddForce(other->GetRigidbody()->GetVelocity() * 0.5f);
-
-    if (other->GetTerrain()) {
-        _isGrounded = true;
-    }
-}
