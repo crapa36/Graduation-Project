@@ -25,14 +25,19 @@ void Scene::Start() {
 }
 
 void Scene::Update() {
-    for (shared_ptr<GameObject>& gameObject : _gameObjects) {
-        gameObject->GetName();
-        if (gameObject->IsEnable())
-            gameObject->Update();
+    size_t size = _gameObjects.size();
+    for (size_t i = 0; i < size; i++) {
+        if (_gameObjects[i]->IsEnable()) {
+            _gameObjects[i]->Update();
+        }
     }
+    /*for (const shared_ptr<GameObject>& gameObject : _gameObjects) {
+        if (gameObject->IsEnable()) {
+            gameObject->Update();
+        }
+    }*/
     GET_SINGLETON(PhysicsManager)->Update();
 }
-
 void Scene::LateUpdate() {
     for (const shared_ptr<GameObject>& gameObject : _gameObjects) {
         if (gameObject->IsEnable())
@@ -58,10 +63,9 @@ void Scene::Render() {
     RenderReflection();
 
     RenderDeferred();
-    
 
     RenderLights();
-    
+
     RenderFinal();
 
     RenderForward();
@@ -149,8 +153,6 @@ void Scene::RenderFinal() {
 }
 
 void Scene::RenderForward() {
-
-
     shared_ptr<Camera> mainCamera = _cameras[0];
     shared_ptr<Camera> reflectionCamera = GetReflectionCamera();
     mainCamera->Render_Forward();
@@ -172,8 +174,7 @@ shared_ptr<Camera> Scene::GetMainCamera() {
     return _cameras[0];
 }
 
-shared_ptr<class Camera> Scene::GetReflectionCamera()
-{
+shared_ptr<class Camera> Scene::GetReflectionCamera() {
     for (shared_ptr<GameObject> obj : _gameObjects) {
         if (obj->GetName() == L"Reflection_Camera") {
             return obj->GetCamera();
