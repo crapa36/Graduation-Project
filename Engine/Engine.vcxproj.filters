@@ -189,9 +189,6 @@
     <ClCompile Include="TestPlayerScript.cpp">
       <Filter>Scenes\Scripts</Filter>
     </ClCompile>
-    <ClCompile Include="TestDragonScript.cpp">
-      <Filter>Scenes\Scripts</Filter>
-    </ClCompile>
     <ClCompile Include="BoxCollider.cpp">
       <Filter>Object\Component\Collider</Filter>
     </ClCompile>
@@ -220,6 +217,15 @@
       <Filter>Scenes\Scripts</Filter>
     </ClCompile>
     <ClCompile Include="MenuScript.cpp">
+      <Filter>Scenes\Scripts</Filter>
+    </ClCompile>
+    <ClCompile Include="TestDragonScript.cpp">
+      <Filter>Scenes\Scripts</Filter>
+    </ClCompile>
+    <ClCompile Include="TestWaterScript.cpp">
+      <Filter>Scenes\Scripts</Filter>
+    </ClCompile>
+    <ClCompile Include="BulletScript.cpp">
       <Filter>Scenes\Scripts</Filter>
     </ClCompile>
   </ItemGroup>
@@ -415,6 +421,12 @@
       <Filter>Scenes\Scripts</Filter>
     </ClInclude>
     <ClInclude Include="MenuScript.h">
+      <Filter>Scenes\Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="TestWaterScript.h">
+      <Filter>Scenes\Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="BulletScript.h">
       <Filter>Scenes\Scripts</Filter>
     </ClInclude>
   </ItemGroup>

@@ -14,6 +14,7 @@
 #include "SphereCollider.h"
 #include "MeshRenderer.h"
 #include "Resources.h"
+#include "BulletScript.h"
 
 
 
@@ -35,7 +36,7 @@ void TestDragonScript::Update() {
 
         int32 index = (currentIndex - 1 + count) % count;  // 이전 애니메이션
         GetAnimator()->Play(index);
-    }   
+    }  
 }
 
 void TestDragonScript::LateUpdate() {
@@ -55,8 +56,6 @@ void TestDragonScript::LateUpdate() {
             }
         }
 
-        
-
         // DEL 키로 디버그 모드 전환
         if (INPUT->IsKeyJustPressed(DIK_DELETE)) {
             GEngine->SetDebugMode(!GEngine->GetDebugMode());
@@ -67,33 +66,4 @@ void TestDragonScript::LateUpdate() {
             GEngine->SetImguiMode(!GEngine->GetImguiMode());
         }
     }
-}
-
-void TestDragonScript::MakeBullet() {
-    shared_ptr<GameObject> bullet = make_shared<GameObject>();
-    
-    bullet->AddComponent(make_shared<Transform>());
-    bullet->AddComponent(make_shared<SphereCollider>());
-    bullet->AddComponent(make_shared<Rigidbody>());
-    shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
-    {
-        shared_ptr<Mesh> sphereMesh = GET_SINGLETON(Resources)->LoadSphereMesh();
-        meshRenderer->SetMesh(sphereMesh);
-    }
-    {
-        shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Pebbles");
-        meshRenderer->SetMaterial(material->Clone());
-    }
-    bullet->AddComponent(meshRenderer);
-
-    
-    bullet->SetName(L"Bullet");
-    bullet->GetTransform()->SetParent(GetTransform());
-    bullet->GetTransform()->SetInheritRevolution(false);
-    bullet->GetTransform()->SetInheritRotation(false);
-
-    bullet->GetCollider()->SetRadius(10.f);
-    bullet->GetRigidbody()->SetVelocity(GetTransform()->GetLook());
-    bullet->SetEnable(true);
-    GET_SINGLETON(SceneManager)->GetActiveScene()->AddGameObject(bullet);
 }
