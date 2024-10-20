@@ -3,7 +3,8 @@
 
 enum class ColliderType {
     Sphere,
-    Box
+    Box,
+    Capsule
 };
 
 class BaseCollider : public Component {

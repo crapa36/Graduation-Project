@@ -252,63 +252,65 @@ void PhysicsManager::ApplyCollisionResponse(const shared_ptr<GameObject>& A, con
         return; // 충돌체가 없으면 충돌 처리를 하지 않음
     }
 
-    // A와 B의 Rigidbody를 가져옴
     auto rigidbodyA = A->GetRigidbody();
     auto rigidbodyB = B->GetRigidbody();
 
-    // A나 B 중 하나라도 Rigidbody가 없으면 물리 반응을 적용하지 않음
-    if (!rigidbodyA && !rigidbodyB) {
-        return;
+    // A와 B 중 한쪽에만 리지드바디가 있을 때의 처리
+    bool hasRigidbodyA = (rigidbodyA != nullptr);
+    bool hasRigidbodyB = (rigidbodyB != nullptr);
+
+    if (!hasRigidbodyA && !hasRigidbodyB) {
+        return;  // 둘 다 리지드바디가 없으면 처리할 필요 없음
     }
 
-    // A와 B의 원래 속도를 저장
-    Vec3 velocityA = rigidbodyA ? rigidbodyA->GetVelocity() : Vec3(0, 0, 0);
-    Vec3 velocityB = rigidbodyB ? rigidbodyB->GetVelocity() : Vec3(0, 0, 0);
+    // 각 객체의 속도와 질량, 탄성 계수 가져오기
+    Vec3 velocityA = hasRigidbodyA ? rigidbodyA->GetVelocity() : Vec3(0, 0, 0);
+    Vec3 velocityB = hasRigidbodyB ? rigidbodyB->GetVelocity() : Vec3(0, 0, 0);
 
-    // 각 객체의 반발 계수(탄성) 계산 (탄성의 평균 사용)
-    float elasticityA = rigidbodyA ? rigidbodyA->GetElasticity() : 0.0f;
-    float elasticityB = rigidbodyB ? rigidbodyB->GetElasticity() : 0.0f;
+    float massA = hasRigidbodyA ? rigidbodyA->GetMass() : 0.0f;
+    float massB = hasRigidbodyB ? rigidbodyB->GetMass() : 0.0f;
+
+    float elasticityA = hasRigidbodyA ? rigidbodyA->GetElasticity() : 0.0f;
+    float elasticityB = hasRigidbodyB ? rigidbodyB->GetElasticity() : 0.0f;
     float combinedElasticity = (elasticityA + elasticityB) * 0.5f;
 
-    // 충돌 방향에 따른 속도 계산
-    if (rigidbodyA) {
-        float velocityDotNormalA = velocityA.Dot(collisionNormal);
-        Vec3 newVelocityA = (velocityA - 2.0f * velocityDotNormalA * collisionNormal) * combinedElasticity;
-        rigidbodyA->SetVelocity(newVelocityA);
+    Vec3 relativeVelocity = velocityB - velocityA;
+    float normalVelocity = relativeVelocity.Dot(collisionNormal);
 
-        // 충돌 깊이에 따른 힘 적용 (A)
-        rigidbodyA->AddForce(collisionNormal * collisionDepth * 2.0f);
+    // 충돌을 통한 속도 변화 계산 (양쪽이 다 리지드바디일 때만 반발력 적용)
+    if (normalVelocity < 0) {
+        float restitution = combinedElasticity;
 
-        // B의 속도에 따른 상대 속도 적용 (B가 Rigidbody가 있을 때)
-        if (rigidbodyB) {
-            Vec3 relativeVelocityB = velocityB - velocityA;
-            rigidbodyA->AddForce(relativeVelocityB * 0.5f);
+        // 질량 기반 반발 계산
+        float impulseMagnitude = -(1 + restitution) * normalVelocity;
+        impulseMagnitude /= (massA > 0 ? (1 / massA) : 0.0f) + (massB > 0 ? (1 / massB) : 0.0f);
+
+        Vec3 impulse = impulseMagnitude * collisionNormal;
+
+        if (hasRigidbodyA) {
+            rigidbodyA->AddForce(-impulse);
         }
 
-        // A가 Terrain과 충돌한 경우, Grounded 설정
-        if (B->GetTerrain()) {
-            rigidbodyA->SetGrounded(true);
+        if (hasRigidbodyB) {
+            rigidbodyB->AddForce(impulse);
         }
     }
 
-    // B에 대한 충돌 반응 적용
-    if (rigidbodyB) {
-        float velocityDotNormalB = velocityB.Dot(collisionNormal);
-        Vec3 newVelocityB = (velocityB - 2.0f * velocityDotNormalB * collisionNormal) * combinedElasticity;
-        rigidbodyB->SetVelocity(newVelocityB);
+    // 충돌 깊이에 따른 힘 적용
+    if (hasRigidbodyA) {
+        rigidbodyA->AddForce(collisionNormal * collisionDepth * 2.0f);
+    }
 
-        // 충돌 깊이에 따른 힘 적용 (B)
+    if (hasRigidbodyB) {
         rigidbodyB->AddForce(-collisionNormal * collisionDepth * 2.0f); // 반대 방향으로 힘 적용
+    }
 
-        // A의 속도에 따른 상대 속도 적용 (A가 Rigidbody가 있을 때)
-        if (rigidbodyA) {
-            Vec3 relativeVelocityA = velocityA - velocityB;
-            rigidbodyB->AddForce(relativeVelocityA * 0.5f);
-        }
+    // A 또는 B가 Terrain과 충돌한 경우 Grounded 설정
+    if (hasRigidbodyA && B->GetTerrain()) {
+        rigidbodyA->SetGrounded(true);
+    }
 
-        // B가 Terrain과 충돌한 경우, Grounded 설정
-        if (A->GetTerrain()) {
-            rigidbodyB->SetGrounded(true);
-        }
+    if (hasRigidbodyB && A->GetTerrain()) {
+        rigidbodyB->SetGrounded(true);
     }
 }

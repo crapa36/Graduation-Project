@@ -46,11 +46,13 @@ private:
     Vec3 _extents = Vec3(0, 0, 0);
     Vec3 _center = Vec3(0, 0, 0);
     XMFLOAT4 _orientation = XMFLOAT4(0, 0, 0, 1.f);
+    BoundingOrientedBox _boundingBox;
 
+#ifdef _DEBUG
     shared_ptr<class Mesh> _mesh;
     shared_ptr<class Material> _material;
 
     shared_ptr<class GameObject> _DebugObject;
 
-    BoundingOrientedBox _boundingBox;
+#endif // DEBUG
 };

@@ -228,6 +228,9 @@
     <ClCompile Include="BulletScript.cpp">
       <Filter>Scenes\Scripts</Filter>
     </ClCompile>
+    <ClCompile Include="CapsuleCollider.cpp">
+      <Filter>Object\Component\Collider</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -428,6 +431,9 @@
     </ClInclude>
     <ClInclude Include="BulletScript.h">
       <Filter>Scenes\Scripts</Filter>
+    </ClInclude>
+    <ClInclude Include="CapsuleCollider.h">
+      <Filter>Object\Component\Collider</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
