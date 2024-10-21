@@ -30,11 +30,9 @@ void NetworkManager::Init(){
     if (!connect_to_server("127.0.0.1")) {
     }
     
-    g_recv_over._wsabuf.len = BUF_SIZE;
-    g_recv_over._wsabuf.buf = g_recv_over._send_buf;
-    DWORD flags = 0;
-    WSARecv(g_socket, &g_recv_over._wsabuf, 1, NULL, &flags, &g_recv_over._over, RecvCallback);
-    send_login_packet();
+    // TODO: 이게 지금 되면 안돼.
+    // 소켓 연결만 하고 ID정도만 서버에서 저장하게끔
+    // send_login_packet();
 }
 
 
@@ -53,7 +51,7 @@ void NetworkManager::Update(){
                     std::chrono::duration_cast<std::chrono::milliseconds>(now - lastSendTime).count() > 100) {
 
                     //방향 가져오기
-                    send_move_packet(worldPos, worldRot);
+                    // send_move_packet(worldPos, worldRot);
                     lastSentPosition = worldPos;
                     lastSendTime = now;
                 }
@@ -63,10 +61,6 @@ void NetworkManager::Update(){
 }
 
 void NetworkManager::LateUpdate()
-{
-}
-
-void NetworkManager::FinalUpdate()
 {
 }
 
@@ -102,8 +96,12 @@ bool NetworkManager::connect_to_server(const char* ip_address)
 
 void NetworkManager::send_login_packet()
 {
+    g_recv_over._wsabuf.len = BUF_SIZE;
+    g_recv_over._wsabuf.buf = g_recv_over._send_buf;
+    DWORD flags = 0;
+    WSARecv(g_socket, &g_recv_over._wsabuf, 1, NULL, &flags, &g_recv_over._over, RecvCallback);
+
     CS_LOGIN_PACKET packet;
-    
     int result = send(g_socket, reinterpret_cast<char*>(&packet), sizeof(packet), 0);
     if (result == SOCKET_ERROR) {
         std::cerr << "Error sending login packet. Error code: " << WSAGetLastError() << std::endl;
@@ -111,7 +109,7 @@ void NetworkManager::send_login_packet()
     else {
         std::cout << "Login packet sent successfully." << std::endl;
     }
-}
+}   
 
 void ProcessPacket(char* packet, DWORD dataLength)
 {
@@ -130,19 +128,20 @@ void ProcessPacket(char* packet, DWORD dataLength)
     }
     case SC_ADD_PLAYER: {
         SC_ADD_PLAYER_PACKET* p = reinterpret_cast<SC_ADD_PLAYER_PACKET*>(packet);
-        //std::cout << "New player added. ID: " << p->id << ", Name: " << p->name << std::endl;
+        // std::cout << "New player added. ID: " << p->id << ", Name: " << p->name << std::endl;
         {
             wstring path = L"../Resources/BIN/Gunship.bin";
+            
             shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadBIN(path);
 
-            shared_ptr<GameObject> client = make_shared<GameObject>();
+            shared_ptr<GameObject> mainObject = make_shared<GameObject>();
 
             
-            client->SetName(L"Main");
-            client->SetCheckFrustum(false);
-            //id? 
-
-            client->AddComponent(make_shared<Transform>());
+            mainObject->SetName(L"Main");
+            mainObject->SetCheckFrustum(false);
+            mainObject->SetClientID(p->id);
+            
+            mainObject->AddComponent(make_shared<Transform>());
             shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
             {
                 shared_ptr<Mesh> sphereMesh = GET_SINGLETON(Resources)->LoadPointMesh();
@@ -152,20 +151,22 @@ void ProcessPacket(char* packet, DWORD dataLength)
                 shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Pebbles");
                 meshRenderer->SetMaterial(material->Clone());
             }
-            client->AddComponent(meshRenderer);
+            mainObject->AddComponent(meshRenderer);
 
-            client->AddComponent(make_shared<BoxCollider>());
-            client->AddComponent(make_shared<Rigidbody>());
-            dynamic_pointer_cast<BoxCollider>(client->GetCollider())->SetExtents(Vec3(40.f, 30.f, 40.f));
-            dynamic_pointer_cast<BoxCollider>(client->GetCollider())->SetCenter(Vec3(0.f, 10.f, 0.f));
-            client->GetTransform()->SetLocalPosition(Vec3(p->x, p->y, p->z)); //여기가 좌표
-            client->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f)); // 여기가 크기
-            client->GetRigidbody()->SetUseGravity(false);
-            client->GetRigidbody()->SetElasticity(0.0f);
-            client->GetRigidbody()->SetDrag(0.95f);
+            mainObject->AddComponent(make_shared<BoxCollider>());
+            mainObject->AddComponent(make_shared<Rigidbody>());
+            dynamic_pointer_cast<BoxCollider>(mainObject->GetCollider())->SetExtents(Vec3(40.f, 30.f, 40.f));
+            dynamic_pointer_cast<BoxCollider>(mainObject->GetCollider())->SetCenter(Vec3(0.f, 10.f, 0.f));
+            mainObject->GetTransform()->SetLocalPosition(Vec3(p->x, p->y, p->z)); //여기가 좌표
+            mainObject->GetTransform()->SetLocalScale(Vec3(1.f, 1.f, 1.f)); // 여기가 크기
+            mainObject->GetRigidbody()->SetUseGravity(false);
+            mainObject->GetRigidbody()->SetElasticity(0.0f);
+            mainObject->GetRigidbody()->SetDrag(0.95f);
 
-            client->SetStatic(false);
-            GET_SINGLETON(SceneManager)->GetActiveScene()->AddGameObject(client);
+            mainObject->SetStatic(false);
+            mainObject->Awake();
+            mainObject->Start();
+            GET_SINGLETON(SceneManager)->GetActiveScene()->AddGameObject(mainObject);
            
 
             vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
@@ -173,12 +174,17 @@ void ProcessPacket(char* packet, DWORD dataLength)
             for (auto& gameObject : gameObjects) {
                 gameObject->SetCheckFrustum(false);
 
-                gameObject->SetParent(client);
+                gameObject->SetParent(mainObject);
 
                 gameObject->SetStatic(false);
+                gameObject->Awake();
+                gameObject->Start();
                 GET_SINGLETON(SceneManager)->GetActiveScene()->AddGameObject(gameObject);
             }
+
+
         }
+        std::cout << "Player ADDED. ID: " << p->id << std::endl;
         break;
     }
     case SC_REMOVE_PLAYER: {
@@ -189,10 +195,21 @@ void ProcessPacket(char* packet, DWORD dataLength)
     }
     case CS_PLAYER_MOVE: {
         CS_PLAYER_MOVE_PACKET* p = reinterpret_cast<CS_PLAYER_MOVE_PACKET*>(packet);
-         
-         //GameObject* player = FindPlayerById(p->id);
-         //if (player)
-             //player->GetTransform()->SetPosition(Vec3(p->x, p->y, p->z));
+        auto& gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
+        for (auto& gameObject : gameObjects) {
+            if (gameObject.get()->GetClientID() == p->id) {
+                if (gameObject.get()->GetTransform())
+                {
+                    if (gameObject->GetTransform()->GetWorldPosition() != Vec3(p->x, p->y, p->z)) {
+                        gameObject->GetTransform()->GetWorldPosition() = Vec3(p->x, p->y, p->z);
+                    }
+                    if (gameObject->GetTransform()->GetLook() != Vec3(p->rx, p->ry, p->rz)) {
+                        gameObject->GetTransform()->GetLook() = Vec3(p->rx, p->ry, p->rz);
+                    }
+                    
+                }
+            }
+        }
         break;
     }
     default:

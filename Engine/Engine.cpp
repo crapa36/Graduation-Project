@@ -51,7 +51,7 @@ void Engine::Update() {
     GET_SINGLETON(InstancingManager)->ClearBuffer();
     if (_imguiMode)
         GET_SINGLETON(ImguiManager)->Update();
-    GET_SINGLETON(NetworkManager)->Update();
+    //GET_SINGLETON(NetworkManager)->Update();
     Render();
 
     ShowFps();

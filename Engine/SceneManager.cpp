@@ -274,7 +274,7 @@ void SceneManager::LoadScene(wstring sceneName) {
 
     _activeScene = Scenes.at(sceneName);
 
-    //SaveScene(L"../Resources/main_scene.bin");
+    //SaveScene(L"../Resources/main_scene.bin");d
 
     _activeScene->Awake();
     _activeScene->Start();

@@ -108,7 +108,7 @@ void SESSION::send_add_player_packet(int c_id)
 	add_packet.x = clients[c_id].x;
 	add_packet.y = clients[c_id].y;
 	add_packet.z = clients[c_id].z;
-	std::cout << "send add_player_packet to " << clients[c_id]._id << std::endl;
+	std::cout << "send add_player_packet " << _id << " to " << clients[c_id]._id << std::endl;
 	do_send(&add_packet);
 }
 
@@ -137,12 +137,18 @@ void process_packet(int c_id, char* packet)
 {
 	switch (packet[1]) {
 	case CS_LOGIN: {
+		std::cout << c_id << "is login" << std::endl;
 		CS_LOGIN_PACKET* p = reinterpret_cast<CS_LOGIN_PACKET*>(packet);
-		clients[c_id]._name = p->name;
+		clients[c_id]._name = p->name; // TODO: 이건 지우고 연결이 된 다음에 추가를 해.
+		// 위치정보는 씬이 교체가 되었을 떄. 
 		clients[c_id].x = p->x;
 		clients[c_id].y = p->y;
 		clients[c_id].z = p->z;
+		// TODO 클라가 굳이 서버에서 관리하는 클라이언트 id를 알아야 할 필요가 있나?
 		clients[c_id].send_login_info_packet();
+		// TODO: 이것도 당장 하면 안돼. 일단 씬이 넘어간 다음에 객체가 생기고 난 다음
+		// 객체끼리의 add_player 패킷을 보내야 함.
+		// 객체가 서로 안보이는 이유가 바로 이거다.
 		for (auto& pl : clients) {
 			if (ST_INGAME != pl._state) continue;
 			if (pl._id == c_id) continue;
@@ -151,6 +157,8 @@ void process_packet(int c_id, char* packet)
 		}
 		break;
 	}
+	
+
 	case CS_PLAYER_MOVE: {
 		CS_PLAYER_MOVE_PACKET* p = reinterpret_cast<CS_PLAYER_MOVE_PACKET*>(packet);
 		clients[c_id].x = p->x;
@@ -159,7 +167,7 @@ void process_packet(int c_id, char* packet)
 		//std::cout <<"clients["<< c_id << "] Pos : " << clients[c_id].x << ", " << clients[c_id].y << ", " << clients[c_id].z << std::endl;
 		for (auto& cl : clients) {
 			if (cl._state != ST_INGAME) continue;
-			cl.send_move_packet(c_id);
+			// cl.send_move_packet(c_id);
 
 		}
 	}

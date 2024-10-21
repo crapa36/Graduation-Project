@@ -16,6 +16,7 @@
 #include "TestCameraScript.h"
 #include "TestPlayerScript.h"
 #include "TestDragonScript.h"
+#include "NetworkScript.h"
 
 #include "Resources.h"
 #include "Terrain.h"
@@ -358,6 +359,19 @@ TestScene::TestScene() {
         _scene->AddGameObject(particle);
     }
 #pragma endregion
+
+#pragma region MoongTangE
+    {
+        shared_ptr<GameObject> network = make_shared<GameObject>();
+        network->SetName(L"Network");
+        network->AddComponent(make_shared<Transform>());
+        network->GetTransform()->SetLocalScale(Vec3(0.f, 0.f, 0.f));
+        network->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 0.f));
+        network->AddComponent(make_shared<NetworkScript>());
+        _scene->AddGameObject(network);
+    }
+#pragma endregion
+
 }
 TestScene::~TestScene() {
 }

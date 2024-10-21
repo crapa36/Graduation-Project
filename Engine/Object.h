@@ -29,6 +29,8 @@ public:
     const wstring& GetName() { return _name; }
 
     uint32 GetID() { return _id; }
+    void SetClientID(int c_id) { _c_id = c_id; }
+    int GetClientID() { return _c_id; }
 
     // TODO : Instantiate
 
@@ -41,4 +43,5 @@ protected:
     OBJECT_TYPE _objectType = OBJECT_TYPE::NONE;
     wstring _name;
     uint32 _id = 0;
+    int _c_id = -1;
 };

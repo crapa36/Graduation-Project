@@ -18,6 +18,7 @@ public:
     void Update();
     void LateUpdate();
     void FinalUpdate();
+    void send_login_packet();
 
 private:
     Vec3 lastSentPosition;                              //최근 위치
@@ -28,7 +29,8 @@ private:
     bool connect_to_server(const char* ip_address);
     
     void cleanup();
-    void send_login_packet();
+    // 새로운 함수 추가
+    
     void send_move_packet(Vec3 Pos, Vec3 Rot);
    
 };

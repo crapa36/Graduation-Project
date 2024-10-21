@@ -219,6 +219,9 @@
     <ClCompile Include="NetworkManager.cpp">
       <Filter>Manager</Filter>
     </ClCompile>
+    <ClCompile Include="NetworkScript.cpp">
+      <Filter>Scenes\Scripts</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -410,6 +413,9 @@
     </ClInclude>
     <ClInclude Include="NetworkManager.h">
       <Filter>Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkScript.h">
+      <Filter>Scenes\Scripts</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
