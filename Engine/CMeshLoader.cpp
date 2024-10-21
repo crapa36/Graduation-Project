@@ -345,7 +345,7 @@ CMeshInfo CMeshLoader::LoadFrameHierarchy(FILE* pInFile) {
     info.transform->SetLocalPosition(xmf3Position);
     info.transform->SetLocalScale(xmf3Scale);
     info.transform->SetLocalRotation(xmf3Rotation);
-    info.transform->SetLocalRotationQuaternion(xmf4Rotation);
+    info.transform->SetLocalRotation(xmf4Rotation);
 
     return info;
 }

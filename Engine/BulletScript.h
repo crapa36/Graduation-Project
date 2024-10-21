@@ -11,5 +11,5 @@ public:
     virtual void LateUpdate() override;
 
 private:
-    float _speed = 100.f;
+    float _lifeTime = 10.f;
 };
