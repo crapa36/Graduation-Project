@@ -52,7 +52,7 @@ shared_ptr<MeshData> MeshData::LoadFromBIN(const wstring& path) {
         if (!loader->GetMesh(i).vertices.empty()) {
             shared_ptr<Mesh> mesh = Mesh::CreateFromBIN(&loader->GetMesh(i), loader);
             mesh->SetTransform(loader->GetMesh(i).transform);
-
+            mesh->SetName(s2ws(loader->GetMesh(i).name));
             //mesh->SetTransform(make_shared<Transform>());
             GET_SINGLETON(Resources)->Add<Mesh>(mesh->GetName(), mesh);
 

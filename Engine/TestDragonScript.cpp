@@ -38,6 +38,21 @@ void TestDragonScript::Update() {
 
     auto gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
 
+    for (const shared_ptr<GameObject> obj : gameObjects) {
+        Vec3 rotation = obj->GetTransform()->GetLocalRotation();
+        if (obj->GetName() == L"Rotor_Instance")
+        {
+            rotation.y += 0.5f;
+            obj->GetTransform()->SetLocalRotation(rotation);
+        }
+        else if (obj->GetName() == L"Back_Rotor_Instance")
+        {
+            rotation.x += 0.5f;
+            obj->GetTransform()->SetLocalRotation(rotation);
+        }
+    }
+
+
     if (INPUT->IsKeyJustPressed(DIK_F)) {
 
         //for (auto& gameObject : gameObjects) {
