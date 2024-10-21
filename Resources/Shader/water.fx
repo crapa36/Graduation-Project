@@ -12,11 +12,12 @@ struct VS_INPUT
 struct VS_OUTPUT
 {
     float4 pos : SV_POSITION;
-    float3 worldPos : TEXCOORD;
+    float3 worldPos : TEXCOORD0;
     float3 normal : TEXCOORD1;
     float2 texCoord : TEXCOORD2;
     float3 tangent : TEXCOORD3;
     float3 viewDir : TEXCOORD4;
+    float3 bitangent : TEXCOORD5;
 };
 
 VS_OUTPUT VS_Main(VS_INPUT input)
@@ -32,20 +33,23 @@ VS_OUTPUT VS_Main(VS_INPUT input)
     output.viewDir = normalize(viewPosition - output.worldPos);
 
     // 정점 위치 변환
-    output.pos = mul(worldPos, g_matView);
-    output.pos = mul(output.pos, g_matProjection);
+    float4 viewPos = mul(worldPos, g_matView);
+    output.pos = mul(viewPos, g_matProjection);
 
     // 노멀과 탄젠트 변환
-    output.normal = mul(float4(input.normal, 0.0f), g_matWorld).xyz;
-    output.tangent = mul(float4(input.tangent, 0.0f), g_matWorld).xyz;
+    float3 N = normalize(mul(input.normal, (float3x3) g_matWorld));
+    float3 T = normalize(mul(input.tangent, (float3x3) g_matWorld));
+    float3 B = cross(N, T);
+
+    output.normal = N;
+    output.tangent = T;
+    output.bitangent = B;
 
     // 텍스처 좌표 전달
     output.texCoord = input.texCoord;
 
     return output;
 }
-
-
 // PBR 구조체
 struct PBRMaterial
 {
@@ -69,7 +73,7 @@ float3 FresnelSchlick(float cosTheta, float3 F0)
 }
 
 // 메인 Pixel Shader
-float4 PS_Main(VS_OUTPUT input) : SV_Target
+float4 main(VS_OUTPUT input) : SV_Target
 {
     // 노멀 맵 샘플링
     float3 normal = normalize(input.normal);
@@ -133,4 +137,5 @@ float4 PS_Main(VS_OUTPUT input) : SV_Target
     color = saturate(color);
 
     return float4(color, 1.0f);
+}
 }

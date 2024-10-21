@@ -113,6 +113,12 @@ void Engine::CreateRenderTargetGroups() {
                                                                             CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                             D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
 
+    // ReflecitionDepthStencil
+    shared_ptr<Texture> dsTexture = GET_SINGLETON(Resources)->CreateTexture(L"DepthStencil",
+        DXGI_FORMAT_D32_FLOAT, _window.clientWidth, _window.clientHeight,
+        CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+        D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+
     // SwapChain Group
     {
         vector<RenderTarget> rtVec(SWAP_CHAIN_BUFFER_COUNT);

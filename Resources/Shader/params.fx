@@ -4,6 +4,8 @@
 //텍스쳐 배열 크기 정의
 #define MAX_TEXTURES 8
 
+#define PI 3.1415926
+
 struct LightColor
 {
     float4 diffuse;

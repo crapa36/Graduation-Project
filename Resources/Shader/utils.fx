@@ -128,6 +128,7 @@ void Skinning(inout float3 pos, inout float3 normal, inout float3 tangent,
     tangent = normalize(info.tangent);
     normal = normalize(info.normal);
 }
+
 // 깊이 값을 이용하여 스크린 좌표를 월드 좌표로 변환
 float3 ReconstructPosition(float2 uv, float depth)
 {
@@ -168,4 +169,50 @@ float3 ScreenSpaceRayTracing(float2 uv, float3 rayDir, float currentDepth)
 
     return reflectedColor;
 }
+
+
+// GGX 분포 함수
+float DistributionGGX(float3 N, float3 H, float roughness)
+{
+    float a = roughness * roughness;
+    float a2 = a * a;
+    float NdotH = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH * NdotH;
+
+    float numerator = a2;
+    float denominator = (NdotH2 * (a2 - 1.0) + 1.0);
+ 
+    denominator = PI * denominator * denominator;
+
+    return numerator / denominator;
+}
+
+// Schlick의 근사 기하 함수
+float GeometrySchlickGGX(float NdotV, float roughness)
+{
+    float r = (roughness + 1.0);
+    float k = (r * r) / 8.0;
+
+    float numerator = NdotV;
+    float denominator = NdotV * (1.0 - k) + k;
+
+    return numerator / denominator;
+}
+
+// Smith의 기하 함수
+float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
+{
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+    return ggx1 * ggx2;
+}
+
+// Fresnel-Schlick 근사
+float3 fresnelSchlick(float cosTheta, float3 F0)
+{
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
 #endif

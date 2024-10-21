@@ -325,6 +325,8 @@
     <None Include="SimpleMath.inl" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="..\Resources\Shader\PBR.fx" />
+    <FxCompile Include="..\Resources\Shader\PBRlighting.fx" />
     <FxCompile Include="..\Resources\Shader\water.fx" />
     <FxCompile Include="..\Resources\Shader\animation.fx" />
     <FxCompile Include="..\Resources\Shader\compute.fx" />
