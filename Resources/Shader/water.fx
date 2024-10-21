@@ -1,87 +1,136 @@
-#ifndef _WATER_FX_
-#define _WATER_FX_
-
+// water_vs.hlsl
 #include "params.fx"
-#include "utils.fx"
 
-// 정점 셰이더로 전달될 입력 구조체
-struct VS_IN
+struct VS_INPUT
 {
-    float3 pos : POSITION; // 정점 위치
-    float2 uv : TEXCOORD; // 텍스처 좌표
-    float3 normal : NORMAL; // 정점 노멀
-    float3 tangent : TANGENT; // 접선 벡터 (Tangent)
+    float3 pos : POSITION;
+    float3 normal : NORMAL;
+    float2 texCoord : TEXCOORD0;
+    float3 tangent : TANGENT;
 };
 
-// 정점 셰이더에서 픽셀 셰이더로 전달되는 출력 구조체
-struct VS_OUT
+struct VS_OUTPUT
 {
-    float4 pos : SV_Position;
-    float2 uv : TEXCOORD;
-    float3 viewPos : POSITION;
-    float3 viewNormal : NORMAL;
-    float3 viewDir : TEXCOORD1;
+    float4 pos : SV_POSITION;
+    float3 worldPos : TEXCOORD;
+    float3 normal : TEXCOORD1;
     float2 texCoord : TEXCOORD2;
+    float3 tangent : TEXCOORD3;
+    float3 viewDir : TEXCOORD4;
 };
 
-// 정점 셰이더: 정점을 변환하고 필요한 데이터를 픽셀 셰이더로 전달
-VS_OUT VS_Main(VS_IN input)
+VS_OUTPUT VS_Main(VS_INPUT input)
 {
-    VS_OUT output;
+    VS_OUTPUT output;
 
-    float4 worldPos = mul(float4(input.pos, 1.0), g_matWorld);
-    float4 viewPos = mul(worldPos, g_matView);
-    output.pos = mul(viewPos, g_matProjection);
+    // 월드 공간으로 변환
+    float4 worldPos = mul(float4(input.pos, 1.0f), g_matWorld);
+    output.worldPos = worldPos.xyz;
 
-    output.viewNormal = normalize(mul(float4(input.normal, 0.f), g_matWorld).xyz);
-    output.uv = worldPos.xyz;
-    output.viewDir = normalize(g_matViewInv[3].xyz - worldPos.xyz);
-    output.texCoord = input.uv;
+    // 뷰 방향 계산
+    float3 viewPosition = mul(float4(0, 0, 0, 1), g_matViewInv).xyz; // 카메라 위치
+    output.viewDir = normalize(viewPosition - output.worldPos);
+
+    // 정점 위치 변환
+    output.pos = mul(worldPos, g_matView);
+    output.pos = mul(output.pos, g_matProjection);
+
+    // 노멀과 탄젠트 변환
+    output.normal = mul(float4(input.normal, 0.0f), g_matWorld).xyz;
+    output.tangent = mul(float4(input.tangent, 0.0f), g_matWorld).xyz;
+
+    // 텍스처 좌표 전달
+    output.texCoord = input.texCoord;
 
     return output;
 }
 
-// 픽셀 셰이더: 물의 기본 색상(파란색)을 설정하고 반사, 굴절, 노멀맵 효과를 추가
-float4 PS_Main(VS_OUT input) : SV_TARGET
+
+// PBR 구조체
+struct PBRMaterial
 {
-    // 텍스처 샘플링을 위한 기본 설정
-    float3 normal = normalize(input.viewNormal);
-    float3 viewDir = normalize(input.viewDir);
-    float3 baseColor = float3(0.0f, 0.1f, 0.2f);
-    
-    // **0. 물의 흐름
-    float time = g_float_0; // 시간 값
-    float2 scrollSpeed = float2(0.1, 0.05); // 물 흐름의 속도 (x, y 방향)
+    float3 albedo;
+    float metallic;
+    float roughness;
+    float3 normalMap;
+};
 
-    float2 scrolledTexCoord = input.texCoord + scrollSpeed * time; // UV 좌표 이동
-
-    
-    // **1. 노멀 맵 적용**
-    float3 normalMapSample = g_textures[0].Sample(g_sam_0, scrolledTexCoord).rgb; // 노멀 맵 샘플링
-    normalMapSample = normalMapSample * 2.0 - 1.0; // [0, 1] 범위를 [-1, 1]로 변환
-    
-    // **2. 큐브 맵 반사 적용**
-    float3 reflectedDir = reflect(viewDir, normalMapSample);
-    float3 cubeReflection = g_texCube.Sample(g_sam_0, float3(-reflectedDir.x, reflectedDir.y, reflectedDir.z)).rgb;
-
-    // **3. 실시간 반사(Real-Time Reflection) 적용**
-    float3 reflectionColor = g_textures[1].Sample(g_sam_0, input.texCoord).rgb;
-
-    // **4. 굴절 계산**
-    float3 refractedDir = refract(viewDir, normal, 1.0 / 1.33); // 물 굴절률 1.33 적용
-    float3 refractionColor = g_refractionTex.Sample(g_sam_0, input.texCoord).rgb;
-
-    // **5. Fresnel 효과**
-    float fresnelFactor = pow(1.0 - saturate(dot(viewDir, normal)), 3.0);
-
-    // **6. 최종 반사 색상 합성**
-    float3 finalReflection = lerp(cubeReflection, reflectionColor, fresnelFactor); // Fresnel 비율에 따라 반사 조합
-
-    // 굴절과의 최종 합성
-    //float3 finalColor = lerp(refractionColor, finalReflection, fresnelFactor);
-    float3 finalColor = lerp(cubeReflection, baseColor, 0.5f);
-
-    return float4(finalReflection, 0.5f);
+// 함수: 노멀 벡터 변환 (TBN 매트릭스 사용)
+float3 TransformNormal(float3 normal, float3 tangent, float3 bitangent)
+{
+    float3x3 TBN = float3x3(normalize(tangent), normalize(bitangent), normalize(normal));
+    return normalize(mul(normal, TBN));
 }
 
-#endif
+// Fresnel 함수
+float3 FresnelSchlick(float cosTheta, float3 F0)
+{
+    return F0 + (1.0f - F0) * pow(1.0f - cosTheta, 5.0f);
+}
+
+// 메인 Pixel Shader
+float4 PS_Main(VS_OUTPUT input) : SV_Target
+{
+    // 노멀 맵 샘플링
+    float3 normal = normalize(input.normal);
+    // 노멀 맵을 적용하려면 추가 코드 필요 (예: tangent space에서 world space로 변환)
+
+    // 기본 PBR 파라미터 (예시 값)
+    PBRMaterial material;
+    material.albedo = float3(0.0f, 0.3f, 0.5f); // 물의 기본 색상
+    material.metallic = 0.0f;
+    material.roughness = 0.1f;
+    material.normalMap = normal;
+
+    // 기본 조명 계산
+    float3 N = normalize(normal);
+    float3 V = normalize(input.viewDir);
+
+    // 환경 맵을 사용한 반사
+    float3 R = reflect(-V, N);
+    float3 reflection = g_texCube.Sample(g_sam_0, R).rgb;
+
+    // 굴절 계산
+    float3 refraction = g_refractionTex.Sample(g_sam_0, input.texCoord).rgb;
+
+    // Fresnel 효과
+    float3 F0 = float3(0.04f, 0.04f, 0.04f); // 비금속 재질의 기본 F0
+    float3 F = FresnelSchlick(max(dot(N, V), 0.0f), F0);
+
+    // 최종 색상 계산
+    float3 color = lerp(refraction, reflection, F);
+
+    // 간단한 라이팅 (추가적인 PBR 라이팅 모델을 적용할 수 있음)
+    for (int i = 0; i < g_lightCount; ++i)
+    {
+        LightInfo light = g_light[i];
+        float3 L = normalize(light.position.xyz - input.worldPos);
+        float3 H = normalize(L + V);
+        float NdotL = max(dot(N, L), 0.0f);
+        float NdotH = max(dot(N, H), 0.0f);
+        float NdotV = max(dot(N, V), 0.0f);
+        float VdotH = max(dot(V, H), 0.0f);
+
+        // 거울 반사 항
+        float alpha = pow(1.0f - material.roughness, 2.0f);
+        float D = (alpha * alpha) / (3.14159265359f * pow((NdotH * NdotH) * (alpha * alpha - 1.0f) + 1.0f, 2.0f));
+
+        // 기하학적 감쇠 항 (Schlick-GGX)
+        float k = (alpha + 1.0f) * (alpha + 1.0f) / 8.0f;
+        float G = min(1.0f, min((2.0f * NdotH * NdotV) / VdotH, (2.0f * NdotH * NdotL) / VdotH));
+
+        // Fresnel 항 (이미 계산됨)
+        // float3 F = FresnelSchlick(max(dot(N, V), 0.0f), F0);
+
+        // 최종 BRDF
+        float3 specular = (D * F * G) / (4.0f * NdotV * NdotL + 0.001f);
+        float3 diffuse = material.albedo / 3.14159265359f;
+
+        color += (diffuse * light.color.ambient + (diffuse + specular) * light.color.diffuse) * NdotL;
+    }
+
+    // 최종 색상 클램핑
+    color = saturate(color);
+
+    return float4(color, 1.0f);
+}
