@@ -43,6 +43,8 @@ public:
     static Vec3 DecomposeRotationMatrix(const Matrix& rotation);
     Vec3 QuaternionToEuler(const Quaternion& q);
 
+
+
 public:
     void SetParent(shared_ptr<Transform> parent) { _parent = parent; }
     weak_ptr<Transform> GetParent() { return _parent; }

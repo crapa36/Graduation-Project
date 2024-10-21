@@ -18,71 +18,81 @@
 
 void TestDragonScript::Update() {
 
-    // 1번 키 입력 시 애니메이션 순차 재생
-    if (INPUT->IsKeyJustPressed(DIK_1)) {
-        int32 count = GetAnimator()->GetAnimCount();
-        int32 currentIndex = GetAnimator()->GetCurrentClipIndex();
+    //// 1번 키 입력 시 애니메이션 순차 재생
+    //if (INPUT->IsKeyJustPressed(DIK_1)) {
+    //    int32 count = GetAnimator()->GetAnimCount();
+    //    int32 currentIndex = GetAnimator()->GetCurrentClipIndex();
 
-        int32 index = (currentIndex + 1) % count;  // 다음 애니메이션
-        GetAnimator()->Play(index);
-    }
+    //    int32 index = (currentIndex + 1) % count;  // 다음 애니메이션
+    //    GetAnimator()->Play(index);
+    //}
 
-    // 2번 키 입력 시 애니메이션 역순 재생
-    if (INPUT->IsKeyJustPressed(DIK_2)) {
-        int32 count = GetAnimator()->GetAnimCount();
-        int32 currentIndex = GetAnimator()->GetCurrentClipIndex();
+    //// 2번 키 입력 시 애니메이션 역순 재생
+    //if (INPUT->IsKeyJustPressed(DIK_2)) {
+    //    int32 count = GetAnimator()->GetAnimCount();
+    //    int32 currentIndex = GetAnimator()->GetCurrentClipIndex();
 
-        int32 index = (currentIndex - 1 + count) % count;  // 이전 애니메이션
-        GetAnimator()->Play(index);
-    }
+    //    int32 index = (currentIndex - 1 + count) % count;  // 이전 애니메이션
+    //    GetAnimator()->Play(index);
+    //}
 
-    auto gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
+
 
     if (INPUT->IsKeyJustPressed(DIK_F)) {
-
-        //for (auto& gameObject : gameObjects) {
-        //    if (gameObject->GetName() == L"Bullet" && gameObject->IsEnable()) {
-        //        gameObject->GetTransform()->SetLocalPosition(GetTransform()->GetLocalPosition());
-        //        gameObject->GetRigidbody()->SetVelocity(GetTransform()->GetLook());
-        //    }
-        //}
-
-        shared_ptr<GameObject> bullet = make_shared<GameObject>();
-
-        bullet->SetName(L"Bullet");
-
-        bullet->AddComponent(make_shared<Transform>());
-        bullet->AddComponent(make_shared<BulletScript>());
-
-        //bullet->AddComponent(make_shared<SphereCollider>());
-        bullet->AddComponent(make_shared<Rigidbody>());
-
-        shared_ptr<MeshRenderer> bulletRenderer = make_shared<MeshRenderer>();
-        {
-            shared_ptr<Mesh> sphereMesh = GET_SINGLETON(Resources)->LoadSphereMesh();
-            bulletRenderer->SetMesh(sphereMesh);
+        bool reuse = false;
+        for (auto& gameObject : _bullets) {
+            if (!gameObject->IsEnable()) {
+                gameObject->SetEnable(true);
+                auto objLookVec = GetTransform()->GetLook();
+                objLookVec.Normalize();
+                auto bulletStartPos = GetTransform()->GetWorldPosition() + GetCollider()->GetCenter() + objLookVec * (GetCollider()->GetRadius() + gameObject->GetCollider()->GetRadius() + 0.001f);
+                gameObject->GetTransform()->SetLocalPosition(bulletStartPos);
+                gameObject->GetRigidbody()->SetVelocity(objLookVec * 200.f);
+                reuse = true;
+                break;
+            }
         }
-        {
-            shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Pebbles");
-            bulletRenderer->SetMaterial(material);
+        if (!reuse) {
+            shared_ptr<GameObject> bullet = make_shared<GameObject>();
+
+            bullet->SetName(L"Bullet");
+
+            bullet->AddComponent(make_shared<Transform>());
+            bullet->AddComponent(make_shared<BulletScript>());
+
+            bullet->AddComponent(make_shared<SphereCollider>());
+            bullet->AddComponent(make_shared<Rigidbody>());
+
+            shared_ptr<MeshRenderer> bulletRenderer = make_shared<MeshRenderer>();
+            {
+                shared_ptr<Mesh> sphereMesh = GET_SINGLETON(Resources)->LoadSphereMesh();
+                bulletRenderer->SetMesh(sphereMesh);
+            }
+            {
+                shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Pebbles");
+                bulletRenderer->SetMaterial(material);
+            }
+            bullet->AddComponent(bulletRenderer);
+
+            dynamic_pointer_cast<SphereCollider>(bullet->GetCollider())->SetRadius(10.f);
+            dynamic_pointer_cast<SphereCollider>(bullet->GetCollider())->SetCenter(Vec3(0.f, 0.f, 0.f));
+            //캐릭터의 충돌박스와 겹치지 않게 위치를 설정.
+            auto objLookVec = GetTransform()->GetLook();
+            objLookVec.Normalize();
+            auto bulletStartPos = GetTransform()->GetWorldPosition() + GetCollider()->GetCenter() + objLookVec * (GetCollider()->GetRadius() + bullet->GetCollider()->GetRadius() + 0.001f);
+
+            bullet->GetTransform()->SetLocalPosition(bulletStartPos);
+            bullet->GetTransform()->SetLocalScale(Vec3(10.f, 10.f, 10.f));
+            bullet->GetTransform()->SetInheritScale(false);
+            bullet->GetTransform()->SetInheritPosition(false);
+            bullet->GetRigidbody()->SetVelocity(objLookVec * 200.f);
+            bullet->GetRigidbody()->SetUseGravity(false);
+            bullet->GetRigidbody()->SetElasticity(0.0f);
+            bullet->GetRigidbody()->SetDrag(0.1f);
+
+            _bullets.push_back(bullet); 
+            GET_SINGLETON(SceneManager)->GetActiveScene()->AddGameObject(bullet);
         }
-        bullet->AddComponent(bulletRenderer);
-
-        /*dynamic_pointer_cast<SphereCollider>(bullet->GetCollider())->SetRadius(10.f);
-        dynamic_pointer_cast<SphereCollider>(bullet->GetCollider())->SetCenter(Vec3(0.f, 0.f, 0.f));*/
-
-        bullet->GetTransform()->SetLocalPosition(GetTransform()->GetWorldPosition());
-        bullet->GetTransform()->SetLocalScale(Vec3(10.f, 10.f, 10.f));
-        bullet->GetTransform()->SetInheritScale(false);
-        bullet->GetTransform()->SetInheritPosition(false);
-        bullet->GetRigidbody()->SetVelocity(GetTransform()->GetLook() * 200.f);
-        bullet->GetRigidbody()->SetUseGravity(false);
-        bullet->GetRigidbody()->SetElasticity(0.0f);
-        bullet->GetRigidbody()->SetDrag(0.1f);
-
-        bullet->SetEnable(true);
-
-        GET_SINGLETON(SceneManager)->GetActiveScene()->AddGameObject(bullet);
     }
 }
 

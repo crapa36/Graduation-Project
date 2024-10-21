@@ -144,10 +144,9 @@ void PhysicsManager::HandleCollision(std::shared_ptr<GameObject> objA, std::shar
     // 충돌 시간 업데이트
     _collisionCooldowns[collisionPair] = _cooldownDuration;
 }
-
 void PhysicsManager::UpdatePhysics() {
     auto& gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
-    std::vector<shared_ptr<GameObject>> terrains;
+    std::vector<std::shared_ptr<GameObject>> terrains;
 
     // Terrain 객체를 미리 필터링하여 저장
     for (const auto& gameObject : gameObjects) {
@@ -166,26 +165,26 @@ void PhysicsManager::UpdatePhysics() {
         auto collider = gameObject->GetCollider();
         auto rigidbody = gameObject->GetRigidbody();
 
-        // Rigidbody와 Collider가 모두 없는 경우, 처리를 생략
         if (!collider)
             continue;
 
-        // 충돌 검사
-        if (collider && !gameObject->GetTerrain()) {
-            for (size_t j = i + 1; j < gameObjectCount; ++j) {
-                const auto& otherGameObject = gameObjects[j];
-                auto otherCollider = otherGameObject->GetCollider();
+        for (size_t j = i + 1; j < gameObjectCount; ++j) {
+            const auto& otherGameObject = gameObjects[j];
 
-                if (!otherCollider || otherGameObject->GetTerrain())
-                    continue;
+            if (IsParentChildRelationship(gameObject, otherGameObject)) {
+                continue;
+            }
 
-                if (collider->Intersects(otherCollider)) {
-                    HandleCollision(gameObject, otherGameObject);
-                }
+            auto otherCollider = otherGameObject->GetCollider();
+
+            if (!otherCollider)
+                continue;
+
+            if (collider->Intersects(otherCollider)) {
+                HandleCollision(gameObject, otherGameObject);
             }
         }
 
-        // 중력 적용 및 Terrain 충돌 검사
         if (rigidbody) {
             const auto& transform = gameObject->GetTransform();
             Vec3 position = transform->GetLocalPosition();
@@ -198,22 +197,32 @@ void PhysicsManager::UpdatePhysics() {
 
             Vec4 rayDir(0.0f, -1.0f, 0.0f, 0.0f);
 
-            // WorldSpace에서 충돌 검사
             for (const auto& terrain : terrains) {
                 const auto& terrainTransform = terrain->GetTransform();
                 const auto& terrainPosition = terrainTransform->GetLocalPosition();
                 const auto& terrainScale = terrainTransform->GetLocalScale();
 
-                float height = terrain->GetTerrain()->GetHeightAtPosition(rayOrigin.x - terrainPosition.x, rayOrigin.z - terrainPosition.z);
+                float height = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x, rayOrigin.z - terrainPosition.z);
                 float heightValue = terrainScale.y * height + terrainPosition.y;
                 float distance = 0.0f;
 
                 auto terrainCollider = terrain->GetCollider();
                 if (terrainCollider->Intersects(rayOrigin, rayDir, OUT distance) && (heightValue - terrainPosition.y > distance)) {
+                    // 자연스러운 충돌 응답 처리
+                    Vec3 normal(0.0f, 1.0f, 0.0f); // 지형의 법선 벡터 (단순화된 예시)
+                    Vec3 velocity = rigidbody->GetVelocity();
+                    float dot = velocity.Dot(normal);
+                    Vec3 reflection = velocity - 2 * dot * normal;
+
+                    // 반발력 적용
+                    rigidbody->SetVelocity(reflection * 0.5f); // 반발 계수 적용
+
+                    // 위치 조정
                     position.y = heightValue + gameObject->GetCollider()->GetHeight() - colliderCenter.y;
                     transform->SetLocalPosition(position);
-                    ApplyCollisionResponse(gameObject, terrain, Vec3(0.0f, 1.0f, 0.0f), 0.0f);
-                    break;  // 한 Terrain과 충돌 시 나머지 Terrain 검사는 필요 없음
+
+                    ApplyCollisionResponse(gameObject, terrain, normal, 0.0f);
+                    break;
                 }
             }
         }
@@ -313,4 +322,35 @@ void PhysicsManager::ApplyCollisionResponse(const shared_ptr<GameObject>& A, con
     if (hasRigidbodyB && A->GetTerrain()) {
         rigidbodyB->SetGrounded(true);
     }
+}
+
+bool PhysicsManager::IsParentChildRelationship(const std::shared_ptr<GameObject>& gameObject, const std::shared_ptr<GameObject>& otherGameObject) {
+    auto parentA = gameObject->GetTransform()->GetParent().lock();
+    auto parentB = otherGameObject->GetTransform()->GetParent().lock();
+
+    return (parentA && (parentA == otherGameObject->GetTransform())) ||
+        (parentB && (parentB == gameObject->GetTransform())) ||
+        (parentA && parentB && (parentA == parentB));
+}
+
+float PhysicsManager::GetInterpolatedHeightAtPosition(const std::shared_ptr<Terrain>& terrain, float x, float z) {
+    // 지형의 높이 맵에서 x, z 좌표에 대한 높이를 보간하여 계산
+    // 예시로 bilinear interpolation을 사용
+    int x0 = static_cast<int>(std::floor(x));
+    int x1 = x0 + 1;
+    int z0 = static_cast<int>(std::floor(z));
+    int z1 = z0 + 1;
+
+    float h00 = terrain->GetHeightAtPosition(x0, z0);
+    float h10 = terrain->GetHeightAtPosition(x1, z0);
+    float h01 = terrain->GetHeightAtPosition(x0, z1);
+    float h11 = terrain->GetHeightAtPosition(x1, z1);
+
+    float tx = x - x0;
+    float tz = z - z0;
+
+    float h0 = h00 * (1 - tx) + h10 * tx;
+    float h1 = h01 * (1 - tx) + h11 * tx;
+
+    return h0 * (1 - tz) + h1 * tz;
 }

@@ -34,10 +34,15 @@ void Rigidbody::Update() {
     }
 
     // 선형 감쇠 적용
-    _velocity *= (1.0f - _drag * DELTA_TIME);
+    _velocity *= max(0.0f, (1.0f - _drag * DELTA_TIME));
 
     // 각 감쇠 적용
-    _angularVelocity *= (1.0f - _angularDrag * DELTA_TIME);
+    _angularVelocity *= max(0.0f, (1.0f - _angularDrag * DELTA_TIME));
+
+    // 속도와 각속도가 일정 이하일시 정지로 처리
+    if (_velocity.Length() < 0.01) {
+        _velocity = Vec3(0.0f, 0.0f, 0.0f);
+    }
 
     _isGrounded = false;
 }

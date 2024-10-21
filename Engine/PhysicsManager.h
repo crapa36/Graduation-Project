@@ -36,12 +36,15 @@ public:
 
     bool Raycast(const Vec4& origin, const Vec4& direction, float maxDistance, RaycastHit* hitInfo);
 
-    void ApplyCollisionResponse(const shared_ptr<GameObject>& A, const shared_ptr<GameObject>& B, const Vec3& collisionNormal, float collisionDepth);
 
 private:
     void HandleCollision(shared_ptr<GameObject> objA, shared_ptr<GameObject> objB);
     void UpdatePhysics();
 
+    void ApplyCollisionResponse(const shared_ptr<GameObject>& A, const shared_ptr<GameObject>& B, const Vec3& collisionNormal, float collisionDepth);
+
+    bool IsParentChildRelationship(const std::shared_ptr<GameObject>& gameObject, const std::shared_ptr<GameObject>& otherGameObject);
+    float GetInterpolatedHeightAtPosition(const shared_ptr<class Terrain>& terrain, float x, float z);
     std::unordered_map<std::tuple<std::shared_ptr<GameObject>, std::shared_ptr<GameObject>>, float, TupleHash, TupleEqual> _collisionCooldowns;
     const float _cooldownDuration = 0.01f;
 };

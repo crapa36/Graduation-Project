@@ -6,11 +6,7 @@ public:
     virtual void Update() override;
     virtual void LateUpdate() override;
 
-    void MakeBullet();
-
-
 private:
+    vector<shared_ptr<GameObject>> _bullets;
 
-    POINT       _centerPos;
-    POINT       _centerScreenPos;
 };
