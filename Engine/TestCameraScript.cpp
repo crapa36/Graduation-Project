@@ -107,8 +107,6 @@ void TestCameraScript::LateUpdate() {
     // Rigidbody 캐싱
     auto parentRigidbody = parent->GetRigidbody();
 
-    // 광선 쏘기
-
     // WASD 이동 처리
     if (INPUT->IsKeyPressed(DIK_W) || INPUT->IsKeyPressed(DIK_S) ||
         INPUT->IsKeyPressed(DIK_A) || INPUT->IsKeyPressed(DIK_D)) {
@@ -134,7 +132,8 @@ void TestCameraScript::LateUpdate() {
         Vec3 downVec = -parentTransform->GetUp();
         parentRigidbody->SetVelocity(downVec * _speed);
     }
-    AvoidObstaclesWithRays();
+
+    //AvoidObstaclesWithRays();
 
     // 마우스 휠로 줌 기능 추가 (부드러운 줌 적용)
     int mouseWheel = INPUT->GetMouseWheel();
