@@ -190,7 +190,12 @@ void ProcessPacket(char* packet, DWORD dataLength)
     case SC_REMOVE_PLAYER: {
         SC_REMOVE_PLAYER_PACKET* p = reinterpret_cast<SC_REMOVE_PLAYER_PACKET*>(packet);
         std::cout << "Player removed. ID: " << p->id << std::endl;
-        // 여기서 해당 ID를 가진 플레이어 오브젝트를 찾아 제거
+        auto& gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
+        for (auto& gameObject : gameObjects) {
+            if (gameObject.get()->GetClientID() == p->id) {
+                //해당 객체 삭제
+            }
+        }
         break;
     }
     case CS_PLAYER_MOVE: {
@@ -201,17 +206,17 @@ void ProcessPacket(char* packet, DWORD dataLength)
                 if (gameObject.get()->GetTransform())
                 {
                     if (gameObject->GetTransform()->GetWorldPosition() != Vec3(p->x, p->y, p->z)) {
-                        gameObject->GetTransform()->GetWorldPosition() = Vec3(p->x, p->y, p->z);
+                        gameObject->GetTransform()->SetLocalPosition(Vec3(p->x, p->y, p->z));
                     }
-                    if (gameObject->GetTransform()->GetLook() != Vec3(p->rx, p->ry, p->rz)) {
-                        gameObject->GetTransform()->GetLook() = Vec3(p->rx, p->ry, p->rz);
+                    if (gameObject->GetTransform()->GetLook() != Vec3(p->rx, p->ry, p->rz)) {                     
+                        gameObject->GetTransform()->SetLocalRotation(Vec3(p->rx, p->ry, p->rz));
                     }
-                    
                 }
             }
         }
         break;
     }
+    
     default:
         int num = static_cast<int>(packet[0]);
         std::cout << "Unknown packet type received: " << num << std::endl;
