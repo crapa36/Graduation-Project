@@ -481,12 +481,6 @@
     <FxCompile Include="..\Resources\Shader\water.fx">
       <Filter>Shader</Filter>
     </FxCompile>
-    <FxCompile Include="..\Resources\Shader\PBR.fx">
-      <Filter>Shader</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Resources\Shader\PBRlighting.fx">
-      <Filter>Shader</Filter>
-    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Engine.rc" />

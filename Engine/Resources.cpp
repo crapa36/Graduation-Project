@@ -467,18 +467,6 @@ void Resources::CreateDefaultShader() {
         Add<Shader>(L"Skybox", shader);
     }
 
-    // PBR (PBR)
-    {
-        ShaderInfo info =
-        {
-            SHADER_TYPE::DEFERRED
-        };
-
-        shared_ptr<Shader> shader = make_shared<Shader>();
-        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\PBR.fx", info);
-        Add<Shader>(L"PBR", shader);
-    }
-
     // Deferred (Deferred)
     {
         ShaderInfo info =
@@ -591,28 +579,6 @@ void Resources::CreateDefaultShader() {
         shared_ptr<Shader> shader = make_shared<Shader>();
         shader->CreateGraphicsShader(L"..\\Resources\\Shader\\lighting.fx", info, arg);
         Add<Shader>(L"Final", shader);
-    }
-
-    // PBRFinal
-    {
-        ShaderInfo info =
-        {
-            SHADER_TYPE::LIGHTING,
-            RASTERIZER_TYPE::CULL_BACK,
-            DEPTH_STENCIL_TYPE::NO_DEPTH_TEST_NO_WRITE,
-        };
-
-        ShaderArg arg = {
-            "VS_LightingPass",
-            "",
-            "",
-            "",
-            "PS_LightingPass"
-        };
-
-        shared_ptr<Shader> shader = make_shared<Shader>();
-        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\PBRlighting.fx", info, arg);
-        Add<Shader>(L"FinalPBR", shader);
     }
 
     // Compute Shader
@@ -802,9 +768,16 @@ void Resources::CreateDefaultMaterial() {
     {
         shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"DirLight");
         shared_ptr<Material> material = make_shared<Material>();
+
+        //shared_ptr<Texture> texture2 = GET_SINGLETON(Resources)->Load<Texture>(L"Pebbles_Normal", L"..\\Resources\\Texture\\steel.jpg");
+
         material->SetShader(shader);
         material->SetTexture(0, GET_SINGLETON(Resources)->Get<Texture>(L"PositionTarget"));
         material->SetTexture(1, GET_SINGLETON(Resources)->Get<Texture>(L"NormalTarget"));
+        material->SetTexture(2, GET_SINGLETON(Resources)->Get<Texture>(L"DiffuseTarget"));
+        //material->SetTexture(3, texture2);
+
+
         Add<Material>(L"DirLight", material);
     }
 
@@ -872,7 +845,7 @@ void Resources::CreateDefaultMaterial() {
 
     // Pebbles
     {
-        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"PBR");
+        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Deferred");
         shared_ptr<Texture> texture = GET_SINGLETON(Resources)->Load<Texture>(L"Pebbles", L"..\\Resources\\Texture\\Pebbles.jpg");
         shared_ptr<Texture> texture2 = GET_SINGLETON(Resources)->Load<Texture>(L"Pebbles_Normal", L"..\\Resources\\Texture\\Pebbles_Normal.jpg");
 

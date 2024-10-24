@@ -65,12 +65,12 @@ public:
 
     shared_ptr<Material> Clone();
 
-    array<shared_ptr<Texture>, MATERIAL_ARG_COUNT> GetTextures() { return _textures; }
+    array<shared_ptr<Texture>, MAX_TEXTURES> GetTextures() { return _textures; }
     shared_ptr<Texture> GetTexture(uint32 i) { return _textures[i]; }
 
 private:
     shared_ptr<Shader>	_shader;
     MaterialParams		_params;
-    array<shared_ptr<Texture>, MATERIAL_ARG_COUNT> _textures;
+    array<shared_ptr<Texture>, MAX_TEXTURES> _textures;
     shared_ptr<CubeMapTexture> _cubeMapTexture;
 };

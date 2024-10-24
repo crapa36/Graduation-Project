@@ -26,7 +26,9 @@ struct PS_OUT
 // g_int_0 : Light index
 // g_tex_0 : Position RT
 // g_tex_1 : Normal RT
-// g_tex_2 : Shadow RT
+// g_tex_2 : Diffuse RT
+// g_tex_3 : Metallic RT
+// g_tex_4 : Shadow RT
 // g_mat_0 : ShadowCamera VP
 // Mesh : Rectangle
 
@@ -44,15 +46,29 @@ PS_OUT PS_DirLight(VS_OUT input)
 {
     PS_OUT output = (PS_OUT) 0;
 
+    // G-buffer에서 데이터를 샘플링
     float3 viewPos = g_textures[0].Sample(g_sam_0, input.uv).xyz;
+    
     if (viewPos.z <= 0.f)
-        discard; // clip(-1) 대신 discard로 변경하여 유연하게 처리
+        discard;
 
-    float3 viewNormal = g_textures[1].Sample(g_sam_0, input.uv).xyz;
+    float3 viewNormal = normalize(g_textures[1].Sample(g_sam_0, input.uv).xyz);
+    float3 albedo = g_textures[2].Sample(g_sam_0, input.uv).rgb;
+    float metallic = g_textures[3].Sample(g_sam_0, input.uv).r;
+    float roughness = g_textures[3].Sample(g_sam_0, input.uv).g;
+    float ao = g_textures[3].Sample(g_sam_0, input.uv).b;
+   
+    // CalculateLightColor 함수 호출 시 매개변수 순서 및 값 수정
+    LightColor color = CalculateLightColor(
+        g_int_0, // lightIndex
+        viewNormal, // viewNormal
+        viewPos, // viewPos
+        albedo, // albedo
+        0.0, // metallic
+        0.5, // roughness
+        1.0 // ao
+    );
 
-    LightColor color = CalculateLightColor(g_int_0, viewNormal, viewPos);
-
-    // 그림자 처리
     if (length(color.diffuse) != 0)
     {
         matrix shadowCameraVP = g_mat_0;
@@ -69,7 +85,7 @@ PS_OUT PS_DirLight(VS_OUT input)
 
         if (0 < uv.x && uv.x < 1 && 0 < uv.y && uv.y < 1)
         {
-            float shadowDepth = g_textures[2].Sample(g_sam_0, uv).x;
+            float shadowDepth = g_textures[4].Sample(g_sam_0, uv).x;
             if (shadowDepth > 0 && depth > shadowDepth + 0.00001f)
             {
                 color.diffuse *= 0.5f;
@@ -77,8 +93,12 @@ PS_OUT PS_DirLight(VS_OUT input)
             }
         }
     }
+    
+    // Ambient는 별도로 처리하거나, G-buffer에서 따로 샘플링
+    // color.ambient += ... 
 
-    output.diffuse = color.diffuse + color.ambient;
+    // 최종 출력
+    output.diffuse = color.diffuse + color.ambient; // Ambient 추가 시
     output.specular = color.specular;
 
     return output;

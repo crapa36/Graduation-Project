@@ -62,12 +62,12 @@ VS_OUT VS_Main(VS_IN input)
 
     return output;
 }
-
 struct PS_OUT
 {
     float4 position : SV_Target0;
     float4 normal : SV_Target1;
-    float4 color : SV_Target2;
+    float4 color : SV_Target2; // Albedo
+    float4 material : SV_Target3; // Metallic, Roughness, Ambient Occlusion
 };
 
 PS_OUT PS_Main(VS_OUT input)
@@ -81,19 +81,24 @@ PS_OUT PS_Main(VS_OUT input)
     float3 viewNormal = input.viewNormal;
     if (g_tex_ons[1] == 1)
     {
-        // [0,255] 범위에서 [0,1]로 변환
         float3 tangentSpaceNormal = g_textures[1].Sample(g_sam_0, input.uv).xyz;
-        // [0,1] 범위에서 [-1,1]로 변환
         tangentSpaceNormal = (tangentSpaceNormal - 0.5f) * 2.f;
         float3x3 matTBN = { input.viewTangent, input.viewBinormal, input.viewNormal };
         viewNormal = normalize(mul(tangentSpaceNormal, matTBN));
     }
 
+    // 추가된 속성
+    float metallic = g_tex_ons[2] == 1 ? g_textures[2].Sample(g_sam_0, input.uv).r : 0.f;
+    float roughness = g_tex_ons[3] == 1 ? g_textures[3].Sample(g_sam_0, input.uv).r : 0.5f;
+    float ao = g_tex_ons[4] == 1 ? g_textures[4].Sample(g_sam_0, input.uv).r : 1.f;
+
     output.position = float4(input.viewPos.xyz, 0.f);
     output.normal = float4(viewNormal.xyz, 0.f);
     output.color = color;
+    output.material = float4(metallic, roughness, ao, 0.f);
 
     return output;
 }
+
 
 #endif

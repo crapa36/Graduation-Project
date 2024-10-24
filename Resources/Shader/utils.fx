@@ -3,6 +3,174 @@
 
 #include "params.fx"
 
+// PBR 계산에 필요한 함수들
+float3 FresnelSchlick(float cosTheta, float3 F0)
+{
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
+float DistributionGGX(float3 N, float3 H, float roughness)
+{
+    float a = roughness * roughness;
+    float a2 = a * a;
+    float NdotH = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH * NdotH;
+
+    float num = a2;
+    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom = 3.14159265359 * denom * denom;
+
+    return num / denom;
+}
+
+float GeometrySchlickGGX(float NdotV, float roughness)
+{
+    float r = (roughness + 1.0);
+    float k = (r * r) / 8.0;
+
+    float num = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+
+    return num / denom;
+}
+
+float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
+{
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+
+    return ggx1 * ggx2;
+} 
+
+// 개선된 CalculateLightColor 함수
+LightColor CalculateLightColor(
+    int lightIndex,
+    float3 viewNormal,
+    float3 viewPos,
+    float3 albedo,
+    float metallic,
+    float roughness,
+    float ao)
+{
+    LightColor color = (LightColor) 0.f;
+
+    float3 viewLightDir = float3(0.f, 0.f, 0.f);
+    float attenuation = 1.f; // 조명 감쇠
+    float NdotL = 0.f;
+
+    // 조명 유형에 따른 방향 설정 및 감쇠 계산
+    if (g_light[lightIndex].lightType == 0)  // Directional Light
+    {
+        viewLightDir = normalize(mul(float4(g_light[lightIndex].direction.xyz, 0.f), g_matView).xyz);
+        NdotL = max(dot(viewNormal, -viewLightDir), 0.0);
+        // Directional Light는 감쇠 없음
+    }
+    else if (g_light[lightIndex].lightType == 1)  // Point Light
+    {
+        float3 viewLightPos = mul(float4(g_light[lightIndex].position.xyz, 1.f), g_matView).xyz;
+        float3 lightDir = viewPos - viewLightPos;
+        float distance = length(lightDir);
+        viewLightDir = normalize(lightDir);
+        NdotL = max(dot(viewNormal, -viewLightDir), 0.0);
+
+        if (g_light[lightIndex].range > 0.f)
+        {
+            attenuation = saturate(1.0 / (distance * distance)); // Inverse Square Law
+            attenuation = saturate(attenuation * (g_light[lightIndex].range / 100.0)); // 범위에 맞게 스케일링
+        }
+        else
+        {
+            attenuation = 1.f;
+        }
+    }
+    else // Spot Light
+    {
+        float3 viewLightPos = mul(float4(g_light[lightIndex].position.xyz, 1.f), g_matView).xyz;
+        float3 lightDir = viewPos - viewLightPos;
+        float distance = length(lightDir);
+        viewLightDir = normalize(lightDir);
+        NdotL = max(dot(viewNormal, -viewLightDir), 0.0);
+
+        if (g_light[lightIndex].range > 0.f)
+        {
+            attenuation = saturate(1.0 / (distance * distance)); // Inverse Square Law
+            attenuation = saturate(attenuation * (g_light[lightIndex].range / 100.0)); // 범위에 맞게 스케일링
+        }
+        else
+        {
+            attenuation = 1.f;
+        }
+
+        // Spotlight 각도에 따른 감쇠
+        float3 viewCenterLightDir = normalize(mul(float4(g_light[lightIndex].direction.xyz, 0.f), g_matView).xyz);
+        float theta = acos(dot(-viewLightDir, viewCenterLightDir)); // 빛의 방향과 뷰의 방향 사이의 각도
+
+        float outerCone = g_light[lightIndex].angle / 2.0;
+        float innerCone = outerCone * 0.8; // 부드러운 전환을 위한 내부 코너
+
+        float spotFactor = 1.0;
+        if (theta > outerCone)
+        {
+            spotFactor = 0.0; // 스포트라이트 외부
+        }
+        else if (theta > innerCone)
+        {
+            // 내부와 외부 코너 사이에서 부드러운 전환
+            spotFactor = saturate((outerCone - theta) / (outerCone - innerCone));
+        }
+        // 내부 코너 내에서는 spotFactor는 1.0 유지
+
+        attenuation *= spotFactor;
+    }
+
+    
+    // NdotL과 감쇠가 유효한 경우에만 조명 계산
+    if (NdotL > 0.0 && attenuation > 0.0)
+    {
+        // 뷰 벡터 계산
+        float3 V = normalize(-viewPos);
+        float3 N = normalize(viewNormal);
+        float3 L = normalize(viewLightDir);
+        float3 H = normalize(V + L); // Halfway vector
+
+        // PBR 필수 요소 계산
+        float3 F0 = lerp(float3(0.04, 0.04, 0.04), albedo, metallic); // 금속성에 따른 F0 계산
+        float3 F = FresnelSchlick(max(dot(H, V), 0.0), F0);
+        float NDF = DistributionGGX(N, H, roughness);
+        float G = GeometrySmith(N, V, L, roughness);
+
+        // Specular 계산
+        float3 numerator = NDF * G * F;
+        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.001;
+        float3 specular = numerator / denominator;
+
+        // kS는 스펙큘러 반사율, kD는 디퓨즈 반사율
+        float3 kS = F;
+        float3 kD = 1.0 - kS;
+        kD *= 1.0 - metallic; // 금속성 재질은 디퓨즈 반사율 없음
+
+        // 디퓨즈 반사율 (Lambert 반사)
+        float3 diffuse = kD * albedo / 3.14159265359;
+
+        // Radiance: light color * 강도
+        float3 radiance = g_light[lightIndex].color.diffuse.rgb * g_light[lightIndex].range;
+
+        // 최종 조명 계산
+        color.diffuse += float4(diffuse * radiance * NdotL * attenuation * ao, 1.f);
+        color.specular += float4(specular * radiance * NdotL * attenuation, 1.f);
+    }
+
+        
+
+    // Ambient는 일반적으로 전역 환경 조명으로 처리
+    // 필요에 따라 별도로 계산하거나, 외부에서 설정
+     color.ambient += float4(albedo * ao, 1.f);
+
+    return color;
+}
+
 // Blinn-Phong 모델을 사용한 스펙터 반사 계산
 float CalculateSpecular(float3 lightDir, float3 viewNormal, float3 viewPos, float3 lightColor, float shininess)
 {
@@ -168,51 +336,6 @@ float3 ScreenSpaceRayTracing(float2 uv, float3 rayDir, float currentDepth)
     }
 
     return reflectedColor;
-}
-
-
-// GGX 분포 함수
-float DistributionGGX(float3 N, float3 H, float roughness)
-{
-    float a = roughness * roughness;
-    float a2 = a * a;
-    float NdotH = max(dot(N, H), 0.0);
-    float NdotH2 = NdotH * NdotH;
-
-    float numerator = a2;
-    float denominator = (NdotH2 * (a2 - 1.0) + 1.0);
- 
-    denominator = PI * denominator * denominator;
-
-    return numerator / denominator;
-}
-
-// Schlick의 근사 기하 함수
-float GeometrySchlickGGX(float NdotV, float roughness)
-{
-    float r = (roughness + 1.0);
-    float k = (r * r) / 8.0;
-
-    float numerator = NdotV;
-    float denominator = NdotV * (1.0 - k) + k;
-
-    return numerator / denominator;
-}
-
-// Smith의 기하 함수
-float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
-{
-    float NdotV = max(dot(N, V), 0.0);
-    float NdotL = max(dot(N, L), 0.0);
-    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
-    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
-    return ggx1 * ggx2;
-}
-
-// Fresnel-Schlick 근사
-float3 fresnelSchlick(float cosTheta, float3 F0)
-{
-    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
 #endif
