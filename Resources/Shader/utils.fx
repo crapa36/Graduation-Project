@@ -152,14 +152,16 @@ LightColor CalculateLightColor(
         kD *= 1.0 - metallic; // 금속성 재질은 디퓨즈 반사율 없음
 
         // 디퓨즈 반사율 (Lambert 반사)
-        float3 diffuse = kD * albedo / 3.14159265359;
+        float3 diffuse = kD * albedo;
 
         // Radiance: light color * 강도
         float3 radiance = g_light[lightIndex].color.diffuse.rgb * g_light[lightIndex].range;
+        radiance = saturate(radiance);
 
         // 최종 조명 계산
         color.diffuse += float4(diffuse * radiance * NdotL * attenuation * ao, 1.f);
         color.specular += float4(specular * radiance * NdotL * attenuation, 1.f);
+
     }
 
         

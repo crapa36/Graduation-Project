@@ -73,8 +73,8 @@ PS_OUT PS_DirLight(VS_OUT input)
     {
         matrix shadowCameraVP = g_mat_0;
 
-        float4 worldPos = mul(float4(viewPos.xyz, 1.f), g_matViewInv);
-        float4 shadowClipPos = mul(worldPos, shadowCameraVP);
+        float4 worldPos = mul(g_matViewInv, float4(viewPos.xyz, 1.f)); // Column-Major
+        float4 shadowClipPos = mul(shadowCameraVP, worldPos); // Column-Major
         float depth = shadowClipPos.z / shadowClipPos.w;
 
         // x [-1 ~ 1] -> u [0 ~ 1]
@@ -94,9 +94,7 @@ PS_OUT PS_DirLight(VS_OUT input)
         }
     }
     
-    // Ambient는 별도로 처리하거나, G-buffer에서 따로 샘플링
-    // color.ambient += ... 
-
+    
     // 최종 출력
     output.diffuse = color.diffuse + color.ambient; // Ambient 추가 시
     output.specular = color.specular;

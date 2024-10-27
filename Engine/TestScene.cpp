@@ -341,6 +341,7 @@ TestScene::TestScene() {
         light->GetLight()->SetDiffuse(Vec3(1.f, 1.f, 1.f));
         light->GetLight()->SetAmbient(Vec3(0.1f, 0.1f, 0.1f));
         light->GetLight()->SetSpecular(Vec3(0.2f, 0.2f, 0.2f));
+        light->GetLight()->SetLightRange(0.9f);
         /*shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
             shared_ptr<Mesh> frustumMesh = GET_SINGLETON(Resources)->LoadCameraFrustumMesh(light->GetLight()->GetShadowCamera()->GetCamera());
