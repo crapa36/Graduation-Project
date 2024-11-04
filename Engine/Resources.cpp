@@ -744,6 +744,28 @@ void Resources::CreateDefaultShader() {
         shader->CreateGraphicsShader(L"..\\Resources\\Shader\\water.fx", info, arg);
         Add<Shader>(L"Water", shader);
     }
+    // DebugLine
+    {
+        ShaderInfo info = {
+            SHADER_TYPE::FORWARD,                        // 기본 포워드 렌더링
+            RASTERIZER_TYPE::WIREFRAME,                  // 와이어프레임으로 설정하여 선 렌더링
+            DEPTH_STENCIL_TYPE::NO_DEPTH_TEST_NO_WRITE,  // 깊이 테스트 비활성화
+            BLEND_TYPE::ALPHA_BLEND,                     // 알파 블렌딩 활성화
+            D3D_PRIMITIVE_TOPOLOGY_LINELIST              // 선 렌더링
+        };
+
+        ShaderArg arg = {
+            "VS_Main",   // Vertex Shader 함수명
+            "",          // Hull Shader 없음
+            "",          // Domain Shader 없음
+            "",          // Geometry Shader 없음
+            "PS_Main"    // Pixel Shader 함수명
+        };
+
+        shared_ptr<Shader> shader = make_shared<Shader>();
+        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\debugline.fx", info, arg);
+        Add<Shader>(L"DebugLine", shader);  // "DebugLine" 이름으로 리소스에 추가
+    }
 }
 
 void Resources::CreateDefaultMaterial() {
@@ -945,5 +967,12 @@ void Resources::CreateDefaultMaterial() {
         material->SetCubeMapTexture(cubeTexture);
 
         Add<Material>(L"Water", material);
+    }
+    // DebugLine
+    {
+        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"DebugLine");
+        shared_ptr<Material> material = make_shared<Material>();
+        material->SetShader(shader);  // DebugLine 셰이더 설정
+        Add<Material>(L"DebugLine", material);  // "DebugLine" 이름으로 리소스에 추가
     }
 }

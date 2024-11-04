@@ -9,6 +9,7 @@
 #include "Resources.h"
 #include "InstancingManager.h"
 #include "PhysicsManager.h"
+#include "DebugLineManager.h"
 
 void Engine::Init(const WindowInfo& info) {
     _window = info;
@@ -60,6 +61,7 @@ void Engine::Render() {
     RenderBegin();
 
     GET_SINGLETON(SceneManager)->Render();
+    GET_SINGLETON(DebugLineManager)->Render();
     if (_imguiMode)
         GET_SINGLETON(ImguiManager)->Render();
     RenderEnd();

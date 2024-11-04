@@ -189,12 +189,58 @@ void BoxCollider::CreateMesh() {
     _DebugObject->AddComponent(meshRenderer);
 }
 
-void BoxCollider::Render() {
-    if (!_DebugObject) CreateMesh();
+//void BoxCollider::Render() {
+//    if (!_DebugObject) CreateMesh();
+//
+//    _DebugObject->GetTransform()->SetLocalPosition(_boundingBox.Center);
+//    _DebugObject->GetTransform()->SetLocalScale(_extents);
+//    _DebugObject->GetTransform()->FinalUpdate();
+//    _DebugObject->GetMeshRenderer()->Render();
+//}
 
-    _DebugObject->GetTransform()->SetLocalPosition(_boundingBox.Center);
-    _DebugObject->GetTransform()->SetLocalScale(_extents);
-    _DebugObject->GetTransform()->FinalUpdate();
-    _DebugObject->GetMeshRenderer()->Render();
+#include "DebugLineManager.h"
+
+void BoxCollider::Render() {
+    Vec3 corners[8];
+
+    // 박스의 8개 꼭지점 계산
+    Vec3 extents = _boundingBox.Extents;
+    XMMATRIX rotationMatrix = GetRotationMatrix();
+    Vec3 center = _boundingBox.Center;
+
+    // 박스의 로컬 좌표에서 각 꼭지점 계산
+    Vec3 localCorners[8] = {
+        Vec3(-extents.x, -extents.y, -extents.z),
+        Vec3(extents.x, -extents.y, -extents.z),
+        Vec3(extents.x,  extents.y, -extents.z),
+        Vec3(-extents.x,  extents.y, -extents.z),
+        Vec3(-extents.x, -extents.y,  extents.z),
+        Vec3(extents.x, -extents.y,  extents.z),
+        Vec3(extents.x,  extents.y,  extents.z),
+        Vec3(-extents.x,  extents.y,  extents.z)
+    };
+
+    // 월드 좌표로 변환
+    for (int i = 0; i < 8; ++i) {
+        XMVECTOR cornerVec = XMVector3Transform(XMLoadFloat3(&localCorners[i]), rotationMatrix);
+        cornerVec += XMLoadFloat3(&center);
+        XMStoreFloat3(&corners[i], cornerVec);
+    }
+
+    // 각 변을 디버그 라인으로 추가
+    GET_SINGLETON(DebugLineManager)->AddLine(corners[0], corners[1]);
+    GET_SINGLETON(DebugLineManager)->AddLine(corners[1], corners[2]);
+    GET_SINGLETON(DebugLineManager)->AddLine(corners[2], corners[3]);
+    GET_SINGLETON(DebugLineManager)->AddLine(corners[3], corners[0]);
+
+    GET_SINGLETON(DebugLineManager)->AddLine(corners[4], corners[5]);
+    GET_SINGLETON(DebugLineManager)->AddLine(corners[5], corners[6]);
+    GET_SINGLETON(DebugLineManager)->AddLine(corners[6], corners[7]);
+    GET_SINGLETON(DebugLineManager)->AddLine(corners[7], corners[4]);
+
+    GET_SINGLETON(DebugLineManager)->AddLine(corners[0], corners[4]);
+    GET_SINGLETON(DebugLineManager)->AddLine(corners[1], corners[5]);
+    GET_SINGLETON(DebugLineManager)->AddLine(corners[2], corners[6]);
+    GET_SINGLETON(DebugLineManager)->AddLine(corners[3], corners[7]);
 }
 #endif
