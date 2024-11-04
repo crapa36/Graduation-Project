@@ -208,8 +208,19 @@ void PhysicsManager::UpdatePhysics() {
 
                 auto terrainCollider = terrain->GetCollider();
                 if (terrainCollider->Intersects(rayOrigin, rayDir, OUT distance) && (heightValue - terrainPosition.y > distance)) {
-                    // 자연스러운 충돌 응답 처리
-                    Vec3 normal(0.0f, 1.0f, 0.0f); // 지형의 법선 벡터 (단순화된 예시)
+
+                    // 주변 높이를 통해 법선 벡터 계산
+                    float heightL = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x - 1.0f, rayOrigin.z - terrainPosition.z);
+                    float heightR = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x + 1.0f, rayOrigin.z - terrainPosition.z);
+                    float heightD = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x, rayOrigin.z - terrainPosition.z - 1.0f);
+                    float heightU = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x, rayOrigin.z - terrainPosition.z + 1.0f);
+
+                    Vec3 normal;
+                    normal.x = heightL - heightR;
+                    normal.y = 2.0f;
+                    normal.z = heightD - heightU;
+                    normal.Normalize();
+
                     Vec3 velocity = rigidbody->GetVelocity();
                     float dot = velocity.Dot(normal);
                     Vec3 reflection = velocity - 2 * dot * normal;
@@ -255,7 +266,6 @@ bool PhysicsManager::Raycast(const Vec4& origin, const Vec4& direction, float ma
 
     return hitDetected;
 }
-
 void PhysicsManager::ApplyCollisionResponse(const shared_ptr<GameObject>& A, const shared_ptr<GameObject>& B, const Vec3& collisionNormal, float collisionDepth) {
     if (!A->GetCollider() || !B->GetCollider()) {
         return; // 충돌체가 없으면 충돌 처리를 하지 않음
@@ -291,27 +301,34 @@ void PhysicsManager::ApplyCollisionResponse(const shared_ptr<GameObject>& A, con
         float restitution = combinedElasticity;
 
         // 질량 기반 반발 계산
-        float impulseMagnitude = -(1 + restitution) * normalVelocity;
+        float impulseMagnitude = -(1.0f + restitution) * normalVelocity;
         impulseMagnitude /= (massA > 0 ? (1 / massA) : 0.0f) + (massB > 0 ? (1 / massB) : 0.0f);
 
         Vec3 impulse = impulseMagnitude * collisionNormal;
 
         if (hasRigidbodyA) {
-            rigidbodyA->AddForce(-impulse);
+            velocityA -= impulse / massA;
+            rigidbodyA->SetVelocity(velocityA);
         }
 
         if (hasRigidbodyB) {
-            rigidbodyB->AddForce(impulse);
+            velocityB += impulse / massB;
+            rigidbodyB->SetVelocity(velocityB);
         }
     }
 
-    // 충돌 깊이에 따른 힘 적용
+    // 충돌 깊이에 따른 위치 보정 (Position Correction)
+    float totalMass = massA + massB;
+    Vec3 positionCorrection = collisionNormal * (collisionDepth / totalMass);
+
     if (hasRigidbodyA) {
-        rigidbodyA->AddForce(collisionNormal * collisionDepth * 2.0f);
+        auto transformA = A->GetTransform();
+        transformA->SetLocalPosition(transformA->GetLocalPosition() - positionCorrection * massB);
     }
 
     if (hasRigidbodyB) {
-        rigidbodyB->AddForce(-collisionNormal * collisionDepth * 2.0f); // 반대 방향으로 힘 적용
+        auto transformB = B->GetTransform();
+        transformB->SetLocalPosition(transformB->GetLocalPosition() + positionCorrection * massA);
     }
 
     // A 또는 B가 Terrain과 충돌한 경우 Grounded 설정
@@ -334,6 +351,7 @@ bool PhysicsManager::IsParentChildRelationship(const std::shared_ptr<GameObject>
 }
 
 float PhysicsManager::GetInterpolatedHeightAtPosition(const std::shared_ptr<Terrain>& terrain, float x, float z) {
+
     // 지형의 높이 맵에서 x, z 좌표에 대한 높이를 보간하여 계산
     // 예시로 bilinear interpolation을 사용
     int x0 = static_cast<int>(std::floor(x));

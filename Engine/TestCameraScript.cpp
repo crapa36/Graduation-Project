@@ -96,6 +96,7 @@ void TestCameraScript::LateUpdate() {
 
     auto parentRigidbody = parent->GetRigidbody();
 
+    // WASD ÀÌµ¿ Ã³¸®
     if (INPUT->IsKeyPressed(DIK_W) || INPUT->IsKeyPressed(DIK_S) ||
         INPUT->IsKeyPressed(DIK_A) || INPUT->IsKeyPressed(DIK_D)) {
         Vec3 lookVec = parentTransform->GetLook();
@@ -118,7 +119,8 @@ void TestCameraScript::LateUpdate() {
         Vec3 downVec = -parentTransform->GetUp();
         parentRigidbody->SetVelocity(downVec * _speed);
     }
-    AvoidObstaclesWithRays();
+
+    //AvoidObstaclesWithRays();
 
     int mouseWheel = INPUT->GetMouseWheel();
     Vec3 vectorToOrigin = pos - Vec3(0.f, 0.f, 0.f);
@@ -145,47 +147,47 @@ Vec4 RotateVector(const Vec4& vector, float angleDegrees) {
 }
 
 void TestCameraScript::AvoidObstaclesWithRays() {
-    // ºÎ¸ğ °´Ã¼ÀÇ Æ®·£½ºÆû°ú ¸®Áöµå¹Ùµğ¸¦ °¡Á®¿È
+    // ë¶€ëª?ê°ì²´???¸ëœ?¤í¼ê³?ë¦¬ì??œë°”?”ë? ê°€?¸ì˜´
     auto parent = GetGameObject()->GetParent().lock();
     auto parentTransform = parent->GetTransform();
     auto parentRigidbody = parent->GetRigidbody();
 
-    // È¸ÇÇ ¾Ë°í¸®Áò ¼³Á¤
-    constexpr int rayCount = 10;                // ¹ß»çÇÒ ±¤¼± ¼ö
-    constexpr float rayDistance = 10.0f;        // ±¤¼± °Å¸®
-    constexpr float baseAvoidanceStrength = 1.0f; // ±âº» È¸ÇÇ °¡ÁßÄ¡
+    // ?Œí”¼ ?Œê³ ë¦¬ì¦˜ ?¤ì •
+    constexpr int rayCount = 10;                // ë°œì‚¬??ê´‘ì„  ??
+    constexpr float rayDistance = 10.0f;        // ê´‘ì„  ê±°ë¦¬
+    constexpr float baseAvoidanceStrength = 1.0f; // ê¸°ë³¸ ?Œí”¼ ê°€ì¤‘ì¹˜
 
-    // ColliderÀÇ ¹İ°æÀ» ÀÌ¿ëÇØ È¸Àü ¹İ°æ°ú °¢µµ ¼³Á¤
-    float spiralRadiusIncrement = 1.0f;         // ±âº» ¹İ°æ Áõ°¡°ª
-    float spiralAngleIncrement = 30.0f;         // ±âº» °¢µµ Áõ°¡°ª
+    // Collider??ë°˜ê²½???´ìš©???Œì „ ë°˜ê²½ê³?ê°ë„ ?¤ì •
+    float spiralRadiusIncrement = 1.0f;         // ê¸°ë³¸ ë°˜ê²½ ì¦ê?ê°?
+    float spiralAngleIncrement = 30.0f;         // ê¸°ë³¸ ê°ë„ ì¦ê?ê°?
     if (auto collider = parent->GetCollider()) {
         float radius = collider->GetRadius();
-        spiralRadiusIncrement = radius * 0.1f;          // ¹İ°æÀ» Collider ¹İ°æÀÇ 10%·Î Áõ°¡
-        spiralAngleIncrement = 360.0f / rayCount;       // ÀüÃ¼ 360µµ¸¦ rayCount¸¸Å­ ±ÕµîÇÏ°Ô ³ª´®
+        spiralRadiusIncrement = radius * 0.1f;          // ë°˜ê²½??Collider ë°˜ê²½??10%ë¡?ì¦ê?
+        spiralAngleIncrement = 360.0f / rayCount;       // ?„ì²´ 360?„ë? rayCountë§Œí¼ ê· ë“±?˜ê²Œ ?˜ëˆ”
     }
 
-    // °´Ã¼ÀÇ ¼Óµµ¿Í ±¤¼± ¹æÇâ ¼³Á¤ (Vec4·Î ÀÏ°ü¼º À¯Áö)
+    // ê°ì²´???ë„?€ ê´‘ì„  ë°©í–¥ ?¤ì • (Vec4ë¡??¼ê???? ì?)
     Vec4 velocity(parentRigidbody->GetVelocity().x, parentRigidbody->GetVelocity().y, parentRigidbody->GetVelocity().z, 0.0f);
     Vec4 rayDirection = velocity;
 
-    // °´Ã¼°¡ ¿òÁ÷ÀÌÁö ¾ÊÀ» ¶§´Â ÇöÀç ¹Ù¶óº¸´Â ¹æÇâÀ» »ç¿ë
+    // ê°ì²´ê°€ ?€ì§ì´ì§€ ?Šì„ ?ŒëŠ” ?„ì¬ ë°”ë¼ë³´ëŠ” ë°©í–¥???¬ìš©
     if (rayDirection.LengthSquared() < std::numeric_limits<float>::epsilon()) {
         Vec3 lookDirection = parentTransform->GetLook();
         rayDirection = Vec4(lookDirection.x, lookDirection.y, lookDirection.z, 0.0f);
     }
     rayDirection.Normalize();
 
-    // °¡Àå ÃÖÀûÀÇ È¸ÇÇ ¹æÇâÀ» ÃßÀûÇÒ º¯¼öµé
+    // ê°€??ìµœì ???Œí”¼ ë°©í–¥??ì¶”ì ??ë³€?˜ë“¤
     Vec3 bestAvoidanceDirection(0.0f, 0.0f, 0.0f);
-    float bestDotProduct = -1.0f;  // ÀÌµ¿ ¹æÇâ°ú È¸ÇÇ º¤ÅÍ °£ÀÇ À¯»ç¼ºÀ» ºñ±³ÇÏ±â À§ÇÑ °ª
+    float bestDotProduct = -1.0f;  // ?´ë™ ë°©í–¥ê³??Œí”¼ ë²¡í„° ê°„ì˜ ? ì‚¬?±ì„ ë¹„êµ?˜ê¸° ?„í•œ ê°?
 
-    // ³ª¼±ÇüÀ¸·Î ±¤¼±À» ¹ß»ç
+    // ?˜ì„ ?•ìœ¼ë¡?ê´‘ì„ ??ë°œì‚¬
     for (int i = 0; i < rayCount; ++i) {
-        // °¢ ±¤¼±ÀÇ È¸Àü °¢µµ¿Í ¹İ°æ ¼³Á¤
-        float angle = i * spiralAngleIncrement * (3.14159265f / 180.0f); // ¶óµğ¾È ´ÜÀ§·Î º¯È¯
+        // ê°?ê´‘ì„ ???Œì „ ê°ë„?€ ë°˜ê²½ ?¤ì •
+        float angle = i * spiralAngleIncrement * (3.14159265f / 180.0f); // ?¼ë””???¨ìœ„ë¡?ë³€??
         float radius = i * spiralRadiusIncrement;
 
-        // ³ª¼±Çü ±¤¼± ½ÃÀÛ À§Ä¡ °è»ê (x, z Æò¸é¿¡ ³ª¼±ÇüÀ¸·Î ¹èÄ¡)
+        // ?˜ì„ ??ê´‘ì„  ?œì‘ ?„ì¹˜ ê³„ì‚° (x, z ?‰ë©´???˜ì„ ?•ìœ¼ë¡?ë°°ì¹˜)
         Vec4 rayOrigin(
             parentTransform->GetLocalPosition().x + cos(angle) * radius,
             parentTransform->GetLocalPosition().y,
@@ -193,7 +195,7 @@ void TestCameraScript::AvoidObstaclesWithRays() {
             1.0f
         );
 
-        // Collider°¡ ÀÖÀ» °æ¿ì ±¤¼± ½ÃÀÛ À§Ä¡ º¸Á¤
+        // Colliderê°€ ?ˆì„ ê²½ìš° ê´‘ì„  ?œì‘ ?„ì¹˜ ë³´ì •
         if (auto collider = parent->GetCollider()) {
             rayOrigin.x += collider->GetCenter().x;
             rayOrigin.y += collider->GetCenter().y;
@@ -201,19 +203,19 @@ void TestCameraScript::AvoidObstaclesWithRays() {
             rayOrigin += rayDirection * collider->GetRadius();
         }
 
-        // ±¤¼±À» ¹ß»çÇÏ¿© Ãæµ¹ °¨Áö
+        // ê´‘ì„ ??ë°œì‚¬?˜ì—¬ ì¶©ëŒ ê°ì?
         RaycastHit hitInfo;
         if (GET_SINGLETON(PhysicsManager)->Raycast(rayOrigin, rayDirection, rayDistance, &hitInfo)) {
             Vec3 hitNormal(hitInfo.normal.x, hitInfo.normal.y, hitInfo.normal.z);
 
-            // ¹ı¼± º¤ÅÍ¿Í ±¤¼± ¹æÇâÀÇ Á÷±³ º¤ÅÍ·Î È¸ÇÇ ¹æÇâ °è»ê
+            // ë²•ì„  ë²¡í„°?€ ê´‘ì„  ë°©í–¥??ì§êµ ë²¡í„°ë¡??Œí”¼ ë°©í–¥ ê³„ì‚°
             Vec3 avoidanceDirection = Vec3(rayDirection.x, rayDirection.y, rayDirection.z).Cross(hitNormal);
             avoidanceDirection.Normalize();
 
-            // ÇöÀç ÀÌµ¿ ¹æÇâ°ú È¸ÇÇ º¤ÅÍÀÇ À¯»ç¼º(Dot Product) °è»ê
+            // ?„ì¬ ?´ë™ ë°©í–¥ê³??Œí”¼ ë²¡í„°??? ì‚¬??Dot Product) ê³„ì‚°
             float dotProduct = Vec3(rayDirection.x, rayDirection.y, rayDirection.z).Dot(avoidanceDirection);
 
-            // ÀÌµ¿ º¤ÅÍ¿Í °¡Àå À¯»çÇÑ È¸ÇÇ º¤ÅÍ¸¦ ¼±ÅÃ
+            // ?´ë™ ë²¡í„°?€ ê°€??? ì‚¬???Œí”¼ ë²¡í„°ë¥?? íƒ
             if (dotProduct > bestDotProduct) {
                 bestDotProduct = dotProduct;
                 bestAvoidanceDirection = avoidanceDirection;
@@ -221,9 +223,9 @@ void TestCameraScript::AvoidObstaclesWithRays() {
         }
     }
 
-    // °¡Àå À¯»çÇÑ È¸ÇÇ º¤ÅÍ·Î ÀÌµ¿ ¹æÇâÀ» °­Á¦ ÀüÈ¯
-    if (bestDotProduct > -1.0f) { // À¯È¿ÇÑ È¸ÇÇ º¤ÅÍ°¡ ÀÖ´Â °æ¿ì
+    // ê°€??? ì‚¬???Œí”¼ ë²¡í„°ë¡??´ë™ ë°©í–¥??ê°•ì œ ?„í™˜
+    if (bestDotProduct > -1.0f) { // ? íš¨???Œí”¼ ë²¡í„°ê°€ ?ˆëŠ” ê²½ìš°
         bestAvoidanceDirection.Normalize();
-        parentRigidbody->SetVelocity(bestAvoidanceDirection * velocity.Length()); // ±âÁ¸ ¼ÓµµÀÇ Å©±â À¯Áö
+        parentRigidbody->SetVelocity(bestAvoidanceDirection * velocity.Length()); // ê¸°ì¡´ ?ë„???¬ê¸° ? ì?
     }
 }
