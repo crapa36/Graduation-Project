@@ -38,27 +38,46 @@ bool BoxCollider::Intersects(const shared_ptr<BaseCollider>& other) {
 }
 
 Vec3 BoxCollider::GetCollisionNormal(const Vec4& rayOrigin, const Vec4& rayDir) {
-    Vec3 normal(0, 0, 0);
+    Vec3 normal(0.0f, 0.0f, 0.0f);
     float distance;
 
-    if (!Intersects(rayOrigin, rayDir, OUT distance)) {
+    // 충돌 여부 확인
+    if (!Intersects(rayOrigin, rayDir, distance)) {
         return normal; // 충돌이 없으면 빈 벡터 반환
     }
 
+    // 충돌 지점 계산
     Vec4 hitPoint = rayOrigin + rayDir * distance;
-    Vec3 localHitPoint = XMVector3TransformCoord(XMLoadFloat4(&hitPoint), XMMatrixInverse(nullptr, GetRotationMatrix()));
 
-    // 박스의 가장 가까운 면을 찾기
-    const float epsilon = FLT_EPSILON;
-    if (abs(localHitPoint.x - _boundingBox.Extents.x) < epsilon) normal = Vec3(1, 0, 0);
-    else if (abs(localHitPoint.x + _boundingBox.Extents.x) < epsilon) normal = Vec3(-1, 0, 0);
-    else if (abs(localHitPoint.y - _boundingBox.Extents.y) < epsilon) normal = Vec3(0, 1, 0);
-    else if (abs(localHitPoint.y + _boundingBox.Extents.y) < epsilon) normal = Vec3(0, -1, 0);
-    else if (abs(localHitPoint.z - _boundingBox.Extents.z) < epsilon) normal = Vec3(0, 0, 1);
-    else if (abs(localHitPoint.z + _boundingBox.Extents.z) < epsilon) normal = Vec3(0, 0, -1);
+    // 박스의 회전 행렬의 역행렬 계산
+    Matrix invRotationMatrix = GetRotationMatrix();
+    invRotationMatrix = invRotationMatrix.Invert();
 
-    // 월드 좌표계로 변환
-    normal = XMVector3TransformNormal(XMLoadFloat3(&normal), GetRotationMatrix());
+    // 충돌 지점을 로컬 좌표계로 변환
+    Vec3 hitPointVec(hitPoint.x, hitPoint.y, hitPoint.z);
+    Vec3 localHitPoint = Vector3::Transform(hitPointVec, invRotationMatrix);
+
+    // 박스의 가장 가까운 면을 찾기 위한 절대값 비교
+    Vec3 absLocalHitPoint = Vec3(
+        std::abs(localHitPoint.x),
+        std::abs(localHitPoint.y),
+        std::abs(localHitPoint.z)
+    );
+
+    // 가장 큰 절대값을 가지는 축을 찾아 해당 축의 노멀을 설정
+    if (absLocalHitPoint.x > absLocalHitPoint.y && absLocalHitPoint.x > absLocalHitPoint.z) {
+        normal = (localHitPoint.x > 0) ? Vec3(1.0f, 0.0f, 0.0f) : Vec3(-1.0f, 0.0f, 0.0f);
+    }
+    else if (absLocalHitPoint.y > absLocalHitPoint.x && absLocalHitPoint.y > absLocalHitPoint.z) {
+        normal = (localHitPoint.y > 0) ? Vec3(0.0f, 1.0f, 0.0f) : Vec3(0.0f, -1.0f, 0.0f);
+    }
+    else {
+        normal = (localHitPoint.z > 0) ? Vec3(0.0f, 0.0f, 1.0f) : Vec3(0.0f, 0.0f, -1.0f);
+    }
+
+    // 노멀을 월드 좌표계로 변환
+    normal = Vector3::TransformNormal(normal, GetRotationMatrix());
+
     return normal;
 }
 
@@ -189,58 +208,58 @@ void BoxCollider::CreateMesh() {
     _DebugObject->AddComponent(meshRenderer);
 }
 
-//void BoxCollider::Render() {
-//    if (!_DebugObject) CreateMesh();
-//
-//    _DebugObject->GetTransform()->SetLocalPosition(_boundingBox.Center);
-//    _DebugObject->GetTransform()->SetLocalScale(_extents);
-//    _DebugObject->GetTransform()->FinalUpdate();
-//    _DebugObject->GetMeshRenderer()->Render();
-//}
-
-#include "DebugLineManager.h"
-
 void BoxCollider::Render() {
-    Vec3 corners[8];
+    if (!_DebugObject) CreateMesh();
 
-    // 박스의 8개 꼭지점 계산
-    Vec3 extents = _boundingBox.Extents;
-    XMMATRIX rotationMatrix = GetRotationMatrix();
-    Vec3 center = _boundingBox.Center;
-
-    // 박스의 로컬 좌표에서 각 꼭지점 계산
-    Vec3 localCorners[8] = {
-        Vec3(-extents.x, -extents.y, -extents.z),
-        Vec3(extents.x, -extents.y, -extents.z),
-        Vec3(extents.x,  extents.y, -extents.z),
-        Vec3(-extents.x,  extents.y, -extents.z),
-        Vec3(-extents.x, -extents.y,  extents.z),
-        Vec3(extents.x, -extents.y,  extents.z),
-        Vec3(extents.x,  extents.y,  extents.z),
-        Vec3(-extents.x,  extents.y,  extents.z)
-    };
-
-    // 월드 좌표로 변환
-    for (int i = 0; i < 8; ++i) {
-        XMVECTOR cornerVec = XMVector3Transform(XMLoadFloat3(&localCorners[i]), rotationMatrix);
-        cornerVec += XMLoadFloat3(&center);
-        XMStoreFloat3(&corners[i], cornerVec);
-    }
-
-    // 각 변을 디버그 라인으로 추가
-    GET_SINGLETON(DebugLineManager)->AddLine(corners[0], corners[1]);
-    GET_SINGLETON(DebugLineManager)->AddLine(corners[1], corners[2]);
-    GET_SINGLETON(DebugLineManager)->AddLine(corners[2], corners[3]);
-    GET_SINGLETON(DebugLineManager)->AddLine(corners[3], corners[0]);
-
-    GET_SINGLETON(DebugLineManager)->AddLine(corners[4], corners[5]);
-    GET_SINGLETON(DebugLineManager)->AddLine(corners[5], corners[6]);
-    GET_SINGLETON(DebugLineManager)->AddLine(corners[6], corners[7]);
-    GET_SINGLETON(DebugLineManager)->AddLine(corners[7], corners[4]);
-
-    GET_SINGLETON(DebugLineManager)->AddLine(corners[0], corners[4]);
-    GET_SINGLETON(DebugLineManager)->AddLine(corners[1], corners[5]);
-    GET_SINGLETON(DebugLineManager)->AddLine(corners[2], corners[6]);
-    GET_SINGLETON(DebugLineManager)->AddLine(corners[3], corners[7]);
+    _DebugObject->GetTransform()->SetLocalPosition(_boundingBox.Center);
+    _DebugObject->GetTransform()->SetLocalScale(_extents);
+    _DebugObject->GetTransform()->FinalUpdate();
+    _DebugObject->GetMeshRenderer()->Render();
 }
+
+//#include "DebugLineManager.h"
+//
+//void BoxCollider::Render() {
+//    Vec3 corners[8];
+//
+//    // 박스의 8개 꼭지점 계산
+//    Vec3 extents = _boundingBox.Extents;
+//    XMMATRIX rotationMatrix = GetRotationMatrix();
+//    Vec3 center = _boundingBox.Center;
+//
+//    // 박스의 로컬 좌표에서 각 꼭지점 계산
+//    Vec3 localCorners[8] = {
+//        Vec3(-extents.x, -extents.y, -extents.z),
+//        Vec3(extents.x, -extents.y, -extents.z),
+//        Vec3(extents.x,  extents.y, -extents.z),
+//        Vec3(-extents.x,  extents.y, -extents.z),
+//        Vec3(-extents.x, -extents.y,  extents.z),
+//        Vec3(extents.x, -extents.y,  extents.z),
+//        Vec3(extents.x,  extents.y,  extents.z),
+//        Vec3(-extents.x,  extents.y,  extents.z)
+//    };
+//
+//    // 월드 좌표로 변환
+//    for (int i = 0; i < 8; ++i) {
+//        XMVECTOR cornerVec = XMVector3Transform(XMLoadFloat3(&localCorners[i]), rotationMatrix);
+//        cornerVec += XMLoadFloat3(&center);
+//        XMStoreFloat3(&corners[i], cornerVec);
+//    }
+//
+//    // 각 변을 디버그 라인으로 추가
+//    GET_SINGLETON(DebugLineManager)->AddLine(corners[0], corners[1]);
+//    GET_SINGLETON(DebugLineManager)->AddLine(corners[1], corners[2]);
+//    GET_SINGLETON(DebugLineManager)->AddLine(corners[2], corners[3]);
+//    GET_SINGLETON(DebugLineManager)->AddLine(corners[3], corners[0]);
+//
+//    GET_SINGLETON(DebugLineManager)->AddLine(corners[4], corners[5]);
+//    GET_SINGLETON(DebugLineManager)->AddLine(corners[5], corners[6]);
+//    GET_SINGLETON(DebugLineManager)->AddLine(corners[6], corners[7]);
+//    GET_SINGLETON(DebugLineManager)->AddLine(corners[7], corners[4]);
+//
+//    GET_SINGLETON(DebugLineManager)->AddLine(corners[0], corners[4]);
+//    GET_SINGLETON(DebugLineManager)->AddLine(corners[1], corners[5]);
+//    GET_SINGLETON(DebugLineManager)->AddLine(corners[2], corners[6]);
+//    GET_SINGLETON(DebugLineManager)->AddLine(corners[3], corners[7]);
+//}
 #endif

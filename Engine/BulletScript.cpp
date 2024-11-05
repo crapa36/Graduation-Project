@@ -4,17 +4,15 @@
 #include "Timer.h"
 #include "Rigidbody.h"
 
-BulletScript::BulletScript()
-{
+BulletScript::BulletScript() {
 }
 
-BulletScript::~BulletScript()
-{
+BulletScript::~BulletScript() {
 }
 
 void BulletScript::LateUpdate() {
     _lifeTime -= DELTA_TIME;
-    if (GetRigidbody()->GetVelocity().Length() < 0.01){
+    if (GetRigidbody()->GetVelocity().Length() < 1.f) {
         GetGameObject()->SetEnable(FALSE);
         _lifeTime = 10.f;
     }

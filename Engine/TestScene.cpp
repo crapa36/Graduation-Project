@@ -169,9 +169,9 @@ TestScene::TestScene() {
         shared_ptr<GameObject> obj = make_shared<GameObject>();
         obj->AddComponent(make_shared<Transform>());
         obj->AddComponent(make_shared<SphereCollider>());
-        obj->AddComponent(make_shared<Rigidbody>());
+        /*obj->AddComponent(make_shared<Rigidbody>());*/
         obj->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
-        obj->GetTransform()->SetLocalPosition(Vec3(200, 1000.f, 50.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(250, 200.f, 300.f));
 
         obj->SetCheckFrustum(false);
         obj->SetStatic(false);
@@ -188,7 +188,38 @@ TestScene::TestScene() {
 
         obj->GetCollider()->SetRadius(100.f);
 
-        obj->GetRigidbody()->SetUseGravity(true);
+        /*obj->GetRigidbody()->SetUseGravity(false);*/
+        _scene->AddGameObject(obj);
+    }
+#pragma endregion
+
+#pragma region Object
+    {
+        shared_ptr<GameObject> obj = make_shared<GameObject>();
+        obj->AddComponent(make_shared<Transform>());
+        obj->AddComponent(make_shared<BoxCollider>());
+        /*obj->AddComponent(make_shared<Rigidbody>());*/
+        obj->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(100, 200.f, 500.f));
+
+        obj->SetCheckFrustum(false);
+        obj->SetStatic(false);
+        shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
+        {
+            shared_ptr<Mesh> sphereMesh = GET_SINGLETON(Resources)->LoadCubeMesh();
+            meshRenderer->SetMesh(sphereMesh);
+        }
+        {
+            shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Wood");
+            meshRenderer->SetMaterial(material->Clone());
+        }
+        obj->AddComponent(meshRenderer);
+
+        obj->GetCollider()->SetExtents(Vec3(100.f, 100.f, 100.f));
+        obj->GetCollider()->SetCenter(Vec3(0.f, 0.f, 0.f));
+
+        //obj->GetRigidbody()->SetUseGravity(false);
+        //obj->GetRigidbody()->SetElasticity(0.0f);
         _scene->AddGameObject(obj);
     }
 #pragma endregion
@@ -409,7 +440,7 @@ TestScene::TestScene() {
         obj->SetName(L"Water");
         obj->AddComponent(make_shared<Transform>());
         obj->GetTransform()->SetLocalScale(Vec3(2000.f, 1.f, 2000.f));
-        obj->GetTransform()->SetLocalPosition(Vec3(0.f, 20.f, 50.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(0.f, 10.f, 50.f));
         obj->SetStatic(true);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {

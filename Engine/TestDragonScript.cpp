@@ -17,7 +17,6 @@
 #include "BulletScript.h"
 
 void TestDragonScript::Update() {
-
     //// 1번 키 입력 시 애니메이션 순차 재생
     //if (INPUT->IsKeyJustPressed(DIK_1)) {
     //    int32 count = GetAnimator()->GetAnimCount();
@@ -35,8 +34,6 @@ void TestDragonScript::Update() {
     //    int32 index = (currentIndex - 1 + count) % count;  // 이전 애니메이션
     //    GetAnimator()->Play(index);
     //}
-
-
 
     if (INPUT->IsKeyJustPressed(DIK_F)) {
         bool reuse = false;
@@ -76,6 +73,7 @@ void TestDragonScript::Update() {
 
             dynamic_pointer_cast<SphereCollider>(bullet->GetCollider())->SetRadius(10.f);
             dynamic_pointer_cast<SphereCollider>(bullet->GetCollider())->SetCenter(Vec3(0.f, 0.f, 0.f));
+
             //캐릭터의 충돌박스와 겹치지 않게 위치를 설정.
             auto objLookVec = GetTransform()->GetLook();
             objLookVec.Normalize();
@@ -85,12 +83,13 @@ void TestDragonScript::Update() {
             bullet->GetTransform()->SetLocalScale(Vec3(10.f, 10.f, 10.f));
             bullet->GetTransform()->SetInheritScale(false);
             bullet->GetTransform()->SetInheritPosition(false);
+            bullet->GetTransform()->SetInheritRotation(false);
             bullet->GetRigidbody()->SetVelocity(objLookVec * 200.f);
             bullet->GetRigidbody()->SetUseGravity(false);
-            bullet->GetRigidbody()->SetElasticity(0.0f);
+            bullet->GetRigidbody()->SetElasticity(0.5f);
             bullet->GetRigidbody()->SetDrag(0.1f);
-
-            _bullets.push_back(bullet); 
+            bullet->GetTransform()->SetParent(GetGameObject()->GetTransform());
+            _bullets.push_back(bullet);
             GET_SINGLETON(SceneManager)->GetActiveScene()->AddGameObject(bullet);
         }
     }

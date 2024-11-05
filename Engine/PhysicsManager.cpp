@@ -170,7 +170,8 @@ void PhysicsManager::UpdatePhysics() {
 
         for (size_t j = i + 1; j < gameObjectCount; ++j) {
             const auto& otherGameObject = gameObjects[j];
-
+            if (!otherGameObject->IsEnable())
+                continue;
             if (IsParentChildRelationship(gameObject, otherGameObject)) {
                 continue;
             }
@@ -240,12 +241,14 @@ void PhysicsManager::UpdatePhysics() {
     }
 }
 
-bool PhysicsManager::Raycast(const Vec4& origin, const Vec4& direction, float maxDistance, RaycastHit* hitInfo) {
+bool PhysicsManager::Raycast(const Vec4& origin, const Vec4& direction, float maxDistance, RaycastHit* hitInfo, const shared_ptr<GameObject>& excludedObject) {
     auto& gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
     bool hitDetected = false;
     float closestDistance = maxDistance;
 
     for (const auto& gameObject : gameObjects) {
+        if (gameObject == excludedObject || !gameObject->IsEnable())
+            continue;
         auto collider = gameObject->GetCollider();
         if (!collider)
             continue;
@@ -344,7 +347,9 @@ void PhysicsManager::ApplyCollisionResponse(const shared_ptr<GameObject>& A, con
 bool PhysicsManager::IsParentChildRelationship(const std::shared_ptr<GameObject>& gameObject, const std::shared_ptr<GameObject>& otherGameObject) {
     auto parentA = gameObject->GetTransform()->GetParent().lock();
     auto parentB = otherGameObject->GetTransform()->GetParent().lock();
-
+    if (!parentA && !parentB) {
+        return false;
+    }
     return (parentA && (parentA == otherGameObject->GetTransform())) ||
         (parentB && (parentB == gameObject->GetTransform())) ||
         (parentA && parentB && (parentA == parentB));
