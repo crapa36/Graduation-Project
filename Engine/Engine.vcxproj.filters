@@ -413,7 +413,6 @@
     <ClInclude Include="TestScene.h">
       <Filter>Scenes</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h" />
     <ClInclude Include="TitleScene.h">
       <Filter>Scenes</Filter>
     </ClInclude>
@@ -496,8 +495,5 @@
     <FxCompile Include="..\Resources\Shader\debugline.fx">
       <Filter>Shader</Filter>
     </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Engine.rc" />
   </ItemGroup>
 </Project>

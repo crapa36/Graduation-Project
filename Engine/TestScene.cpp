@@ -46,7 +46,7 @@ TestScene::TestScene() {
             gameObject->GetTransform()->SetLocalPosition(Vec3(210.f, 500.f, 0.f));
             gameObject->GetTransform()->SetLocalScale(Vec3(5.f, 5.f, 5.f));
             gameObject->GetRigidbody()->SetUseGravity(true);
-            gameObject->GetRigidbody()->SetElasticity(0.0f);
+            gameObject->GetRigidbody()->SetElasticity(0.f);
 
             gameObject->SetStatic(false);
             _scene->AddGameObject(gameObject);
@@ -164,12 +164,12 @@ TestScene::TestScene() {
     }
 #pragma endregion
 
-#pragma region Object
+#pragma region Sphere
     {
         shared_ptr<GameObject> obj = make_shared<GameObject>();
         obj->AddComponent(make_shared<Transform>());
         obj->AddComponent(make_shared<SphereCollider>());
-        /*obj->AddComponent(make_shared<Rigidbody>());*/
+        obj->AddComponent(make_shared<Rigidbody>());
         obj->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
         obj->GetTransform()->SetLocalPosition(Vec3(250, 200.f, 300.f));
 
@@ -188,17 +188,18 @@ TestScene::TestScene() {
 
         obj->GetCollider()->SetRadius(100.f);
 
-        /*obj->GetRigidbody()->SetUseGravity(false);*/
+        obj->GetRigidbody()->SetUseGravity(true);
         _scene->AddGameObject(obj);
     }
 #pragma endregion
 
-#pragma region Object
+#pragma region Box
     {
         shared_ptr<GameObject> obj = make_shared<GameObject>();
         obj->AddComponent(make_shared<Transform>());
         obj->AddComponent(make_shared<BoxCollider>());
-        /*obj->AddComponent(make_shared<Rigidbody>());*/
+
+        //obj->AddComponent(make_shared<Rigidbody>());
         obj->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
         obj->GetTransform()->SetLocalPosition(Vec3(100, 200.f, 500.f));
 
@@ -218,8 +219,8 @@ TestScene::TestScene() {
         obj->GetCollider()->SetExtents(Vec3(100.f, 100.f, 100.f));
         obj->GetCollider()->SetCenter(Vec3(0.f, 0.f, 0.f));
 
-        //obj->GetRigidbody()->SetUseGravity(false);
-        //obj->GetRigidbody()->SetElasticity(0.0f);
+        /*obj->GetRigidbody()->SetUseGravity(false);
+        obj->GetRigidbody()->SetElasticity(0.5f);*/
         _scene->AddGameObject(obj);
     }
 #pragma endregion
@@ -321,6 +322,7 @@ TestScene::TestScene() {
         }
         obj->AddComponent(make_shared<MenuScript>()); // 메뉴 스크립트 추가
         obj->AddComponent(meshRenderer);
+        obj->SetEnable(false); // 비활성화
         _scene->AddGameObject(obj);
     }
 #pragma endregion

@@ -25,6 +25,7 @@ public:
     void SetVelocity(Vec3 velocity) { _velocity = velocity; }
     void SetAngularVelocity(Vec3 angularVelocity) { _angularVelocity = angularVelocity; }
     void SetGrounded(bool isGrounded) { _isGrounded = isGrounded; }
+    void SetFriction(float friction) { _friction = friction; }
 
     Vec3 GetVelocity() const { return _velocity; }
     Vec3 GetAngularVelocity() const { return _angularVelocity; }
@@ -36,19 +37,21 @@ public:
     bool GetIsKinematic() const { return _isKinematic; }
     float GetElasticity() const { return _elasticity; }
     bool GetGrounded() const { return _isGrounded; }
+    float GetFriction() const { return _friction; }
 
 private:
 
     // 물리 속성
     float _mass = 0.5f;               // 리지드바디의 질량
-    float _drag = 0.01f;              // 선형 드래그 계수
-    float _angularDrag = 0.01f;      // 각속도 드래그 계수
-    float _elasticity = 0.9f;        // 리지드바디의 탄성 계수 (반발력)
+    float _drag = 0.2f;              // 선형 드래그 계수
+    float _angularDrag = 0.01f;       // 각속도 드래그 계수
+    float _elasticity = 0.9f;         // 리지드바디의 탄성 계수 (반발력)
+    float _friction = 0.5f; // 마찰 계수
 
-    bool _useGravity = true;         // 중력을 사용할지 여부
-    bool _isKinematic = false;       // 물리 엔진에 영향을 받지 않는 키네마틱 여부
+    bool _useGravity = true;          // 중력을 사용할지 여부
+    bool _isKinematic = false;        // 물리 엔진에 영향을 받지 않는 키네마틱 여부
 
-    bool _isGrounded = false;        // 물체가 지면에 닿아 있는지 여부
+    bool _isGrounded = false;         // 물체가 지면에 닿아 있는지 여부
 
     Vec3 _velocity = Vec3(0.f, 0.f, 0.f);          // 선형 속도
     Vec3 _angularVelocity = Vec3(0.f, 0.f, 0.f);   // 각속도

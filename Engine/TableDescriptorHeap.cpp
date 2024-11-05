@@ -15,7 +15,7 @@ void GraphicsDescriptorHeap::Init(uint32 count) {
     desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 
     HRESULT hr = DEVICE->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_descHeap));
-    if (FAILED(hr)) throw std::runtime_error("Failed to create descriptor heap.");
+    if (FAILED(hr)) throw runtime_error("Failed to create descriptor heap.");
 
     _handleSize = DEVICE->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     _groupSize = _handleSize * CBV_SRV_REGISTER_COUNT;
@@ -35,8 +35,8 @@ void GraphicsDescriptorHeap::SetSRV(D3D12_CPU_DESCRIPTOR_HANDLE srcHandle, SRV_R
     DEVICE->CopyDescriptors(1, &destHandle, nullptr, 1, &srcHandle, nullptr, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
-
 void GraphicsDescriptorHeap::SetSRVArray(D3D12_CPU_DESCRIPTOR_HANDLE* srcHandles, uint32 count, SRV_REGISTER startRegister) {
+
     // Get the starting CPU handle for the specified register
     D3D12_CPU_DESCRIPTOR_HANDLE destHandle = GetCPUHandle(startRegister);
 
@@ -47,10 +47,9 @@ void GraphicsDescriptorHeap::SetSRVArray(D3D12_CPU_DESCRIPTOR_HANDLE* srcHandles
     }
 }
 
-
 void GraphicsDescriptorHeap::CommitTable() {
     if (_currentGroupIndex >= _groupCount) {
-        throw std::out_of_range("Current group index exceeds the number of descriptor groups.");
+        throw out_of_range("Current group index exceeds the number of descriptor groups.");
     }
 
     D3D12_GPU_DESCRIPTOR_HANDLE handle = _descHeap->GetGPUDescriptorHandleForHeapStart();
@@ -70,14 +69,13 @@ D3D12_CPU_DESCRIPTOR_HANDLE GraphicsDescriptorHeap::GetCPUHandle(SRV_REGISTER re
 
 D3D12_CPU_DESCRIPTOR_HANDLE GraphicsDescriptorHeap::GetCPUHandle(uint8 reg) {
     if (reg == 0) {
-        throw std::invalid_argument("Register value must be greater than 0.");
+        throw invalid_argument("Register value must be greater than 0.");
     }
     D3D12_CPU_DESCRIPTOR_HANDLE handle = _descHeap->GetCPUDescriptorHandleForHeapStart();
     handle.ptr += _currentGroupIndex * _groupSize;
     handle.ptr += (reg - 1) * _handleSize;
     return handle;
 }
-
 
 // ************************
 // ComputeDescriptorHeap
@@ -90,7 +88,7 @@ void ComputeDescriptorHeap::Init() {
     desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 
     HRESULT hr = DEVICE->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_descHeap));
-    if (FAILED(hr)) throw std::runtime_error("Failed to create descriptor heap.");
+    if (FAILED(hr)) throw runtime_error("Failed to create descriptor heap.");
 
     _handleSize = DEVICE->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
@@ -105,28 +103,26 @@ void ComputeDescriptorHeap::SetSRV(D3D12_CPU_DESCRIPTOR_HANDLE srcHandle, SRV_RE
     DEVICE->CopyDescriptors(1, &destHandle, nullptr, 1, &srcHandle, nullptr, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
-
 void ComputeDescriptorHeap::SetSRVArray(D3D12_CPU_DESCRIPTOR_HANDLE* srcHandles, size_t count, SRV_REGISTER startRegister) {
-    
 
     // Get the starting CPU handle for the specified register.
     D3D12_CPU_DESCRIPTOR_HANDLE destHandle = GetCPUHandle(startRegister);
 
     // Update the SRV array in the compute descriptor heap.
     for (size_t i = 0; i < count; ++i) {
+
         // Copy the source SRV handle to the destination handle.
         DEVICE->CopyDescriptorsSimple(1, destHandle, srcHandles[i], D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
         // Move to the next descriptor handle.
         destHandle.ptr += _handleSize;
     }
-
-   
 }
 
 void ComputeDescriptorHeap::SetUAV(D3D12_CPU_DESCRIPTOR_HANDLE srcHandle, UAV_REGISTER reg) {
     D3D12_CPU_DESCRIPTOR_HANDLE destHandle = GetCPUHandle(reg);
     DEVICE->CopyDescriptors(1, &destHandle, nullptr, 1, &srcHandle, nullptr, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
     // TODO : Add resource state changes if necessary.
 }
 
@@ -156,8 +152,6 @@ D3D12_CPU_DESCRIPTOR_HANDLE ComputeDescriptorHeap::GetCPUHandle(uint8 reg) {
     return handle;
 }
 
-
-
 // ************************
 // ImguiDescriptorHeap
 // ************************
@@ -169,7 +163,7 @@ void ImguiDescriptorHeap::Init() {
     desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
     HRESULT hr = DEVICE->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_descHeap));
-    if (FAILED(hr)) throw std::runtime_error("Failed to create descriptor heap.");
+    if (FAILED(hr)) throw runtime_error("Failed to create descriptor heap.");
 
     _handleSize = DEVICE->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
@@ -181,10 +175,10 @@ void ImguiDescriptorHeap::SetSRV(D3D12_CPU_DESCRIPTOR_HANDLE srcHandle, SRV_REGI
 
 void ImguiDescriptorHeap::CommitTable() {
     ID3D12DescriptorHeap* descHeap = _descHeap.Get();
-    COMPUTE_CMD_LIST->SetDescriptorHeaps(1, &descHeap);
+    GRAPHICS_CMD_LIST->SetDescriptorHeaps(1, &descHeap);
 
     D3D12_GPU_DESCRIPTOR_HANDLE handle = descHeap->GetGPUDescriptorHandleForHeapStart();
-    COMPUTE_CMD_LIST->SetComputeRootDescriptorTable(0, handle);
+    GRAPHICS_CMD_LIST->SetGraphicsRootDescriptorTable(0, handle);
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE ImguiDescriptorHeap::GetCPUHandle(CBV_REGISTER reg) {

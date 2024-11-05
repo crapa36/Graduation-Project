@@ -14,10 +14,10 @@ void BulletScript::LateUpdate() {
     _lifeTime -= DELTA_TIME;
     if (GetRigidbody()->GetVelocity().Length() < 1.f) {
         GetGameObject()->SetEnable(FALSE);
-        _lifeTime = 10.f;
+        _lifeTime = 3.f;
     }
     else if (_lifeTime <= 0) {
         GetGameObject()->SetEnable(FALSE);
-        _lifeTime = 10.f;
+        _lifeTime = 3.f;
     }
 }

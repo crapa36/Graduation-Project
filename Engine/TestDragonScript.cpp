@@ -42,9 +42,9 @@ void TestDragonScript::Update() {
                 gameObject->SetEnable(true);
                 auto objLookVec = GetTransform()->GetLook();
                 objLookVec.Normalize();
-                auto bulletStartPos = GetTransform()->GetWorldPosition() + GetCollider()->GetCenter() + objLookVec * (GetCollider()->GetRadius() + gameObject->GetCollider()->GetRadius() + 0.001f);
+                auto bulletStartPos = GetTransform()->GetWorldPosition() + GetCollider()->GetCenter() + objLookVec * (GetCollider()->GetRadius());
                 gameObject->GetTransform()->SetLocalPosition(bulletStartPos);
-                gameObject->GetRigidbody()->SetVelocity(objLookVec * 200.f);
+                gameObject->GetRigidbody()->SetVelocity(objLookVec * 1000.f);
                 reuse = true;
                 break;
             }
@@ -77,14 +77,14 @@ void TestDragonScript::Update() {
             //캐릭터의 충돌박스와 겹치지 않게 위치를 설정.
             auto objLookVec = GetTransform()->GetLook();
             objLookVec.Normalize();
-            auto bulletStartPos = GetTransform()->GetWorldPosition() + GetCollider()->GetCenter() + objLookVec * (GetCollider()->GetRadius() + bullet->GetCollider()->GetRadius() + 0.001f);
+            auto bulletStartPos = GetTransform()->GetWorldPosition() + GetCollider()->GetCenter() + objLookVec * (GetCollider()->GetRadius());
 
             bullet->GetTransform()->SetLocalPosition(bulletStartPos);
             bullet->GetTransform()->SetLocalScale(Vec3(10.f, 10.f, 10.f));
             bullet->GetTransform()->SetInheritScale(false);
             bullet->GetTransform()->SetInheritPosition(false);
             bullet->GetTransform()->SetInheritRotation(false);
-            bullet->GetRigidbody()->SetVelocity(objLookVec * 200.f);
+            bullet->GetRigidbody()->SetVelocity(objLookVec * 1000.f);
             bullet->GetRigidbody()->SetUseGravity(false);
             bullet->GetRigidbody()->SetElasticity(0.5f);
             bullet->GetRigidbody()->SetDrag(0.1f);
@@ -101,8 +101,9 @@ void TestDragonScript::LateUpdate() {
 
         // ESC 키로 메뉴 토글
         if (INPUT->IsKeyJustPressed(DIK_ESCAPE)) {
-
-            //PostQuitMessage(0);
+            PostQuitMessage(0);
+        }
+        if (INPUT->IsKeyJustPressed(DIK_TAB)) {
             for (auto& gameObject : gameObjects) {
                 if (gameObject->GetName() == L"Menu")
                     gameObject->SetEnable(!gameObject->IsEnable());

@@ -68,11 +68,7 @@ shared_ptr<GameObject> PhysicsManager::Pick(int32 screenX, int32 screenY) {
 void PhysicsManager::Update() {
 
     // 쿨타임 업데이트
-    for (auto& [key, cooldown] : _collisionCooldowns) {
-        if (cooldown > 0.0f) {
-            cooldown -= DELTA_TIME;
-        }
-    }
+
     UpdatePhysics();
 }
 void PhysicsManager::LateUpdate() {
@@ -80,18 +76,10 @@ void PhysicsManager::LateUpdate() {
 void PhysicsManager::FinalUpdate() {
 }
 
-void PhysicsManager::HandleCollision(std::shared_ptr<GameObject> objA, std::shared_ptr<GameObject> objB) {
-    auto collisionPair = std::make_tuple(objA, objB);
+void PhysicsManager::HandleCollision(shared_ptr<GameObject> objA, shared_ptr<GameObject> objB) {
+    auto collisionPair = make_tuple(objA, objB);
 
     // 충돌 쿨타임 체크
-    if (_collisionCooldowns.find(collisionPair) != _collisionCooldowns.end()) {
-        float& cooldown = _collisionCooldowns[collisionPair];
-        if (cooldown > 0.0f) {
-
-            // 쿨타임이 지나지 않았으므로 충돌 무시
-            return;
-        }
-    }
 
     auto colliderA = objA->GetCollider();
     auto colliderB = objB->GetCollider();
@@ -140,13 +128,10 @@ void PhysicsManager::HandleCollision(std::shared_ptr<GameObject> objA, std::shar
             transformB->SetLocalPosition(positionB);
         }
     }
-
-    // 충돌 시간 업데이트
-    _collisionCooldowns[collisionPair] = _cooldownDuration;
 }
 void PhysicsManager::UpdatePhysics() {
     auto& gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
-    std::vector<std::shared_ptr<GameObject>> terrains;
+    vector<shared_ptr<GameObject>> terrains;
 
     // Terrain 객체를 미리 필터링하여 저장
     for (const auto& gameObject : gameObjects) {
@@ -162,6 +147,8 @@ void PhysicsManager::UpdatePhysics() {
 
         if (!gameObject->IsEnable())
             continue;
+        if (gameObject->GetTerrain())
+            continue;
         auto collider = gameObject->GetCollider();
         auto rigidbody = gameObject->GetRigidbody();
 
@@ -175,7 +162,8 @@ void PhysicsManager::UpdatePhysics() {
             if (IsParentChildRelationship(gameObject, otherGameObject)) {
                 continue;
             }
-
+            if (otherGameObject->GetTerrain())
+                continue;
             auto otherCollider = otherGameObject->GetCollider();
 
             if (!otherCollider)
@@ -187,56 +175,80 @@ void PhysicsManager::UpdatePhysics() {
         }
 
         if (rigidbody) {
-            const auto& transform = gameObject->GetTransform();
-            Vec3 position = transform->GetLocalPosition();
-            Vec4 rayOrigin(position.x, position.y, position.z, 1.0f);
-            Vec3 colliderCenter = gameObject->GetCollider()->GetCenter();
-            rayOrigin.x += colliderCenter.x;
-            rayOrigin.y += colliderCenter.y;
-            rayOrigin.z += colliderCenter.z;
-            rayOrigin.y -= gameObject->GetCollider()->GetHeight();
+            HandleTerrainCollision(gameObject, terrains);
+        }
+    }
+}
+void PhysicsManager::HandleTerrainCollision(const shared_ptr<GameObject>& gameObject, const vector<shared_ptr<GameObject>>& terrains) {
+    auto rigidbody = gameObject->GetRigidbody();
+    auto collider = gameObject->GetCollider();
+    auto transform = gameObject->GetTransform();
+    Vec3 position = transform->GetLocalPosition();
+    Vec4 rayOrigin(position.x, position.y, position.z, 1.0f);
+    Vec3 colliderCenter = collider->GetCenter();
+    rayOrigin.x += colliderCenter.x;
+    rayOrigin.y += colliderCenter.y;
+    rayOrigin.z += colliderCenter.z;
+    rayOrigin.y -= collider->GetHeight();
 
-            Vec4 rayDir(0.0f, -1.0f, 0.0f, 0.0f);
+    Vec4 rayDir(0.0f, -1.0f, 0.0f, 0.0f);
 
-            for (const auto& terrain : terrains) {
-                const auto& terrainTransform = terrain->GetTransform();
-                const auto& terrainPosition = terrainTransform->GetLocalPosition();
-                const auto& terrainScale = terrainTransform->GetLocalScale();
+    for (const auto& terrain : terrains) {
+        const auto& terrainTransform = terrain->GetTransform();
+        const auto& terrainPosition = terrainTransform->GetLocalPosition();
+        const auto& terrainScale = terrainTransform->GetLocalScale();
 
-                float height = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x, rayOrigin.z - terrainPosition.z);
-                float heightValue = terrainScale.y * height + terrainPosition.y;
-                float distance = 0.0f;
+        float height = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x, rayOrigin.z - terrainPosition.z);
+        float heightValue = terrainScale.y * height + terrainPosition.y;
+        float distance = 0.0f;
 
-                auto terrainCollider = terrain->GetCollider();
-                if (terrainCollider->Intersects(rayOrigin, rayDir, OUT distance) && (heightValue - terrainPosition.y > distance)) {
+        auto terrainCollider = terrain->GetCollider();
+        if (terrainCollider->Intersects(rayOrigin, rayDir, OUT distance) && (heightValue - terrainPosition.y > distance)) {
 
-                    // 주변 높이를 통해 법선 벡터 계산
-                    float heightL = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x - 1.0f, rayOrigin.z - terrainPosition.z);
-                    float heightR = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x + 1.0f, rayOrigin.z - terrainPosition.z);
-                    float heightD = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x, rayOrigin.z - terrainPosition.z - 1.0f);
-                    float heightU = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x, rayOrigin.z - terrainPosition.z + 1.0f);
+            // 주변 높이를 통해 법선 벡터 계산
+            float heightL = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x - 1.0f, rayOrigin.z - terrainPosition.z);
+            float heightR = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x + 1.0f, rayOrigin.z - terrainPosition.z);
+            float heightD = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x, rayOrigin.z - terrainPosition.z - 1.0f);
+            float heightU = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x, rayOrigin.z - terrainPosition.z + 1.0f);
 
-                    Vec3 normal;
-                    normal.x = heightL - heightR;
-                    normal.y = 2.0f;
-                    normal.z = heightD - heightU;
-                    normal.Normalize();
+            Vec3 normal;
+            normal.x = heightL - heightR;
+            normal.y = 2.0f;
+            normal.z = heightD - heightU;
+            normal.Normalize();
 
-                    Vec3 velocity = rigidbody->GetVelocity();
-                    float dot = velocity.Dot(normal);
-                    Vec3 reflection = velocity - 2 * dot * normal;
+            Vec3 velocity = rigidbody->GetVelocity();
+            float dot = velocity.Dot(normal);
 
-                    // 반발력 적용
-                    rigidbody->SetVelocity(reflection * 0.5f); // 반발 계수 적용
+            // 경사 각도 계산
+            float slopeAngle = acos(normal.y) * (180.0f / 3.141592);
 
-                    // 위치 조정
-                    position.y = heightValue + gameObject->GetCollider()->GetHeight() - colliderCenter.y;
-                    transform->SetLocalPosition(position);
+            // 최대 경사각 설정
+            const float maxSlopeAngle = 10.0f;
+            const float slideSpeed = 2.0f;
 
-                    ApplyCollisionResponse(gameObject, terrain, normal, 0.0f);
-                    break;
-                }
+            if (slopeAngle > maxSlopeAngle) {
+
+                // 경사각이 최대치를 넘을 경우 미끄러짐 효과 적용
+                Vec3 slideDirection = Vec3(normal.x, 0.0f, normal.z);
+                slideDirection.Normalize();
+                velocity = slideDirection * slideSpeed;
             }
+            else {
+
+                // 최대 경사각 이하일 때 경사면을 따라 이동 보정
+                Vec3 forwardVelocity = velocity - (normal * dot);
+                velocity = forwardVelocity;
+            }
+
+            rigidbody->SetVelocity(velocity);
+
+            // 위치 조정
+            position.y = heightValue + collider->GetHeight() - colliderCenter.y;
+            transform->SetLocalPosition(position);
+
+            ApplyCollisionResponse(gameObject, terrain, normal, 0.0f);
+            break;
         }
     }
 }
@@ -344,7 +356,7 @@ void PhysicsManager::ApplyCollisionResponse(const shared_ptr<GameObject>& A, con
     }
 }
 
-bool PhysicsManager::IsParentChildRelationship(const std::shared_ptr<GameObject>& gameObject, const std::shared_ptr<GameObject>& otherGameObject) {
+bool PhysicsManager::IsParentChildRelationship(const shared_ptr<GameObject>& gameObject, const shared_ptr<GameObject>& otherGameObject) {
     auto parentA = gameObject->GetTransform()->GetParent().lock();
     auto parentB = otherGameObject->GetTransform()->GetParent().lock();
     if (!parentA && !parentB) {
@@ -355,13 +367,13 @@ bool PhysicsManager::IsParentChildRelationship(const std::shared_ptr<GameObject>
         (parentA && parentB && (parentA == parentB));
 }
 
-float PhysicsManager::GetInterpolatedHeightAtPosition(const std::shared_ptr<Terrain>& terrain, float x, float z) {
+float PhysicsManager::GetInterpolatedHeightAtPosition(const shared_ptr<Terrain>& terrain, float x, float z) {
 
     // 지형의 높이 맵에서 x, z 좌표에 대한 높이를 보간하여 계산
     // 예시로 bilinear interpolation을 사용
-    int x0 = static_cast<int>(std::floor(x));
+    int x0 = static_cast<int>(floor(x));
     int x1 = x0 + 1;
-    int z0 = static_cast<int>(std::floor(z));
+    int z0 = static_cast<int>(floor(z));
     int z1 = z0 + 1;
 
     float h00 = terrain->GetHeightAtPosition(x0, z0);
