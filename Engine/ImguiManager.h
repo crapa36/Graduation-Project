@@ -18,5 +18,5 @@ private:
     bool _show_demo_window = true;
     bool _show_another_window = false;
     ImVec4 _clear_color{ 0.45f, 0.55f, 0.60f, 1.00f }; // Modern brace initialization
-    ImGuiIO _io{}; // Initialize _io using modern C++ syntax
+    ImGuiIO* _io{}; // Initialize _io using modern C++ syntax
 };

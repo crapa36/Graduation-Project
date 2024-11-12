@@ -40,7 +40,7 @@ void Engine::Init(const WindowInfo& info) {
     GET_SINGLETON(Timer)->Init();
     GET_SINGLETON(Resources)->Init();
     GET_SINGLETON(SceneManager)->Init();
-    GET_SINGLETON(ImguiManager)->Init(info.hwnd, _device->GetDevice(), *_imguiDescriptorHeap.get());
+    GET_SINGLETON(ImguiManager)->Init(info.hwnd, _device->GetDevice(), *_imguiDescriptorHeap);
 }
 
 void Engine::Update() {
@@ -214,5 +214,49 @@ void Engine::CreateRenderTargetGroups() {
 
         _renderTargetGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::REFLECTION)] = make_shared<RenderTargetGroup>();
         _renderTargetGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::REFLECTION)]->Create(RENDER_TARGET_GROUP_TYPE::REFLECTION, rtVec, reflectionDepthTexture);
+    }
+    // Reflection Group
+    {
+        shared_ptr<Texture> reflectionDepthTexture = GET_SINGLETON(Resources)->CreateTexture(L"ReflectionDepthStencil",
+                                                                                             DXGI_FORMAT_D32_FLOAT, 4096, 4096,
+                                                                                             CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+                                                                                             D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+        vector<RenderTarget> rtVec(RENDER_TARGET_REFLECTION_GROUP_MEMBER_COUNT);
+
+        rtVec[0].target = GET_SINGLETON(Resources)->CreateTexture(L"ReflectionPositionTarget",
+                                                                  DXGI_FORMAT_R32G32B32A32_FLOAT, _window.clientWidth, _window.clientHeight,
+                                                                  CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+                                                                  D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+
+        rtVec[1].target = GET_SINGLETON(Resources)->CreateTexture(L"ReflectionNormalTarget",
+                                                                  DXGI_FORMAT_R32G32B32A32_FLOAT, _window.clientWidth, _window.clientHeight,
+                                                                  CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+                                                                  D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+
+        rtVec[2].target = GET_SINGLETON(Resources)->CreateTexture(L"ReflectionDiffuseTarget",
+                                                                  DXGI_FORMAT_R8G8B8A8_UNORM, _window.clientWidth, _window.clientHeight,
+                                                                  CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+                                                                  D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+
+        _renderTargetGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::REFLECTION)] = make_shared<RenderTargetGroup>();
+        _renderTargetGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::REFLECTION)]->Create(RENDER_TARGET_GROUP_TYPE::REFLECTION, rtVec, reflectionDepthTexture);
+    }
+    // ImGui Render Target Group
+    {
+        shared_ptr<Texture> imguiDepthTexture = GET_SINGLETON(Resources)->CreateTexture(L"ImGuiDepthStencil",
+                                                                                        DXGI_FORMAT_D32_FLOAT, _window.clientWidth, _window.clientHeight,
+                                                                                        CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+                                                                                        D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
+
+        vector<RenderTarget> rtVec(1);  // ImGui는 단일 렌더 타겟만 필요
+
+        rtVec[0].target = GET_SINGLETON(Resources)->CreateTexture(L"ImGuiRenderTarget",
+                                                                  DXGI_FORMAT_R8G8B8A8_UNORM, _window.clientWidth, _window.clientHeight,
+                                                                  CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+                                                                  D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+
+        // RENDER_TARGET_GROUP_TYPE::IMGUI를 열거형에 추가해야 합니다
+        _renderTargetGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::IMGUI)] = make_shared<RenderTargetGroup>();
+        _renderTargetGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::IMGUI)]->Create(RENDER_TARGET_GROUP_TYPE::IMGUI, rtVec, imguiDepthTexture);
     }
 }
