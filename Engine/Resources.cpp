@@ -611,7 +611,29 @@ void Resources::CreateDefaultShader() {
         shader->CreateGraphicsShader(L"..\\Resources\\Shader\\particle.fx", info, arg);
         Add<Shader>(L"Particle", shader);
     }
+    // Billboard
+    {
+        ShaderInfo info =
+        {
+            SHADER_TYPE::PARTICLE,
+            RASTERIZER_TYPE::CULL_NONE,
+            DEPTH_STENCIL_TYPE::LESS_EQUAL_NO_WRITE,
+            BLEND_TYPE::ALPHA_BLEND,
+            D3D_PRIMITIVE_TOPOLOGY_POINTLIST
+        };
 
+        ShaderArg arg = {
+            "VS_Main",
+            "",
+            "",
+            "GS_Main",
+            "PS_Main"
+        };
+
+        shared_ptr<Shader> shader = make_shared<Shader>();
+        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\billboard.fx", info, arg);
+        Add<Shader>(L"Billboard", shader);
+    }
     // ComputeParticle
     {
         shared_ptr<Shader> shader = make_shared<Shader>();
@@ -835,6 +857,14 @@ void Resources::CreateDefaultMaterial() {
         shared_ptr<Material> material = make_shared<Material>();
         material->SetShader(shader);
         Add<Material>(L"Particle", material);
+    }
+
+    // Billboard
+    {
+        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Billboard");
+        shared_ptr<Material> material = make_shared<Material>();
+        material->SetShader(shader);
+        Add<Material>(L"Billboard", material);
     }
 
     // ComputeParticle

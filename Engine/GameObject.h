@@ -8,6 +8,7 @@ class MonoBehaviour;
 class Camera;
 class Light;
 class ParticleSystem;
+class BillboardRenderer;
 class Terrain;
 class BaseCollider;
 class Animator;
@@ -31,6 +32,7 @@ public:
     shared_ptr<Camera> GetCamera();
     shared_ptr<Light> GetLight();
     shared_ptr<ParticleSystem> GetParticleSystem();
+    shared_ptr<BillboardRenderer> GetBillboardRenderer();
     shared_ptr<Terrain> GetTerrain();
     shared_ptr<BaseCollider> GetCollider();
     shared_ptr<Animator> GetAnimator();

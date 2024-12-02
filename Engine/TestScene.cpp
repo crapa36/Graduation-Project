@@ -12,6 +12,7 @@
 #include "Camera.h"
 #include "Light.h"
 #include "ParticleSystem.h"
+#include "BillboardRenderer.h"
 
 #include "TestCameraScript.h"
 #include "TestPlayerScript.h"
@@ -436,13 +437,26 @@ TestScene::TestScene() {
     }
 #pragma endregion
 
+#pragma region Billboard
+    {
+        shared_ptr<GameObject> billboard = make_shared<GameObject>();
+        billboard->SetName(L"Billboard");
+        billboard->AddComponent(make_shared<Transform>());
+        billboard->AddComponent(make_shared<BillboardRenderer>());
+        billboard->SetCheckFrustum(false);
+        billboard->GetTransform()->SetLocalPosition(Vec3(0.f, 50.f, -200.f));
+        billboard->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
+        _scene->AddGameObject(billboard);
+    }
+#pragma endregion
+
 #pragma region Water
     {
         shared_ptr<GameObject> obj = make_shared<GameObject>();
         obj->SetName(L"Water");
         obj->AddComponent(make_shared<Transform>());
         obj->GetTransform()->SetLocalScale(Vec3(2000.f, 1.f, 2000.f));
-        obj->GetTransform()->SetLocalPosition(Vec3(0.f, 10.f, 50.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(0.f, -50.f, 50.f));
         obj->SetStatic(true);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {

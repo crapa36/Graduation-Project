@@ -9,6 +9,7 @@
 #include "Material.h"
 #include "Shader.h"
 #include "ParticleSystem.h"
+#include "BillboardRenderer.h"
 #include "InstancingManager.h"
 #include "BaseCollider.h"
 Matrix Camera::S_MatView;
@@ -41,6 +42,7 @@ void Camera::SortGameObject() {
     _vecForward.clear();
     _vecDeferred.clear();
     _vecParticle.clear();
+    _vecBillboard.clear();
 #ifdef _DEBUG
     if (GEngine->GetDebugMode())
         _vecDebug.clear();
@@ -52,7 +54,7 @@ void Camera::SortGameObject() {
         if (IsCulled(gameObject->GetLayerIndex()))
             continue;
 
-        if (gameObject->GetMeshRenderer() == nullptr && gameObject->GetParticleSystem() == nullptr)
+        if (gameObject->GetMeshRenderer() == nullptr && gameObject->GetParticleSystem() == nullptr && gameObject->GetBillboardRenderer() == nullptr)
             continue;
 
         if (gameObject->GetCheckFrustum()) {
@@ -76,6 +78,9 @@ void Camera::SortGameObject() {
         }
         if (gameObject->GetParticleSystem()) {
             _vecParticle.push_back(gameObject);
+        }
+        if (gameObject->GetBillboardRenderer()) {
+            _vecBillboard.push_back(gameObject);
         }
 #ifdef _DEBUG
         if (GEngine->GetDebugMode()) {
@@ -132,6 +137,10 @@ void Camera::Render_Forward() {
 
     for (auto& gameObject : _vecParticle) {
         gameObject->GetParticleSystem()->Render();
+    }
+    for (auto& gameObject : _vecBillboard) {
+        gameObject->GetBillboardRenderer()->Render();
+
     }
 #ifdef _DEBUG
     if (GEngine->GetDebugMode()) {
