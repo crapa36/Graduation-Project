@@ -27,6 +27,14 @@ public:
 public:
     virtual void FinalUpdate();
     void Render();
+    void SetTexture(const wstring& texturePath);
+    void SetMaxParticle(uint32 maxParticle) { _maxParticle = maxParticle; }
+    void SetCreateInterval(float interval) { _createInterval = interval; }
+    void SetLifeTime(float min, float max) { _minLifeTime = min; _maxLifeTime = max; }
+    void SetSpeed(float min, float max) { _minSpeed = min; _maxSpeed = max; }
+    void SetScale(float start, float end) { _startScale = start; _endScale = end; }
+    void SetLoop(bool loop) { _isLoop = loop; }
+    void SetPlayTime(float time) { _playTime = time; }
 
 public:
     virtual void Load(const wstring& path) override {}
@@ -49,19 +57,23 @@ private:
 
     shared_ptr<StructuredBuffer>	_particleBuffer;
     shared_ptr<StructuredBuffer>	_computeSharedBuffer;
-    uint32							_maxParticle = 1000;
+    uint32							_maxParticle = 2000;
 
     shared_ptr<Material>		_computeMaterial;
     shared_ptr<Material>		_material;
     shared_ptr<Mesh>			_mesh;
 
-    float				_createInterval = 0.005f;
+    float				_createInterval = 0.002f;
     float				_accTime = 0.f;
 
-    float				_minLifeTime = 0.5f;
-    float				_maxLifeTime = 1.f;
-    float				_minSpeed = 100;
-    float				_maxSpeed = 50;
-    float				_startScale = 10.f;
+    float				_minLifeTime = 0.2f;
+    float				_maxLifeTime = 0.4f;
+    float				_minSpeed = 200;
+    float				_maxSpeed = 100;
+    float				_startScale = 20.f;
     float				_endScale = 5.f;
+
+    bool				_isLoop = true;
+
+    float                _playTime = 0.f;
 };

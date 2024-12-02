@@ -281,6 +281,7 @@ bool PhysicsManager::Raycast(const Vec4& origin, const Vec4& direction, float ma
 
     return hitDetected;
 }
+
 void PhysicsManager::ApplyCollisionResponse(const shared_ptr<GameObject>& A, const shared_ptr<GameObject>& B, const Vec3& collisionNormal, float collisionDepth) {
     if (!A->GetCollider() || !B->GetCollider()) {
         return; // 충돌체가 없으면 충돌 처리를 하지 않음

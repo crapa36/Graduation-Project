@@ -13,6 +13,7 @@
 #include "BoxCollider.h"
 #include "SphereCollider.h"
 #include "MeshRenderer.h"
+#include "ParticleSystem.h"
 #include "Resources.h"
 #include "BulletScript.h"
 
@@ -36,62 +37,13 @@ void TestDragonScript::Update() {
     //}
 
     if (INPUT->IsKeyJustPressed(DIK_F)) {
-        bool reuse = false;
-        for (auto& gameObject : _bullets) {
-            if (!gameObject->IsEnable()) {
-                gameObject->SetEnable(true);
-                auto objLookVec = GetTransform()->GetLook();
-                objLookVec.Normalize();
-                auto bulletStartPos = GetTransform()->GetWorldPosition() + GetCollider()->GetCenter() + objLookVec * (GetCollider()->GetRadius());
-                gameObject->GetTransform()->SetLocalPosition(bulletStartPos);
-                gameObject->GetRigidbody()->SetVelocity(objLookVec * 1000.f);
-                reuse = true;
-                break;
-            }
-        }
-        if (!reuse) {
-            shared_ptr<GameObject> bullet = make_shared<GameObject>();
+        SetbulletStartPos();
+        ShotBullet();
 
-            bullet->SetName(L"Bullet");
-
-            bullet->AddComponent(make_shared<Transform>());
-            bullet->AddComponent(make_shared<BulletScript>());
-
-            bullet->AddComponent(make_shared<SphereCollider>());
-            bullet->AddComponent(make_shared<Rigidbody>());
-
-            shared_ptr<MeshRenderer> bulletRenderer = make_shared<MeshRenderer>();
-            {
-                shared_ptr<Mesh> sphereMesh = GET_SINGLETON(Resources)->LoadSphereMesh();
-                bulletRenderer->SetMesh(sphereMesh);
-            }
-            {
-                shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Pebbles");
-                bulletRenderer->SetMaterial(material);
-            }
-            bullet->AddComponent(bulletRenderer);
-
-            dynamic_pointer_cast<SphereCollider>(bullet->GetCollider())->SetRadius(10.f);
-            dynamic_pointer_cast<SphereCollider>(bullet->GetCollider())->SetCenter(Vec3(0.f, 0.f, 0.f));
-
-            //캐릭터의 충돌박스와 겹치지 않게 위치를 설정.
-            auto objLookVec = GetTransform()->GetLook();
-            objLookVec.Normalize();
-            auto bulletStartPos = GetTransform()->GetWorldPosition() + GetCollider()->GetCenter() + objLookVec * (GetCollider()->GetRadius());
-
-            bullet->GetTransform()->SetLocalPosition(bulletStartPos);
-            bullet->GetTransform()->SetLocalScale(Vec3(10.f, 10.f, 10.f));
-            bullet->GetTransform()->SetInheritScale(false);
-            bullet->GetTransform()->SetInheritPosition(false);
-            bullet->GetTransform()->SetInheritRotation(false);
-            bullet->GetRigidbody()->SetVelocity(objLookVec * 1000.f);
-            bullet->GetRigidbody()->SetUseGravity(false);
-            bullet->GetRigidbody()->SetElasticity(0.5f);
-            bullet->GetRigidbody()->SetDrag(0.1f);
-            bullet->GetTransform()->SetParent(GetGameObject()->GetTransform());
-            _bullets.push_back(bullet);
-            GET_SINGLETON(SceneManager)->GetActiveScene()->AddGameObject(bullet);
-        }
+        if (_particle == nullptr)
+            MakeParticle();
+        _particle->GetParticleSystem()->SetPlayTime(0.1f);
+        _particle->GetTransform()->SetLocalPosition(_bulletStartPos);
     }
 }
 
@@ -122,4 +74,77 @@ void TestDragonScript::LateUpdate() {
             GEngine->SetImguiMode(!GEngine->GetImguiMode());
         }
     }
+}
+
+void TestDragonScript::ShotBullet() {
+    bool reuse = false;
+    for (auto& gameObject : _bullets) {
+        if (!gameObject->IsEnable()) {
+            gameObject->SetEnable(true);
+
+            gameObject->GetTransform()->SetLocalPosition(_bulletStartPos);
+            gameObject->GetRigidbody()->SetVelocity(GetTransform()->GetLook() * 1000.f);
+            reuse = true;
+            break;
+        }
+    }
+    if (!reuse) {
+        shared_ptr<GameObject> bullet = make_shared<GameObject>();
+
+        bullet->SetName(L"Bullet");
+
+        bullet->AddComponent(make_shared<Transform>());
+        bullet->AddComponent(make_shared<BulletScript>());
+
+        bullet->AddComponent(make_shared<SphereCollider>());
+        bullet->AddComponent(make_shared<Rigidbody>());
+
+        shared_ptr<MeshRenderer> bulletRenderer = make_shared<MeshRenderer>();
+        {
+            shared_ptr<Mesh> sphereMesh = GET_SINGLETON(Resources)->LoadSphereMesh();
+            bulletRenderer->SetMesh(sphereMesh);
+        }
+        {
+            shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Pebbles");
+            bulletRenderer->SetMaterial(material);
+        }
+        bullet->AddComponent(bulletRenderer);
+
+        dynamic_pointer_cast<SphereCollider>(bullet->GetCollider())->SetRadius(10.f);
+        dynamic_pointer_cast<SphereCollider>(bullet->GetCollider())->SetCenter(Vec3(0.f, 0.f, 0.f));
+
+        //캐릭터의 충돌박스와 겹치지 않게 위치를 설정.
+
+        bullet->GetTransform()->SetLocalPosition(_bulletStartPos);
+        bullet->GetTransform()->SetLocalScale(Vec3(10.f, 10.f, 10.f));
+        bullet->GetTransform()->SetInheritScale(false);
+        bullet->GetTransform()->SetInheritPosition(false);
+        bullet->GetTransform()->SetInheritRotation(false);
+        bullet->GetRigidbody()->SetVelocity(GetTransform()->GetLook() * 1000.f);
+        bullet->GetRigidbody()->SetUseGravity(false);
+        bullet->GetRigidbody()->SetElasticity(0.5f);
+        bullet->GetRigidbody()->SetDrag(0.1f);
+        bullet->GetTransform()->SetParent(GetGameObject()->GetTransform());
+        _bullets.push_back(bullet);
+        GET_SINGLETON(SceneManager)->GetActiveScene()->AddGameObject(bullet);
+    }
+}
+
+void TestDragonScript::MakeParticle() {
+    shared_ptr<GameObject> particle = make_shared<GameObject>();
+    particle->SetName(L"ParticleSystem");
+    particle->AddComponent(make_shared<Transform>());
+    particle->AddComponent(make_shared<ParticleSystem>());
+    particle->SetCheckFrustum(false);
+
+    particle->GetParticleSystem()->SetLoop(false);
+
+    _particle = particle;
+    GET_SINGLETON(SceneManager)->GetActiveScene()->AddGameObject(particle);
+}
+
+void TestDragonScript::SetbulletStartPos() {
+    auto objLookVec = GetTransform()->GetLook();
+    objLookVec.Normalize();
+    _bulletStartPos = GetTransform()->GetWorldPosition() + GetCollider()->GetCenter() + objLookVec * (GetCollider()->GetRadius());
 }

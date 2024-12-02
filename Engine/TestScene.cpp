@@ -432,7 +432,8 @@ TestScene::TestScene() {
         particle->AddComponent(make_shared<Transform>());
         particle->AddComponent(make_shared<ParticleSystem>());
         particle->SetCheckFrustum(false);
-        particle->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, -200.f));
+        particle->GetTransform()->SetLocalPosition(Vec3(0.f, 200.f, 200.f));
+        particle->GetParticleSystem()->SetTexture(L"..\\Resources\\Texture\\Particle\\bubble.png");
         _scene->AddGameObject(particle);
     }
 #pragma endregion
@@ -444,8 +445,8 @@ TestScene::TestScene() {
         billboard->AddComponent(make_shared<Transform>());
         billboard->AddComponent(make_shared<BillboardRenderer>());
         billboard->SetCheckFrustum(false);
-        billboard->GetTransform()->SetLocalPosition(Vec3(0.f, 50.f, -200.f));
-        billboard->GetTransform()->SetLocalScale(Vec3(100.f, 100.f, 100.f));
+        billboard->GetTransform()->SetLocalPosition(Vec3(0.f, 100.f, -200.f));
+        billboard->GetTransform()->SetLocalScale(Vec3(100.f, 200.f, 0.f));
         _scene->AddGameObject(billboard);
     }
 #pragma endregion

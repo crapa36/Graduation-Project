@@ -57,7 +57,10 @@ void GS_Main(point VS_OUT input[1], inout TriangleStream<GS_OUT> outputStream)
 
     VS_OUT vtx = input[0];
 
-    float scale = 100.0f;
+    float scaleX = g_vec4_1.x; // X축 스케일
+    float scaleY = g_vec4_1.y; // Y축 스케일
+
+
 
     // 카메라의 위치 (View Space에서 원래 월드 위치로 변환 필요)
     float3 cameraPosWS = mul(float4(0, 0, 0, 1), g_matViewInv).xyz; // g_matInvView는 View 행렬의 역행렬
@@ -79,10 +82,10 @@ void GS_Main(point VS_OUT input[1], inout TriangleStream<GS_OUT> outputStream)
     float3 up = float3(0, 1, 0);
 
     // 빌보드의 4개 코너 계산
-    float3 corner1 = vtx.worldPos + (-right + up) * scale;
-    float3 corner2 = vtx.worldPos + (right + up) * scale;
-    float3 corner3 = vtx.worldPos + (right - up) * scale;
-    float3 corner4 = vtx.worldPos + (-right - up) * scale;
+    float3 corner1 = vtx.worldPos + (-right * scaleX + up * scaleY);
+    float3 corner2 = vtx.worldPos + (right * scaleX + up * scaleY);
+    float3 corner3 = vtx.worldPos + (right * scaleX - up * scaleY);
+    float3 corner4 = vtx.worldPos + (-right * scaleX - up * scaleY);
 
     // View Space로 변환
     float4 viewPos1 = mul(float4(corner1, 1.f), g_matView);

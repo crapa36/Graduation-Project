@@ -16,7 +16,7 @@ ParticleSystem::ParticleSystem() : Component(COMPONENT_TYPE::PARTICLE_SYSTEM) {
     _mesh = GET_SINGLETON(Resources)->LoadPointMesh();
     _material = GET_SINGLETON(Resources)->Get<Material>(L"Particle");
     shared_ptr<Texture> tex = GET_SINGLETON(Resources)->Load<Texture>(
-        L"Bubbles", L"..\\Resources\\Texture\\Particle\\bubble.png");
+        L"Bubbles", L"..\\Resources\\Texture\\Particle\\spark.png");
 
     _material->SetTexture(0, tex);
 
@@ -25,14 +25,27 @@ ParticleSystem::ParticleSystem() : Component(COMPONENT_TYPE::PARTICLE_SYSTEM) {
 
 ParticleSystem::~ParticleSystem() {
 }
+void ParticleSystem::SetTexture(const wstring& texturePath) {
+    shared_ptr<Texture> texture = GET_SINGLETON(Resources)->Load<Texture>(L"ParticleTexture", texturePath);
+    _material->SetTexture(0, texture);
+}
 
 void ParticleSystem::FinalUpdate() {
     _accTime += DELTA_TIME;
 
     int32 add = 0;
+
     if (_createInterval < _accTime) {
-        _accTime = _accTime - _createInterval;
-        add = 1;
+        int iterations = static_cast<int>(_accTime / _createInterval);
+        _accTime -= iterations * _createInterval;
+        add += iterations;
+    }
+
+    if (!_isLoop) {
+        _playTime -= DELTA_TIME;
+        if (_playTime <= 0) {
+            add = 0;
+        }
     }
 
     _particleBuffer->PushComputeUAVData(UAV_REGISTER::u0);

@@ -7,6 +7,12 @@ public:
     virtual void LateUpdate() override;
 
 private:
-    vector<shared_ptr<GameObject>> _bullets;
 
+    void ShotBullet();
+    void MakeParticle();
+    void SetbulletStartPos();
+    vector<shared_ptr<GameObject>> _bullets;
+    shared_ptr<GameObject> _particle;
+
+    Vec3 _bulletStartPos = {};
 };
