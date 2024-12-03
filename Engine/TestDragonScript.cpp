@@ -45,6 +45,11 @@ void TestDragonScript::Update() {
         _particle->GetParticleSystem()->SetPlayTime(0.1f);
         _particle->GetTransform()->SetLocalPosition(_bulletStartPos);
     }
+    for (auto& bullet : _bullets) {
+        if (bullet->IsEnable() && bullet->IsCollided()) {
+            bullet->GetTransform()->SetLocalPosition(bullet->GetTransform()->GetLocalPosition() + bullet->GetRigidbody()->GetVelocity() * DELTA_TIME);
+        }
+    }
 }
 
 void TestDragonScript::LateUpdate() {
@@ -83,7 +88,7 @@ void TestDragonScript::ShotBullet() {
             gameObject->SetEnable(true);
 
             gameObject->GetTransform()->SetLocalPosition(_bulletStartPos);
-            gameObject->GetRigidbody()->SetVelocity(GetTransform()->GetLook() * 1000.f);
+            gameObject->GetRigidbody()->SetVelocity(GetTransform()->GetLook() * 500.f);
             reuse = true;
             break;
         }
@@ -120,7 +125,7 @@ void TestDragonScript::ShotBullet() {
         bullet->GetTransform()->SetInheritScale(false);
         bullet->GetTransform()->SetInheritPosition(false);
         bullet->GetTransform()->SetInheritRotation(false);
-        bullet->GetRigidbody()->SetVelocity(GetTransform()->GetLook() * 1000.f);
+        bullet->GetRigidbody()->SetVelocity(GetTransform()->GetLook() * 500.f);
         bullet->GetRigidbody()->SetUseGravity(false);
         bullet->GetRigidbody()->SetElasticity(0.5f);
         bullet->GetRigidbody()->SetDrag(0.1f);

@@ -57,6 +57,9 @@ public:
     void SetEnable(bool isEnable) { _isEnable = isEnable; }
     bool IsEnable() { return _isEnable; }
 
+    void SetCollided(bool isCollided) { _isCollided = isCollided; }
+    bool IsCollided() { return _isCollided; }
+
 private:
     array<shared_ptr<Component>, FIXED_COMPONENT_COUNT> _components;
     vector<shared_ptr<MonoBehaviour>> _scripts;
@@ -68,4 +71,6 @@ private:
     uint8 _layerIndex = 0;
     bool _isStatic = true;
     bool _isEnable = true;
+
+    bool _isCollided = false;
 };

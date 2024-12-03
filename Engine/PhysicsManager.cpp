@@ -171,11 +171,16 @@ void PhysicsManager::UpdatePhysics() {
 
             if (collider->Intersects(otherCollider)) {
                 HandleCollision(gameObject, otherGameObject);
+                gameObject->SetCollided(true);
+                otherGameObject->SetCollided(true);
+                wcout << gameObject->GetName() << L" collided with " << otherGameObject->GetName() << endl;
             }
         }
 
         if (rigidbody) {
             HandleTerrainCollision(gameObject, terrains);
+            gameObject->SetCollided(true);
+            wcout << gameObject->GetName() << L" collided with terrain" << endl;
         }
     }
 }

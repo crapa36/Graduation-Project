@@ -41,6 +41,7 @@ void GameObject::Start() {
 }
 
 void GameObject::Update() {
+    _isCollided = false;
     for (shared_ptr<Component>& component : _components) {
         if (component)
             component->Update();
@@ -137,7 +138,7 @@ void GameObject::AddComponent(shared_ptr<Component> component) {
     }
 }
 
-void GameObject::SetParent(shared_ptr<GameObject> parent) { 
-    _parent = parent; 
+void GameObject::SetParent(shared_ptr<GameObject> parent) {
+    _parent = parent;
     GetTransform()->SetParent(parent->GetTransform());
 }
