@@ -53,7 +53,7 @@ float4 PS_Main(VS_OUT input) : SV_TARGET
     float time = g_float_0; // 시간 값
     float2 scrollSpeed = float2(0.1, 0.05); // 물 흐름의 속도 (x, y 방향)
 
-    float2 scrolledTexCoord = input.texCoord + scrollSpeed * time; // UV 좌표 이동
+    float2 scrolledTexCoord = (input.texCoord.x, input.texCoord.y + scrollSpeed * time); // UV 좌표 이동
 
     
     // **1. 노멀 맵 적용**
@@ -78,8 +78,8 @@ float4 PS_Main(VS_OUT input) : SV_TARGET
     float3 finalReflection = lerp(cubeReflection, reflectionColor, fresnelFactor); // Fresnel 비율에 따라 반사 조합
 
     // 굴절과의 최종 합성
-    //float3 finalColor = lerp(refractionColor, finalReflection, fresnelFactor);
-    float3 finalColor = lerp(cubeReflection, baseColor, 0.5f);
+    float3 finalColor = lerp(refractionColor, finalReflection, fresnelFactor);
+    //float3 finalColor = lerp(cubeReflection, baseColor, 0.5f);
 
     return float4(finalReflection, 0.5f);
 }

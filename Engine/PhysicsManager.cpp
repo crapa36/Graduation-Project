@@ -77,9 +77,7 @@ void PhysicsManager::FinalUpdate() {
 }
 
 void PhysicsManager::HandleCollision(shared_ptr<GameObject> objA, shared_ptr<GameObject> objB) {
-    auto collisionPair = make_tuple(objA, objB);
-
-    // 충돌 쿨타임 체크
+   
 
     auto colliderA = objA->GetCollider();
     auto colliderB = objB->GetCollider();
@@ -129,6 +127,7 @@ void PhysicsManager::HandleCollision(shared_ptr<GameObject> objA, shared_ptr<Gam
         }
     }
 }
+
 void PhysicsManager::UpdatePhysics() {
     auto& gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
     vector<shared_ptr<GameObject>> terrains;
@@ -142,30 +141,31 @@ void PhysicsManager::UpdatePhysics() {
 
     size_t gameObjectCount = gameObjects.size();
 
+    // Terrain 충돌 먼저 처리
+    for (const auto& gameObject : gameObjects) {
+        if (!gameObject->IsEnable() || !gameObject->GetRigidbody())
+            continue;
+
+        HandleTerrainCollision(gameObject, terrains);
+    }
+
+    // 객체 간 충돌 처리
     for (size_t i = 0; i < gameObjectCount; ++i) {
         const auto& gameObject = gameObjects[i];
 
-        if (!gameObject->IsEnable())
+        if (!gameObject->IsEnable() || gameObject->GetTerrain())
             continue;
-        if (gameObject->GetTerrain())
-            continue;
-        auto collider = gameObject->GetCollider();
-        auto rigidbody = gameObject->GetRigidbody();
 
+        auto collider = gameObject->GetCollider();
         if (!collider)
             continue;
 
         for (size_t j = i + 1; j < gameObjectCount; ++j) {
             const auto& otherGameObject = gameObjects[j];
-            if (!otherGameObject->IsEnable())
+            if (!otherGameObject->IsEnable() || IsParentChildRelationship(gameObject, otherGameObject) || otherGameObject->GetTerrain())
                 continue;
-            if (IsParentChildRelationship(gameObject, otherGameObject)) {
-                continue;
-            }
-            if (otherGameObject->GetTerrain())
-                continue;
-            auto otherCollider = otherGameObject->GetCollider();
 
+            auto otherCollider = otherGameObject->GetCollider();
             if (!otherCollider)
                 continue;
 
@@ -173,17 +173,11 @@ void PhysicsManager::UpdatePhysics() {
                 HandleCollision(gameObject, otherGameObject);
                 gameObject->SetCollided(true);
                 otherGameObject->SetCollided(true);
-                wcout << gameObject->GetName() << L" collided with " << otherGameObject->GetName() << endl;
             }
-        }
-
-        if (rigidbody) {
-            HandleTerrainCollision(gameObject, terrains);
-            gameObject->SetCollided(true);
-            wcout << gameObject->GetName() << L" collided with terrain" << endl;
         }
     }
 }
+
 void PhysicsManager::HandleTerrainCollision(const shared_ptr<GameObject>& gameObject, const vector<shared_ptr<GameObject>>& terrains) {
     auto rigidbody = gameObject->GetRigidbody();
     auto collider = gameObject->GetCollider();
@@ -205,56 +199,49 @@ void PhysicsManager::HandleTerrainCollision(const shared_ptr<GameObject>& gameOb
 
         float height = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x, rayOrigin.z - terrainPosition.z);
         float heightValue = terrainScale.y * height + terrainPosition.y;
-        float distance = 0.0f;
 
-        auto terrainCollider = terrain->GetCollider();
-        if (terrainCollider->Intersects(rayOrigin, rayDir, OUT distance) && (heightValue - terrainPosition.y > distance)) {
-
-            // 주변 높이를 통해 법선 벡터 계산
-            float heightL = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x - 1.0f, rayOrigin.z - terrainPosition.z);
-            float heightR = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x + 1.0f, rayOrigin.z - terrainPosition.z);
-            float heightD = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x, rayOrigin.z - terrainPosition.z - 1.0f);
-            float heightU = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x, rayOrigin.z - terrainPosition.z + 1.0f);
-
-            Vec3 normal;
-            normal.x = heightL - heightR;
-            normal.y = 2.0f;
-            normal.z = heightD - heightU;
-            normal.Normalize();
-
-            Vec3 velocity = rigidbody->GetVelocity();
-            float dot = velocity.Dot(normal);
-
-            // 경사 각도 계산
-            float slopeAngle = acos(normal.y) * (180.0f / 3.141592);
-
-            // 최대 경사각 설정
-            const float maxSlopeAngle = 10.0f;
-            const float slideSpeed = 2.0f;
-
-            if (slopeAngle > maxSlopeAngle) {
-
-                // 경사각이 최대치를 넘을 경우 미끄러짐 효과 적용
-                Vec3 slideDirection = Vec3(normal.x, 0.0f, normal.z);
-                slideDirection.Normalize();
-                velocity = slideDirection * slideSpeed;
-            }
-            else {
-
-                // 최대 경사각 이하일 때 경사면을 따라 이동 보정
-                Vec3 forwardVelocity = velocity - (normal * dot);
-                velocity = forwardVelocity;
-            }
-
-            rigidbody->SetVelocity(velocity);
-
-            // 위치 조정
-            position.y = heightValue + collider->GetHeight() - colliderCenter.y;
-            transform->SetLocalPosition(position);
-
-            ApplyCollisionResponse(gameObject, terrain, normal, 0.0f);
-            break;
+        if (rayOrigin.y - heightValue > 0.1f) {
+            continue; // Terrain과의 충돌이 없는 경우
         }
+
+        // 주변 높이를 통해 법선 벡터 계산
+        float heightL = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x - 1.0f, rayOrigin.z - terrainPosition.z);
+        float heightR = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x + 1.0f, rayOrigin.z - terrainPosition.z);
+        float heightD = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x, rayOrigin.z - terrainPosition.z - 1.0f);
+        float heightU = GetInterpolatedHeightAtPosition(terrain->GetTerrain(), rayOrigin.x - terrainPosition.x, rayOrigin.z - terrainPosition.z + 1.0f);
+
+        Vec3 normal;
+        normal.x = heightL - heightR;
+        normal.y = 2.0f;
+        normal.z = heightD - heightU;
+        normal.Normalize();
+
+        Vec3 velocity = rigidbody->GetVelocity();
+        float dot = velocity.Dot(normal);
+
+        // 경사각에 따른 이동 처리
+        float slopeAngle = acos(std::clamp(normal.y, -1.0f, 1.0f)) * (180.0f / 3.141592f);
+        const float maxSlopeAngle = 30.0f; // 최대 경사각
+        const float slideSpeed = 2.0f;
+
+        if (slopeAngle > maxSlopeAngle) {
+            Vec3 slideDirection = Vec3(normal.x, 0.0f, normal.z);
+            slideDirection.Normalize();
+            velocity = slideDirection * slideSpeed;
+        }
+        else {
+            Vec3 forwardVelocity = velocity - (normal * dot);
+            velocity = forwardVelocity;
+        }
+
+        rigidbody->SetVelocity(velocity);
+
+        // 위치 조정
+        position.y = heightValue + collider->GetHeight() - colliderCenter.y;
+        transform->SetLocalPosition(position);
+
+        rigidbody->SetGrounded(true);
+        break;
     }
 }
 
@@ -288,77 +275,50 @@ bool PhysicsManager::Raycast(const Vec4& origin, const Vec4& direction, float ma
 }
 
 void PhysicsManager::ApplyCollisionResponse(const shared_ptr<GameObject>& A, const shared_ptr<GameObject>& B, const Vec3& collisionNormal, float collisionDepth) {
-    if (!A->GetCollider() || !B->GetCollider()) {
-        return; // 충돌체가 없으면 충돌 처리를 하지 않음
-    }
-
     auto rigidbodyA = A->GetRigidbody();
     auto rigidbodyB = B->GetRigidbody();
 
-    // A와 B 중 한쪽에만 리지드바디가 있을 때의 처리
-    bool hasRigidbodyA = (rigidbodyA != nullptr);
-    bool hasRigidbodyB = (rigidbodyB != nullptr);
+    Vec3 velocityA = rigidbodyA ? rigidbodyA->GetVelocity() : Vec3(0, 0, 0);
+    Vec3 velocityB = rigidbodyB ? rigidbodyB->GetVelocity() : Vec3(0, 0, 0);
 
-    if (!hasRigidbodyA && !hasRigidbodyB) {
-        return;  // 둘 다 리지드바디가 없으면 처리할 필요 없음
-    }
+    float massA = rigidbodyA ? rigidbodyA->GetMass() : 0.0f;
+    float massB = rigidbodyB ? rigidbodyB->GetMass() : 0.0f;
 
-    // 각 객체의 속도와 질량, 탄성 계수 가져오기
-    Vec3 velocityA = hasRigidbodyA ? rigidbodyA->GetVelocity() : Vec3(0, 0, 0);
-    Vec3 velocityB = hasRigidbodyB ? rigidbodyB->GetVelocity() : Vec3(0, 0, 0);
-
-    float massA = hasRigidbodyA ? rigidbodyA->GetMass() : 0.0f;
-    float massB = hasRigidbodyB ? rigidbodyB->GetMass() : 0.0f;
-
-    float elasticityA = hasRigidbodyA ? rigidbodyA->GetElasticity() : 0.0f;
-    float elasticityB = hasRigidbodyB ? rigidbodyB->GetElasticity() : 0.0f;
+    float elasticityA = rigidbodyA ? rigidbodyA->GetElasticity() : 0.0f;
+    float elasticityB = rigidbodyB ? rigidbodyB->GetElasticity() : 0.0f;
     float combinedElasticity = (elasticityA + elasticityB) * 0.5f;
 
     Vec3 relativeVelocity = velocityB - velocityA;
     float normalVelocity = relativeVelocity.Dot(collisionNormal);
 
-    // 충돌을 통한 속도 변화 계산 (양쪽이 다 리지드바디일 때만 반발력 적용)
     if (normalVelocity < 0) {
         float restitution = combinedElasticity;
-
-        // 질량 기반 반발 계산
         float impulseMagnitude = -(1.0f + restitution) * normalVelocity;
         impulseMagnitude /= (massA > 0 ? (1 / massA) : 0.0f) + (massB > 0 ? (1 / massB) : 0.0f);
 
         Vec3 impulse = impulseMagnitude * collisionNormal;
 
-        if (hasRigidbodyA) {
+        if (rigidbodyA) {
             velocityA -= impulse / massA;
             rigidbodyA->SetVelocity(velocityA);
         }
 
-        if (hasRigidbodyB) {
+        if (rigidbodyB) {
             velocityB += impulse / massB;
             rigidbodyB->SetVelocity(velocityB);
         }
     }
 
-    // 충돌 깊이에 따른 위치 보정 (Position Correction)
-    float totalMass = massA + massB;
-    Vec3 positionCorrection = collisionNormal * (collisionDepth / totalMass);
-
-    if (hasRigidbodyA) {
-        auto transformA = A->GetTransform();
-        transformA->SetLocalPosition(transformA->GetLocalPosition() - positionCorrection * massB);
-    }
-
-    if (hasRigidbodyB) {
-        auto transformB = B->GetTransform();
-        transformB->SetLocalPosition(transformB->GetLocalPosition() + positionCorrection * massA);
-    }
-
-    // A 또는 B가 Terrain과 충돌한 경우 Grounded 설정
-    if (hasRigidbodyA && B->GetTerrain()) {
-        rigidbodyA->SetGrounded(true);
-    }
-
-    if (hasRigidbodyB && A->GetTerrain()) {
-        rigidbodyB->SetGrounded(true);
+    // 위치 조정
+    if (collisionDepth > 0) {
+        if (rigidbodyA && !rigidbodyA->GetIsKinematic()) {
+            auto transformA = A->GetTransform();
+            transformA->SetLocalPosition(transformA->GetLocalPosition() - collisionNormal * collisionDepth * (massB / (massA + massB)));
+        }
+        if (rigidbodyB && !rigidbodyB->GetIsKinematic()) {
+            auto transformB = B->GetTransform();
+            transformB->SetLocalPosition(transformB->GetLocalPosition() + collisionNormal * collisionDepth * (massA / (massA + massB)));
+        }
     }
 }
 

@@ -20,6 +20,7 @@
 #include "BulletScript.h"
 #include "MenuScript.h"
 #include "TestReflection.h"
+#include "TestWaterScript.h"
 
 #include "Resources.h"
 #include "Terrain.h"
@@ -458,6 +459,7 @@ TestScene::TestScene() {
         obj->AddComponent(make_shared<Transform>());
         obj->GetTransform()->SetLocalScale(Vec3(2000.f, 1.f, 2000.f));
         obj->GetTransform()->SetLocalPosition(Vec3(0.f, -50.f, 50.f));
+        obj->AddComponent(make_shared<TestWaterScript>());
         obj->SetStatic(true);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {

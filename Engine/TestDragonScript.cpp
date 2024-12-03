@@ -88,7 +88,7 @@ void TestDragonScript::ShotBullet() {
             gameObject->SetEnable(true);
 
             gameObject->GetTransform()->SetLocalPosition(_bulletStartPos);
-            gameObject->GetRigidbody()->SetVelocity(GetTransform()->GetLook() * 500.f);
+            gameObject->GetRigidbody()->SetVelocity(GetTransform()->GetLook() * 100.f);
             reuse = true;
             break;
         }
@@ -125,7 +125,7 @@ void TestDragonScript::ShotBullet() {
         bullet->GetTransform()->SetInheritScale(false);
         bullet->GetTransform()->SetInheritPosition(false);
         bullet->GetTransform()->SetInheritRotation(false);
-        bullet->GetRigidbody()->SetVelocity(GetTransform()->GetLook() * 500.f);
+        bullet->GetRigidbody()->SetVelocity(GetTransform()->GetLook() * 100.f);
         bullet->GetRigidbody()->SetUseGravity(false);
         bullet->GetRigidbody()->SetElasticity(0.5f);
         bullet->GetRigidbody()->SetDrag(0.1f);
