@@ -31,7 +31,7 @@
 TestScene::TestScene() {
 #pragma region FBX
     {
-        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadFBX(L"..\\Resources\\FBX\\Dragon.fbx");
+        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadFBX(L"..\\Resources\\FBX\\Armature.fbx");
 
         vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
 
@@ -44,9 +44,31 @@ TestScene::TestScene() {
             dynamic_pointer_cast<BoxCollider>(gameObject->GetCollider())->SetExtents(Vec3(200.f, 150.f, 200.f));
             dynamic_pointer_cast<BoxCollider>(gameObject->GetCollider())->SetCenter(Vec3(0.f, 70.f, 0.f));
             gameObject->GetTransform()->SetLocalPosition(Vec3(210.f, 500.f, 0.f));
-            gameObject->GetTransform()->SetLocalScale(Vec3(5.f, 5.f, 5.f));
+            gameObject->GetTransform()->SetLocalScale(Vec3(0.3f, 0.3f, 0.3f));
             gameObject->GetRigidbody()->SetUseGravity(true);
             gameObject->GetRigidbody()->SetElasticity(0.0f);
+
+#pragma region Camera
+            {
+                shared_ptr<GameObject> camera = make_shared<GameObject>();
+                camera->SetName(L"Main_Camera");
+                camera->AddComponent(make_shared<Transform>());
+                camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, FOV=45��
+                camera->AddComponent(make_shared<TestCameraScript>());
+                camera->GetCamera()->SetFar(10000.f); // Far 10000 ����
+                camera->GetTransform()->SetLocalPosition(Vec3(0.f, 50.f, -200.f));
+
+                camera->SetParent(gameObjects.at(0));
+                camera->GetTransform()->SetInheritRotation(false);
+                camera->GetTransform()->SetInheritScale(false);
+
+                uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
+
+                //camera->GetCamera()->SetCullingMaskAll(); // �� ����
+                camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UI�� �� ����
+                _scene->AddGameObject(camera);
+            }
+#pragma endregion
 
             gameObject->SetStatic(false);
             _scene->AddGameObject(gameObject);
@@ -100,27 +122,7 @@ TestScene::TestScene() {
             gameObject->SetStatic(false);
             _scene->AddGameObject(gameObject);
         }
-#pragma region Camera
-        {
-            shared_ptr<GameObject> camera = make_shared<GameObject>();
-            camera->SetName(L"Main_Camera");
-            camera->AddComponent(make_shared<Transform>());
-            camera->AddComponent(make_shared<Camera>()); // Near=1, Far=1000, FOV=45��
-            camera->AddComponent(make_shared<TestCameraScript>());
-            camera->GetCamera()->SetFar(10000.f); // Far 10000 ����
-            camera->GetTransform()->SetLocalPosition(Vec3(0.f, 50.f, -200.f));
 
-            camera->SetParent(mainObject);
-            camera->GetTransform()->SetInheritRotation(false);
-            camera->GetTransform()->SetInheritScale(false);
-
-            uint8 layerIndex = GET_SINGLETON(SceneManager)->LayerNameToIndex(L"UI");
-
-            //camera->GetCamera()->SetCullingMaskAll(); // �� ����
-            camera->GetCamera()->SetCullingMaskLayerOnOff(layerIndex, true); // UI�� �� ����
-            _scene->AddGameObject(camera);
-        }
-#pragma endregion
     }
 #pragma endregion
 

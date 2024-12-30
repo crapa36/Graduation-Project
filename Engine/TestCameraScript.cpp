@@ -78,10 +78,10 @@ void TestCameraScript::LateUpdate() {
     Vec3 dir = { 0.f, 0.f, 0.f };
 
     // WASD 입력에 따라 방향 벡터 설정
-    if (INPUT->IsKeyPressed(DIK_W)) dir += GetTransform()->GetLook();
-    if (INPUT->IsKeyPressed(DIK_S)) dir -= GetTransform()->GetLook();
-    if (INPUT->IsKeyPressed(DIK_A)) dir -= GetTransform()->GetRight();
-    if (INPUT->IsKeyPressed(DIK_D)) dir += GetTransform()->GetRight();
+    if (INPUT->IsKeyPressed(DIK_W)) dir -= GetTransform()->GetLook();
+    if (INPUT->IsKeyPressed(DIK_S)) dir += GetTransform()->GetLook();
+    if (INPUT->IsKeyPressed(DIK_A)) dir += GetTransform()->GetRight();
+    if (INPUT->IsKeyPressed(DIK_D)) dir -= GetTransform()->GetRight();
 
     if (dir.Length() > 0.f) {
         dir.Normalize();
@@ -101,7 +101,7 @@ void TestCameraScript::LateUpdate() {
         if (parentRotate.y - _dir.y < -XM_PI) parentRotate.y += XM_2PI;
     }
 
-    Vec3 result = { 0.f, _dir.y + 0.9f * (parentRotate.y - _dir.y), 0.f };
+    Vec3 result = {XMConvertToRadians(-90), _dir.y + 0.9f * (parentRotate.y - _dir.y), 0.f };
     parentTransform->SetLocalRotation(result);
 
     // Rigidbody 캐싱
@@ -112,7 +112,7 @@ void TestCameraScript::LateUpdate() {
     // WASD 이동 처리
     if (INPUT->IsKeyPressed(DIK_W) || INPUT->IsKeyPressed(DIK_S) ||
         INPUT->IsKeyPressed(DIK_A) || INPUT->IsKeyPressed(DIK_D)) {
-        Vec3 lookVec = parentTransform->GetLook();
+        Vec3 lookVec = parentTransform->GetUp();
         parentRigidbody->SetVelocity(lookVec * _speed);
 
         if (INPUT->IsKeyPressed(DIK_SPACE)) {
