@@ -411,7 +411,7 @@ TestScene::TestScene() {
         obj->SetName(L"Water");
         obj->AddComponent(make_shared<Transform>());
         obj->GetTransform()->SetLocalScale(Vec3(2000.f, 1.f, 2000.f));
-        obj->GetTransform()->SetLocalPosition(Vec3(0.f, 20.f, 50.f));
+        obj->GetTransform()->SetLocalPosition(Vec3(0.f, -20.f, 50.f));
         obj->SetStatic(true);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {

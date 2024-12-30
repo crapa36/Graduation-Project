@@ -12,8 +12,8 @@
 #include <cmath>
 
 // 상수 정의
-const float DEFAULT_SPEED = 50.f;
-const float BOOSTED_SPEED = 100.f;
+const float DEFAULT_SPEED = 200.f;
+const float BOOSTED_SPEED = 300.f;
 const float SENSITIVITY = 0.005f;
 const float ZOOM_SPEED = 0.2f;
 const float MIN_ZOOM_DISTANCE = 20.f;
