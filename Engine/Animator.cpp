@@ -22,11 +22,11 @@ void Animator::FinalUpdate() {
     if (_updateTime >= animClip.duration)
         _updateTime = 0.f;
 
-    const int32 ratio = static_cast<int32>(animClip.frameCount / animClip.duration);
+    const float ratio = static_cast<float>(animClip.frameCount) / static_cast<float>(animClip.duration);
     _frame = static_cast<int32>(_updateTime * ratio);
     _frame = min(_frame, animClip.frameCount - 1);
     _nextFrame = min(_frame + 1, animClip.frameCount - 1);
-    _frameRatio = static_cast<float>(_frame - _frame);
+    _frameRatio = static_cast<float>(_updateTime * ratio - static_cast<float>(_frame));
 }
 
 void Animator::SetAnimClip(const vector<AnimClipInfo>* animClips) {
