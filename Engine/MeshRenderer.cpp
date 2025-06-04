@@ -30,6 +30,9 @@ void MeshRenderer::Render() {
             GetAnimator()->PushData();
             material->SetInt(1, 1);
         }
+        else {
+            material->SetInt(1, 0);
+        }
         GetTransform()->PushData();
         material->PushGraphicsData();
         _mesh->Render(1, i);
@@ -49,14 +52,27 @@ void MeshRenderer::Render(shared_ptr<InstancingBuffer>& buffer) {
             GetAnimator()->PushData();
             material->SetInt(1, 1);
         }
+        else {
+            material->SetInt(1, 0);
+        }
         material->PushGraphicsData();
         _mesh->Render(buffer, i);
     }
 }
 
 void MeshRenderer::RenderShadow() {
+    auto shadowMaterial = GResources->Get<Material>(L"Shadow");
+
+    if (GetAnimator()) {
+        GetAnimator()->PushData();
+        shadowMaterial->SetInt(1, 1);
+    }
+    else {
+        shadowMaterial->SetInt(1, 0);
+    }
+
     GetTransform()->PushData();
-    GET_SINGLETON(Resources)->Get<Material>(L"Shadow")->PushGraphicsData();
+    shadowMaterial->PushGraphicsData();
     _mesh->Render();
 }
 

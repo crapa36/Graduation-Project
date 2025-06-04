@@ -41,30 +41,30 @@ Vec3 BoxCollider::GetCollisionNormal(const Vec4& rayOrigin, const Vec4& rayDir) 
     Vec3 normal(0.0f, 0.0f, 0.0f);
     float distance;
 
-    // Ãæµ¹ ¿©ºÎ È®ÀÎ
+    // ì¶©ëŒ ì—¬ë¶€ í™•ì¸
     if (!Intersects(rayOrigin, rayDir, distance)) {
-        return normal; // Ãæµ¹ÀÌ ¾øÀ¸¸é ºó º¤ÅÍ ¹İÈ¯
+        return normal; // ì¶©ëŒì´ ì—†ìœ¼ë©´ ë¹ˆ ë²¡í„° ë°˜í™˜
     }
 
-    // Ãæµ¹ ÁöÁ¡ °è»ê
+    // ì¶©ëŒ ì§€ì  ê³„ì‚°
     Vec4 hitPoint = rayOrigin + rayDir * distance;
 
-    // ¹Ú½ºÀÇ È¸Àü Çà·ÄÀÇ ¿ªÇà·Ä °è»ê
+    // ë°•ìŠ¤ì˜ íšŒì „ í–‰ë ¬ì˜ ì—­í–‰ë ¬ ê³„ì‚°
     Matrix invRotationMatrix = GetRotationMatrix();
     invRotationMatrix = invRotationMatrix.Invert();
 
-    // Ãæµ¹ ÁöÁ¡À» ·ÎÄÃ ÁÂÇ¥°è·Î º¯È¯
+    // ì¶©ëŒ ì§€ì ì„ ë¡œì»¬ ì¢Œí‘œê³„ë¡œ ë³€í™˜
     Vec3 hitPointVec(hitPoint.x, hitPoint.y, hitPoint.z);
     Vec3 localHitPoint = Vector3::Transform(hitPointVec, invRotationMatrix);
 
-    // ¹Ú½ºÀÇ °¡Àå °¡±î¿î ¸éÀ» Ã£±â À§ÇÑ Àı´ë°ª ºñ±³
+    // ë°•ìŠ¤ì˜ ê°€ì¥ ê°€ê¹Œìš´ ë©´ì„ ì°¾ê¸° ìœ„í•œ ì ˆëŒ€ê°’ ë¹„êµ
     Vec3 absLocalHitPoint = Vec3(
         std::abs(localHitPoint.x),
         std::abs(localHitPoint.y),
         std::abs(localHitPoint.z)
     );
 
-    // °¡Àå Å« Àı´ë°ªÀ» °¡Áö´Â ÃàÀ» Ã£¾Æ ÇØ´ç ÃàÀÇ ³ë¸ÖÀ» ¼³Á¤
+    // ê°€ì¥ í° ì ˆëŒ€ê°’ì„ ê°€ì§€ëŠ” ì¶•ì„ ì°¾ì•„ í•´ë‹¹ ì¶•ì˜ ë…¸ë©€ì„ ì„¤ì •
     if (absLocalHitPoint.x > absLocalHitPoint.y && absLocalHitPoint.x > absLocalHitPoint.z) {
         normal = (localHitPoint.x > 0) ? Vec3(1.0f, 0.0f, 0.0f) : Vec3(-1.0f, 0.0f, 0.0f);
     }
@@ -75,7 +75,7 @@ Vec3 BoxCollider::GetCollisionNormal(const Vec4& rayOrigin, const Vec4& rayDir) 
         normal = (localHitPoint.z > 0) ? Vec3(0.0f, 0.0f, 1.0f) : Vec3(0.0f, 0.0f, -1.0f);
     }
 
-    // ³ë¸ÖÀ» ¿ùµå ÁÂÇ¥°è·Î º¯È¯
+    // ë…¸ë©€ì„ ì›”ë“œ ì¢Œí‘œê³„ë¡œ ë³€í™˜
     normal = Vector3::TransformNormal(normal, GetRotationMatrix());
 
     return normal;
@@ -92,12 +92,12 @@ Vec3 BoxCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
         Vec3 boxExtents = _boundingBox.Extents;
         XMMATRIX boxRotation = GetRotationMatrix();
 
-        // ¹Ú½º ·ÎÄÃ ÁÂÇ¥°è·Î ½ºÇÇ¾î Áß½É º¯È¯
+        // ë°•ìŠ¤ ë¡œì»¬ ì¢Œí‘œê³„ë¡œ ìŠ¤í”¼ì–´ ì¤‘ì‹¬ ë³€í™˜
         XMVECTOR sphereCenterVec = XMLoadFloat3(&sphereCenter);
         XMVECTOR boxCenterVec = XMLoadFloat3(&boxCenter);
         XMVECTOR localSphereCenter = XMVector3Transform(sphereCenterVec - boxCenterVec, XMMatrixInverse(nullptr, boxRotation));
 
-        // ¹Ú½ºÀÇ °¡Àå °¡±î¿î Á¡ °è»ê
+        // ë°•ìŠ¤ì˜ ê°€ì¥ ê°€ê¹Œìš´ ì  ê³„ì‚°
         XMFLOAT3 localSphereCenterFloat;
         XMStoreFloat3(&localSphereCenterFloat, localSphereCenter);
         XMFLOAT3 closestPoint;
@@ -105,11 +105,11 @@ Vec3 BoxCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
         closestPoint.y = std::clamp(localSphereCenterFloat.y, -boxExtents.y, boxExtents.y);
         closestPoint.z = std::clamp(localSphereCenterFloat.z, -boxExtents.z, boxExtents.z);
 
-        // ·ÎÄÃ ÁÂÇ¥°è¿¡¼­ ¹ı¼± º¤ÅÍ °è»ê
+        // ë¡œì»¬ ì¢Œí‘œê³„ì—ì„œ ë²•ì„  ë²¡í„° ê³„ì‚°
         XMVECTOR closestPointVec = XMLoadFloat3(&closestPoint);
         XMVECTOR localNormal = localSphereCenter - closestPointVec;
 
-        // ¹ı¼± º¤ÅÍ°¡ 0ÀÎ °æ¿ì Ã³¸®
+        // ë²•ì„  ë²¡í„°ê°€ 0ì¸ ê²½ìš° ì²˜ë¦¬
         if (XMVector3Length(localNormal).m128_f32[0] < FLT_EPSILON) {
             if (abs(closestPoint.x - boxExtents.x) < FLT_EPSILON) localNormal = XMVectorSet(1, 0, 0, 0);
             else if (abs(closestPoint.x + boxExtents.x) < FLT_EPSILON) localNormal = XMVectorSet(-1, 0, 0, 0);
@@ -122,7 +122,7 @@ Vec3 BoxCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
             localNormal = XMVector3Normalize(localNormal);
         }
 
-        // ¿ùµå ÁÂÇ¥°è·Î º¯È¯
+        // ì›”ë“œ ì¢Œí‘œê³„ë¡œ ë³€í™˜
         XMVECTOR worldNormal = XMVector3TransformNormal(localNormal, boxRotation);
         XMStoreFloat3(&normal, worldNormal);
     }
@@ -132,7 +132,7 @@ Vec3 BoxCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
         Vec3 thisCenter = _boundingBox.Center;
         Vec3 delta = thisCenter - otherCenter;
 
-        // °¡Àå Å« ÃàÀ» µû¶ó ¹ı¼± °áÁ¤
+        // ê°€ì¥ í° ì¶•ì„ ë”°ë¼ ë²•ì„  ê²°ì •
         if (abs(delta.x) > abs(delta.y) && abs(delta.x) > abs(delta.z)) {
             normal = -Vec3((delta.x > 0) ? 1.0f : -1.0f, 0.0f, 0.0f);
         }
@@ -158,12 +158,12 @@ float BoxCollider::GetCollisionDepth(const shared_ptr<BaseCollider>& other) {
         Vec3 boxExtents = _boundingBox.Extents;
         XMMATRIX boxRotation = GetRotationMatrix();
 
-        // ¹Ú½º ·ÎÄÃ ÁÂÇ¥°è·Î ½ºÇÇ¾î Áß½É º¯È¯
+        // ë°•ìŠ¤ ë¡œì»¬ ì¢Œí‘œê³„ë¡œ ìŠ¤í”¼ì–´ ì¤‘ì‹¬ ë³€í™˜
         XMVECTOR sphereCenterVec = XMLoadFloat3(&sphereCenter);
         XMVECTOR boxCenterVec = XMLoadFloat3(&boxCenter);
         XMVECTOR localSphereCenter = XMVector3Transform(sphereCenterVec - boxCenterVec, XMMatrixInverse(nullptr, boxRotation));
 
-        // ¹Ú½ºÀÇ °¡Àå °¡±î¿î Á¡ Ã£±â
+        // ë°•ìŠ¤ì˜ ê°€ì¥ ê°€ê¹Œìš´ ì  ì°¾ê¸°
         XMFLOAT3 localSphereCenterFloat;
         XMStoreFloat3(&localSphereCenterFloat, localSphereCenter);
         XMFLOAT3 closestPoint;
@@ -171,7 +171,7 @@ float BoxCollider::GetCollisionDepth(const shared_ptr<BaseCollider>& other) {
         closestPoint.y = std::clamp(localSphereCenterFloat.y, -boxExtents.y, boxExtents.y);
         closestPoint.z = std::clamp(localSphereCenterFloat.z, -boxExtents.z, boxExtents.z);
 
-        // °¡Àå °¡±î¿î Á¡°ú ½ºÇÇ¾î Áß½É °£ °Å¸® °è»ê
+        // ê°€ì¥ ê°€ê¹Œìš´ ì ê³¼ ìŠ¤í”¼ì–´ ì¤‘ì‹¬ ê°„ ê±°ë¦¬ ê³„ì‚°
         XMVECTOR closestPointVec = XMLoadFloat3(&closestPoint);
         float distance = XMVector3Length(closestPointVec - localSphereCenter).m128_f32[0];
         depth = otherSphere->GetBoundingSphere().Radius - distance;
@@ -188,8 +188,8 @@ float BoxCollider::GetCollisionDepth(const shared_ptr<BaseCollider>& other) {
         overlap.y = (thisExtents.y + otherExtents.y) - abs(thisCenter.y - otherCenter.y);
         overlap.z = (thisExtents.z + otherExtents.z) - abs(thisCenter.z - otherCenter.z);
 
-        // °¡Àå ÀÛÀº ÃàÀ» µû¶ó Ãæµ¹ ±íÀÌ °áÁ¤
-        depth = min(overlap.x, min(overlap.y, overlap.z));
+    _mesh = GResources->LoadCubeMesh();
+    _material = GResources->Get<Material>(L"Collider")->Clone();
     }
 
     return depth < 0.0f ? 0.0f : depth;
@@ -222,12 +222,12 @@ void BoxCollider::Render() {
 //void BoxCollider::Render() {
 //    Vec3 corners[8];
 //
-//    // ¹Ú½ºÀÇ 8°³ ²ÀÁöÁ¡ °è»ê
+//    // ë°•ìŠ¤ì˜ 8ê°œ ê¼­ì§€ì  ê³„ì‚°
 //    Vec3 extents = _boundingBox.Extents;
 //    XMMATRIX rotationMatrix = GetRotationMatrix();
 //    Vec3 center = _boundingBox.Center;
 //
-//    // ¹Ú½ºÀÇ ·ÎÄÃ ÁÂÇ¥¿¡¼­ °¢ ²ÀÁöÁ¡ °è»ê
+//    // ë°•ìŠ¤ì˜ ë¡œì»¬ ì¢Œí‘œì—ì„œ ê° ê¼­ì§€ì  ê³„ì‚°
 //    Vec3 localCorners[8] = {
 //        Vec3(-extents.x, -extents.y, -extents.z),
 //        Vec3(extents.x, -extents.y, -extents.z),
@@ -239,14 +239,14 @@ void BoxCollider::Render() {
 //        Vec3(-extents.x,  extents.y,  extents.z)
 //    };
 //
-//    // ¿ùµå ÁÂÇ¥·Î º¯È¯
+#endif
 //    for (int i = 0; i < 8; ++i) {
 //        XMVECTOR cornerVec = XMVector3Transform(XMLoadFloat3(&localCorners[i]), rotationMatrix);
 //        cornerVec += XMLoadFloat3(&center);
 //        XMStoreFloat3(&corners[i], cornerVec);
 //    }
 //
-//    // °¢ º¯À» µğ¹ö±× ¶óÀÎÀ¸·Î Ãß°¡
+//    // ê° ë³€ì„ ë””ë²„ê·¸ ë¼ì¸ìœ¼ë¡œ ì¶”ê°€
 //    GET_SINGLETON(DebugLineManager)->AddLine(corners[0], corners[1]);
 //    GET_SINGLETON(DebugLineManager)->AddLine(corners[1], corners[2]);
 //    GET_SINGLETON(DebugLineManager)->AddLine(corners[2], corners[3]);

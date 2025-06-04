@@ -32,74 +32,74 @@ shared_ptr<Mesh> Resources::LoadPointMesh() {
 
 shared_ptr<Mesh> Resources::LoadCameraFrustumMesh(shared_ptr<Camera> camera) {
 
-    // ÇÁ·¯½ºÅÒ ²ÀÁöÁ¡À» °¡Á®¿É´Ï´Ù.
+    // í”„ëŸ¬ìŠ¤í…€ ê¼­ì§€ì ì„ ê°€ì ¸ì˜µë‹ˆë‹¤.
     vector<Vec3> worldPos = camera->GetFrustum().GetWorldPos();
 
     vector<Vertex> vec(24);
 
-    //¾Õ¸é
+    //ì•ë©´
     vec[0] = Vertex(worldPos[0], Vec2(0.0f, 1.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(1.0f, 0.0f, 0.0f));
     vec[1] = Vertex(worldPos[1], Vec2(0.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(1.0f, 0.0f, 0.0f));
     vec[2] = Vertex(worldPos[2], Vec2(1.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(1.0f, 0.0f, 0.0f));
     vec[3] = Vertex(worldPos[3], Vec2(1.0f, 1.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(1.0f, 0.0f, 0.0f));
 
-    // µŞ¸é
+    // ë’·ë©´
     vec[4] = Vertex(worldPos[4], Vec2(1.0f, 1.0f), Vec3(0.0f, 0.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f));
     vec[5] = Vertex(worldPos[5], Vec2(0.0f, 1.0f), Vec3(0.0f, 0.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f));
     vec[6] = Vertex(worldPos[6], Vec2(0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f));
     vec[7] = Vertex(worldPos[7], Vec2(1.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f));
 
-    // À­¸é
+    // ìœ—ë©´
     vec[8] = Vertex(worldPos[1], Vec2(0.0f, 1.0f), Vec3(0.0f, 1.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f));
     vec[9] = Vertex(worldPos[5], Vec2(0.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f));
     vec[10] = Vertex(worldPos[6], Vec2(1.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f));
     vec[11] = Vertex(worldPos[2], Vec2(1.0f, 1.0f), Vec3(0.0f, 1.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f));
 
-    // ¾Æ·§¸é
+    // ì•„ë«ë©´
     vec[12] = Vertex(worldPos[0], Vec2(1.0f, 1.0f), Vec3(0.0f, -1.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f));
     vec[13] = Vertex(worldPos[3], Vec2(0.0f, 1.0f), Vec3(0.0f, -1.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f));
     vec[14] = Vertex(worldPos[7], Vec2(0.0f, 0.0f), Vec3(0.0f, -1.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f));
     vec[15] = Vertex(worldPos[4], Vec2(1.0f, 0.0f), Vec3(0.0f, -1.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f));
 
-    // ¿ŞÂÊ¸é
+    // ì™¼ìª½ë©´
     vec[16] = Vertex(worldPos[4], Vec2(0.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f));
     vec[17] = Vertex(worldPos[7], Vec2(0.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f));
     vec[18] = Vertex(worldPos[3], Vec2(1.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f));
     vec[19] = Vertex(worldPos[0], Vec2(1.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f));
 
-    // ¿À¸¥ÂÊ¸é
+    // ì˜¤ë¥¸ìª½ë©´
     vec[20] = Vertex(worldPos[2], Vec2(0.0f, 1.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
     vec[21] = Vertex(worldPos[6], Vec2(0.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
     vec[22] = Vertex(worldPos[5], Vec2(1.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
     vec[23] = Vertex(worldPos[1], Vec2(1.0f, 1.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
     vector<uint32> idx(36);
 
-    // ¸é¿¡ ´ëÇÑ ÀÎµ¦½º ¼³Á¤
-    // ¾Õ¸é
+    // ë©´ì— ëŒ€í•œ ì¸ë±ìŠ¤ ì„¤ì •
+    // ì•ë©´
     idx[0] = 0; idx[1] = 1; idx[2] = 2;
     idx[3] = 0; idx[4] = 2; idx[5] = 3;
 
-    // µŞ¸é
+    // ë’·ë©´
     idx[6] = 4; idx[7] = 5; idx[8] = 6;
     idx[9] = 4; idx[10] = 6; idx[11] = 7;
 
-    // À­¸é
+    // ìœ—ë©´
     idx[12] = 8; idx[13] = 9; idx[14] = 10;
     idx[15] = 8; idx[16] = 10; idx[17] = 11;
 
-    // ¾Æ·§¸é
+    // ì•„ë«ë©´
     idx[18] = 12; idx[19] = 13; idx[20] = 14;
     idx[21] = 12; idx[22] = 14; idx[23] = 15;
 
-    // ¿ŞÂÊ¸é
+    // ì™¼ìª½ë©´
     idx[24] = 16; idx[25] = 17; idx[26] = 18;
     idx[27] = 16; idx[28] = 18; idx[29] = 19;
 
-    // ¿À¸¥ÂÊ¸é
+    // ì˜¤ë¥¸ìª½ë©´
     idx[30] = 20; idx[31] = 21; idx[32] = 22;
     idx[33] = 20; idx[34] = 22; idx[35] = 23;
 
-    // ¸Ş½Ã »ı¼º ¹× ¹İÈ¯
+    // ë©”ì‹œ ìƒì„± ë° ë°˜í™˜
     shared_ptr<Mesh> mesh = make_shared<Mesh>();
     mesh->Create(vec, idx);
     Add(L"Frustum", mesh);
@@ -116,7 +116,7 @@ shared_ptr<Mesh> Resources::LoadRectangleMesh() {
 
     vector<Vertex> vec(4);
 
-    // ¾Õ¸é
+    // ì•ë©´
     vec[0] = Vertex(Vec3(-w2, -h2, 0), Vec2(0.0f, 1.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(1.0f, 0.0f, 0.0f));
     vec[1] = Vertex(Vec3(-w2, +h2, 0), Vec2(0.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(1.0f, 0.0f, 0.0f));
     vec[2] = Vertex(Vec3(+w2, +h2, 0), Vec2(1.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(1.0f, 0.0f, 0.0f));
@@ -124,7 +124,7 @@ shared_ptr<Mesh> Resources::LoadRectangleMesh() {
 
     vector<uint32> idx(6);
 
-    // ¾Õ¸é
+    // ì•ë©´
     idx[0] = 0; idx[1] = 1; idx[2] = 2;
     idx[3] = 0; idx[4] = 2; idx[5] = 3;
 
@@ -216,37 +216,37 @@ shared_ptr<Mesh> Resources::LoadCubeMesh() {
 
     vector<Vertex> vec(24);
 
-    // ¾Õ¸é
+    // ì•ë©´
     vec[0] = Vertex(Vec3(-w2, -h2, -d2), Vec2(0.0f, 1.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(1.0f, 0.0f, 0.0f));
     vec[1] = Vertex(Vec3(-w2, +h2, -d2), Vec2(0.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(1.0f, 0.0f, 0.0f));
     vec[2] = Vertex(Vec3(+w2, +h2, -d2), Vec2(1.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(1.0f, 0.0f, 0.0f));
     vec[3] = Vertex(Vec3(+w2, -h2, -d2), Vec2(1.0f, 1.0f), Vec3(0.0f, 0.0f, -1.0f), Vec3(1.0f, 0.0f, 0.0f));
 
-    // µŞ¸é
+    // ë’·ë©´
     vec[4] = Vertex(Vec3(-w2, -h2, +d2), Vec2(1.0f, 1.0f), Vec3(0.0f, 0.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f));
     vec[5] = Vertex(Vec3(+w2, -h2, +d2), Vec2(0.0f, 1.0f), Vec3(0.0f, 0.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f));
     vec[6] = Vertex(Vec3(+w2, +h2, +d2), Vec2(0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f));
     vec[7] = Vertex(Vec3(-w2, +h2, +d2), Vec2(1.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f));
 
-    // À­¸é
+    // ìœ—ë©´
     vec[8] = Vertex(Vec3(-w2, +h2, -d2), Vec2(0.0f, 1.0f), Vec3(0.0f, 1.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f));
     vec[9] = Vertex(Vec3(-w2, +h2, +d2), Vec2(0.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f));
     vec[10] = Vertex(Vec3(+w2, +h2, +d2), Vec2(1.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f));
     vec[11] = Vertex(Vec3(+w2, +h2, -d2), Vec2(1.0f, 1.0f), Vec3(0.0f, 1.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f));
 
-    // ¾Æ·§¸é
+    // ì•„ë«ë©´
     vec[12] = Vertex(Vec3(-w2, -h2, -d2), Vec2(1.0f, 1.0f), Vec3(0.0f, -1.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f));
     vec[13] = Vertex(Vec3(+w2, -h2, -d2), Vec2(0.0f, 1.0f), Vec3(0.0f, -1.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f));
     vec[14] = Vertex(Vec3(+w2, -h2, +d2), Vec2(0.0f, 0.0f), Vec3(0.0f, -1.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f));
     vec[15] = Vertex(Vec3(-w2, -h2, +d2), Vec2(1.0f, 0.0f), Vec3(0.0f, -1.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f));
 
-    // ¿ŞÂÊ¸é
+    // ì™¼ìª½ë©´
     vec[16] = Vertex(Vec3(-w2, -h2, +d2), Vec2(0.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f));
     vec[17] = Vertex(Vec3(-w2, +h2, +d2), Vec2(0.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f));
     vec[18] = Vertex(Vec3(-w2, +h2, -d2), Vec2(1.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f));
     vec[19] = Vertex(Vec3(-w2, -h2, -d2), Vec2(1.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, -1.0f));
 
-    // ¿À¸¥ÂÊ¸é
+    // ì˜¤ë¥¸ìª½ë©´
     vec[20] = Vertex(Vec3(+w2, -h2, -d2), Vec2(0.0f, 1.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
     vec[21] = Vertex(Vec3(+w2, +h2, -d2), Vec2(0.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
     vec[22] = Vertex(Vec3(+w2, +h2, +d2), Vec2(1.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
@@ -254,27 +254,27 @@ shared_ptr<Mesh> Resources::LoadCubeMesh() {
 
     vector<uint32> idx(36);
 
-    // ¾Õ¸é
+    // ì•ë©´
     idx[0] = 0; idx[1] = 1; idx[2] = 2;
     idx[3] = 0; idx[4] = 2; idx[5] = 3;
 
-    // µŞ¸é
+    // ë’·ë©´
     idx[6] = 4; idx[7] = 5; idx[8] = 6;
     idx[9] = 4; idx[10] = 6; idx[11] = 7;
 
-    // À­¸é
+    // ìœ—ë©´
     idx[12] = 8; idx[13] = 9; idx[14] = 10;
     idx[15] = 8; idx[16] = 10; idx[17] = 11;
 
-    // ¾Æ·§¸é
+    // ì•„ë«ë©´
     idx[18] = 12; idx[19] = 13; idx[20] = 14;
     idx[21] = 12; idx[22] = 14; idx[23] = 15;
 
-    // ¿ŞÂÊ¸é
+    // ì™¼ìª½ë©´
     idx[24] = 16; idx[25] = 17; idx[26] = 18;
     idx[27] = 16; idx[28] = 18; idx[29] = 19;
 
-    // ¿À¸¥ÂÊ¸é
+    // ì˜¤ë¥¸ìª½ë©´
     idx[30] = 20; idx[31] = 21; idx[32] = 22;
     idx[33] = 20; idx[34] = 22; idx[35] = 23;
 
@@ -286,15 +286,15 @@ shared_ptr<Mesh> Resources::LoadCubeMesh() {
 }
 
 shared_ptr<Mesh> Resources::LoadSphereMesh() {
-    float radius = 0.5f; // ±¸ÀÇ ¹İÁö¸§
-    uint32 stackCount = 20; // °¡·Î ºĞÇÒ
-    uint32 sliceCount = 20; // ¼¼·Î ºĞÇÒ
+    float radius = 0.5f; // êµ¬ì˜ ë°˜ì§€ë¦„
+    uint32 stackCount = 20; // ê°€ë¡œ ë¶„í• 
+    uint32 sliceCount = 20; // ì„¸ë¡œ ë¶„í• 
 
     vector<Vertex> vec;
 
     Vertex v;
 
-    // ºÏ±Ø
+    // ë¶ê·¹
     v.pos = Vec3(0.0f, radius, 0.0f);
     v.uv = Vec2(0.5f, 0.0f);
     v.normal = v.pos;
@@ -308,11 +308,11 @@ shared_ptr<Mesh> Resources::LoadSphereMesh() {
     float deltaU = 1.f / static_cast<float>(sliceCount);
     float deltaV = 1.f / static_cast<float>(stackCount);
 
-    // °í¸®¸¶´Ù µ¹¸é¼­ Á¤Á¡À» °è»êÇÑ´Ù (ºÏ±Ø/³²±Ø ´ÜÀÏÁ¡Àº °í¸®°¡ X)
+    // ê³ ë¦¬ë§ˆë‹¤ ëŒë©´ì„œ ì •ì ì„ ê³„ì‚°í•œë‹¤ (ë¶ê·¹/ë‚¨ê·¹ ë‹¨ì¼ì ì€ ê³ ë¦¬ê°€ X)
     for (uint32 y = 1; y <= stackCount - 1; ++y) {
         float phi = y * stackAngle;
 
-        // °í¸®¿¡ À§Ä¡ÇÑ Á¤Á¡
+        // ê³ ë¦¬ì— ìœ„ì¹˜í•œ ì •ì 
         for (uint32 x = 0; x <= sliceCount; ++x) {
             float theta = x * sliceAngle;
 
@@ -334,7 +334,7 @@ shared_ptr<Mesh> Resources::LoadSphereMesh() {
         }
     }
 
-    // ³²±Ø
+    // ë‚¨ê·¹
     v.pos = Vec3(0.0f, -radius, 0.0f);
     v.uv = Vec2(0.5f, 1.0f);
     v.normal = v.pos;
@@ -344,7 +344,7 @@ shared_ptr<Mesh> Resources::LoadSphereMesh() {
 
     vector<uint32> idx(36);
 
-    // ºÏ±Ø ÀÎµ¦½º
+    // ë¶ê·¹ ì¸ë±ìŠ¤
     for (uint32 i = 0; i <= sliceCount; ++i) {
 
         //  [0]
@@ -355,7 +355,7 @@ shared_ptr<Mesh> Resources::LoadSphereMesh() {
         idx.push_back(i + 1);
     }
 
-    // ¸öÅë ÀÎµ¦½º
+    // ëª¸í†µ ì¸ë±ìŠ¤
     uint32 ringVertexCount = sliceCount + 1;
     for (uint32 y = 0; y < stackCount - 2; ++y) {
         for (uint32 x = 0; x < sliceCount; ++x) {
@@ -376,7 +376,7 @@ shared_ptr<Mesh> Resources::LoadSphereMesh() {
         }
     }
 
-    // ³²±Ø ÀÎµ¦½º
+    // ë‚¨ê·¹ ì¸ë±ìŠ¤
     uint32 bottomIndex = static_cast<uint32>(vec.size()) - 1;
     uint32 lastRingStartIndex = bottomIndex - ringVertexCount;
     for (uint32 i = 0; i < sliceCount; ++i) {
@@ -769,59 +769,59 @@ void Resources::CreateDefaultShader() {
     // DebugLine
     {
         ShaderInfo info = {
-            SHADER_TYPE::FORWARD,                        // ±âº» Æ÷¿öµå ·»´õ¸µ
-            RASTERIZER_TYPE::WIREFRAME,                  // ¿ÍÀÌ¾îÇÁ·¹ÀÓÀ¸·Î ¼³Á¤ÇÏ¿© ¼± ·»´õ¸µ
-            DEPTH_STENCIL_TYPE::NO_DEPTH_TEST_NO_WRITE,  // ±íÀÌ Å×½ºÆ® ºñÈ°¼ºÈ­
-            BLEND_TYPE::ALPHA_BLEND,                     // ¾ËÆÄ ºí·»µù È°¼ºÈ­
-            D3D_PRIMITIVE_TOPOLOGY_LINELIST              // ¼± ·»´õ¸µ
-        };
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"Skysphere");
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"Skybox");
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"DirLight");
+        material->SetTexture(0, GResources->Get<Texture>(L"PositionTarget"));
+        material->SetTexture(1, GResources->Get<Texture>(L"NormalTarget"));
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"PointLight");
+        material->SetTexture(0, GResources->Get<Texture>(L"PositionTarget"));
+        material->SetTexture(1, GResources->Get<Texture>(L"NormalTarget"));
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"Final");
+        material->SetTexture(0, GResources->Get<Texture>(L"DiffuseTarget"));
+        material->SetTexture(1, GResources->Get<Texture>(L"DiffuseLightTarget"));
+        material->SetTexture(2, GResources->Get<Texture>(L"SpecularLightTarget"));
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"ComputeShader");
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"Particle");
 
-        ShaderArg arg = {
-            "VS_Main",   // Vertex Shader ÇÔ¼ö¸í
-            "",          // Hull Shader ¾øÀ½
-            "",          // Domain Shader ¾øÀ½
-            "",          // Geometry Shader ¾øÀ½
-            "PS_Main"    // Pixel Shader ÇÔ¼ö¸í
-        };
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"Billboard");
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"ComputeParticle");
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"Deferred");
+        shared_ptr<Texture> texture = GResources->Load<Texture>(L"Leather", L"..\\Resources\\Texture\\Leather.jpg");
+        shared_ptr<Texture> texture2 = GResources->Load<Texture>(L"Leather_Normal", L"..\\Resources\\Texture\\Leather_Normal.jpg");
 
-        shared_ptr<Shader> shader = make_shared<Shader>();
-        shader->CreateGraphicsShader(L"..\\Resources\\Shader\\debugline.fx", info, arg);
-        Add<Shader>(L"DebugLine", shader);  // "DebugLine" ÀÌ¸§À¸·Î ¸®¼Ò½º¿¡ Ãß°¡
-    }
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"Deferred");
+        shared_ptr<Texture> texture = GResources->Load<Texture>(L"Pebbles", L"..\\Resources\\Texture\\Pebbles.jpg");
+        shared_ptr<Texture> texture2 = GResources->Load<Texture>(L"Pebbles_Normal", L"..\\Resources\\Texture\\Pebbles_Normal.jpg");
+    {
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"Deferred");
+        shared_ptr<Texture> texture = GResources->Load<Texture>(L"Stone_Floor", L"..\\Resources\\Texture\\Stone_Floor.jpg");
+        shared_ptr<Texture> texture2 = GResources->Load<Texture>(L"Stone_Floor_Normal", L"..\\Resources\\Texture\\Stone_Floor_Normal.jpg");
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"Deferred");
+        shared_ptr<Texture> texture = GResources->Load<Texture>(L"Wood", L"..\\Resources\\Texture\\Wood.jpg");
+        shared_ptr<Texture> texture2 = GResources->Load<Texture>(L"Wood_Normal", L"..\\Resources\\Texture\\Wood_Normal.jpg");
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"Shadow");
+    {
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"Tessellation");
+        shared_ptr<Material> material = make_shared<Material>();
+        material->SetShader(shader);
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"Terrain");
+        shared_ptr<Texture> texture = GResources->Load<Texture>(L"Terrain", L"..\\Resources\\Texture\\Terrain\\pineforest02.dds");
+        shared_ptr<Texture> normalTexture = GResources->Load<Texture>(L"Terrain_Normal", L"..\\Resources\\Texture\\Terrain\\pineforest02_n.dds");
+        shared_ptr<Texture> detailTexture = GResources->Load<Texture>(L"Terrain_Detail", L"..\\Resources\\Texture\\Terrain\\terrain_detail.jpg");
+    {
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"ComputeAnimation");
+        shared_ptr<Material> material = make_shared<Material>();
+        material->SetShader(shader);
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"Frustum");
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"Collider");
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"Water");
+        shared_ptr<Texture> normalTexture = GResources->Load<Texture>(L"Water_Normal", L"..\\Resources\\Texture\\Water_Normal.jpg");
+
+        shared_ptr<CubeMapTexture> cubeTexture = GResources->Load<CubeMapTexture>(L"Sky01", L"..\\Resources\\Texture\\SkyBox_0.dds");
+        material->SetTexture(1, GResources->Get<Texture>(L"ReflectionDiffuseTarget"));
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"DebugLine");
 }
-
-void Resources::CreateDefaultMaterial() {
-
-    // Skysphere
-    {
-        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Skysphere");
-        shared_ptr<Material> material = make_shared<Material>();
-        material->SetShader(shader);
-        Add<Material>(L"Skysphere", material);
-    }
-
-    // Skybox
-    {
-        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Skybox");
-        shared_ptr<Material> material = make_shared<Material>();
-        material->SetShader(shader);
-        Add<Material>(L"Skybox", material);
-    }
-
-    // DirLight
-    {
-        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"DirLight");
-        shared_ptr<Material> material = make_shared<Material>();
-        material->SetShader(shader);
-        material->SetTexture(0, GET_SINGLETON(Resources)->Get<Texture>(L"PositionTarget"));
-        material->SetTexture(1, GET_SINGLETON(Resources)->Get<Texture>(L"NormalTarget"));
-        Add<Material>(L"DirLight", material);
-    }
-
-    // PointLight
-    {
-        const WindowInfo& window = GEngine->GetWindow();
-        Vec2 resolution = { static_cast<float>(window.clientWidth), static_cast<float>(window.clientHeight) };
 
         shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"PointLight");
         shared_ptr<Material> material = make_shared<Material>();
@@ -1002,7 +1002,7 @@ void Resources::CreateDefaultMaterial() {
     {
         shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"DebugLine");
         shared_ptr<Material> material = make_shared<Material>();
-        material->SetShader(shader);  // DebugLine ¼ÎÀÌ´õ ¼³Á¤
-        Add<Material>(L"DebugLine", material);  // "DebugLine" ÀÌ¸§À¸·Î ¸®¼Ò½º¿¡ Ãß°¡
+        material->SetShader(shader);  // DebugLine ì…°ì´ë” ì„¤ì •
+        Add<Material>(L"DebugLine", material);  // "DebugLine" ì´ë¦„ìœ¼ë¡œ ë¦¬ì†ŒìŠ¤ì— ì¶”ê°€
     }
 }

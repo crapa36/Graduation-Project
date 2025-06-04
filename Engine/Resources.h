@@ -8,7 +8,9 @@
 #include "CubeMapTexture.h"
 
 class Resources {
-    DECLARE_SINGLETON(Resources);
+public:
+    Resources() = default;
+    ~Resources() = default;
 
 public:
     void Init();

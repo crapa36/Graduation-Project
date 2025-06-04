@@ -73,20 +73,20 @@ void Scene::Render() {
 
 void Scene::ClearRTV() {
 
-    // SwapChain Group ÃÊ±âÈ­
+    // SwapChain Group ì´ˆê¸°í™”
     int8 backIndex = GEngine->GetSwapChain()->GetBackBufferIndex();
     GEngine->GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN)->ClearRenderTargetView(backIndex);
 
-    // Shadow Group ÃÊ±âÈ­
+    // Shadow Group ì´ˆê¸°í™”
     GEngine->GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE::SHADOW)->ClearRenderTargetView();
 
-    // Deferred Group ÃÊ±âÈ­
+    // Deferred Group ì´ˆê¸°í™”
     GEngine->GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE::G_BUFFER)->ClearRenderTargetView();
 
-    // Lighting Group ÃÊ±âÈ­
+    // Lighting Group ì´ˆê¸°í™”
     GEngine->GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE::LIGHTING)->ClearRenderTargetView();
 
-    // Reflection Group ÃÊ±âÈ­
+    // Reflection Group ì´ˆê¸°í™”
     GEngine->GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE::REFLECTION)->ClearRenderTargetView();
 }
 
@@ -134,8 +134,8 @@ void Scene::RenderLights() {
 
     GEngine->GetRenderTargetGroup(RENDER_TARGET_GROUP_TYPE::LIGHTING)->OMSetRenderTargets();
 
-    // ±¤¿øÀ» ±×¸°´Ù.
-    for (auto& light : _lights) {
+    GResources->Get<Material>(L"Final")->PushGraphicsData();
+    GResources->Get<Mesh>(L"Rectangle")->Render();
         light->Render();
     }
 

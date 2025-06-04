@@ -19,19 +19,19 @@ void Terrain::Init(int32 sizeX, int32 sizeZ) {
     _sizeX = sizeX;
     _sizeZ = sizeZ;
 
-    _material = GET_SINGLETON(Resources)->Get<Material>(L"Terrain");
+    _material = GResources->Get<Material>(L"Terrain");
 
     _material->SetInt(1, _sizeX);
     _material->SetInt(2, _sizeZ);
     _material->SetFloat(0, _maxTesselation);
 
-    _heightMap = GET_SINGLETON(Resources)->Load<Texture>(L"HeightMap", L"..\\Resources\\Texture\\Terrain\\height.png");
+    _heightMap = GResources->Load<Texture>(L"HeightMap", L"..\\Resources\\Texture\\Terrain\\height.png");
     Vec2 v = Vec2(_heightMap->GetWidth(), _heightMap->GetHeight());
     _material->SetVec2(0, Vec2(_heightMap->GetWidth(), _heightMap->GetHeight()));
-    _material->SetVec2(1, Vec2(1500.f, 5000.f)); // ÃÖ¼Ò/ ÃÖ´ë Å×¼¿·¹ÀÌ¼Ç °Å¸®
-    _material->SetTexture(2, _heightMap);
+        shared_ptr<Mesh> mesh = GResources->LoadTerrainMesh(sizeX, sizeZ);
+        shared_ptr<Material> material = GResources->Get<Material>(L"Terrain");
 
-    shared_ptr<MeshRenderer> meshRenderer = GetGameObject()->GetMeshRenderer();
+}
     {
         shared_ptr<Mesh> mesh = GET_SINGLETON(Resources)->LoadTerrainMesh(sizeX, sizeZ);
         meshRenderer->SetMesh(mesh);
@@ -55,21 +55,21 @@ float Terrain::GetHeightAtPosition(float x, float z) const {
     if (!_heightMap)
         return 0.0f;
 
-    // ³ôÀÌ ¸ÊÀÇ Å©±â
+    // ë†’ì´ ë§µì˜ í¬ê¸°
     int32 width = _heightMap->GetWidth();
     int32 height = _heightMap->GetHeight();
 
-    // ÅØ½ºÃ³ ÁÂÇ¥·Î º¯È¯
+    // í…ìŠ¤ì²˜ ì¢Œí‘œë¡œ ë³€í™˜
     int32 texX = static_cast<int32>(x * width / (_sizeX * 50));
     int32 texZ = static_cast<int32>(height - (z * height / (_sizeZ * 50)));
 
-    // ÅØ½ºÃ³ ÁÂÇ¥°¡ À¯È¿ÇÑÁö È®ÀÎ
+    // í…ìŠ¤ì²˜ ì¢Œí‘œê°€ ìœ íš¨í•œì§€ í™•ì¸
     if (texX < 0 || texX >= width || texZ < 0 || texZ >= height)
         return 0.0f;
 
-    // ³ôÀÌ ¸Ê¿¡¼­ ³ôÀÌ °ªÀ» °¡Á®¿È
-    float heightValue = _heightMap->GetPixel(texX, texZ).x; // ³ôÀÌ ¸ÊÀÇ »¡°£»ö Ã¤³ÎÀ» »ç¿ëÇÑ´Ù°í °¡Á¤
+    // ë†’ì´ ë§µì—ì„œ ë†’ì´ ê°’ì„ ê°€ì ¸ì˜´
+    float heightValue = _heightMap->GetPixel(texX, texZ).x; // ë†’ì´ ë§µì˜ ë¹¨ê°„ìƒ‰ ì±„ë„ì„ ì‚¬ìš©í•œë‹¤ê³  ê°€ì •
 
-    // ³ôÀÌ °ªÀ» ½ÇÁ¦ ³ôÀÌ·Î º¯È¯
-    return heightValue; // _maxHeight´Â ÁöÇüÀÇ ÃÖ´ë ³ôÀÌ
+    // ë†’ì´ ê°’ì„ ì‹¤ì œ ë†’ì´ë¡œ ë³€í™˜
+    return heightValue; // _maxHeightëŠ” ì§€í˜•ì˜ ìµœëŒ€ ë†’ì´
 }

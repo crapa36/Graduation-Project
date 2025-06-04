@@ -177,7 +177,7 @@ bool CapsuleCollider::IntersectsCapsuleSphere(const BoundingSphere& sphere) {
 
 bool CapsuleCollider::IntersectsCapsuleBox(const BoundingOrientedBox& box) {
 
-    // °£´ÜÇÑ ±Ù»çÄ¡ °è»ê. Á¤È®ÇÑ °è»êÀ» À§ÇØ¼­´Â ´õ º¹ÀâÇÑ ¾Ë°í¸®ÁòÀÌ ÇÊ¿äÇÕ´Ï´Ù.
+    // ê°„ë‹¨í•œ ê·¼ì‚¬ì¹˜ ê³„ì‚°. ì •í™•í•œ ê³„ì‚°ì„ ìœ„í•´ì„œëŠ” ë” ë³µì¡í•œ ì•Œê³ ë¦¬ì¦˜ì´ í•„ìš”í•©ë‹ˆë‹¤.
     Vec3 capsuleStart = _boundingCapsule.Center - _boundingCapsule.Axis * (_boundingCapsule.Height * 0.5f - _boundingCapsule.Radius);
     Vec3 capsuleEnd = _boundingCapsule.Center + _boundingCapsule.Axis * (_boundingCapsule.Height * 0.5f - _boundingCapsule.Radius);
 
@@ -203,15 +203,15 @@ bool CapsuleCollider::IntersectsCapsuleCapsule(const BoundingCapsule& other) {
 
 Vec3 CapsuleCollider::ClosestPointOnLineSegmentToBox(const Vec3& lineStart, const Vec3& lineEnd, const BoundingOrientedBox& box) {
 
-    // ¹Ú½ºÀÇ ·ÎÄÃ ÁÂÇ¥°è·Î º¯È¯
+    // ë°•ìŠ¤ì˜ ë¡œì»¬ ì¢Œí‘œê³„ë¡œ ë³€í™˜
     Matrix invBoxRotation = Matrix::CreateFromQuaternion(Quaternion(box.Orientation)).Invert();
     Vec3 localLineStart = Vec3::Transform(lineStart - box.Center, invBoxRotation);
     Vec3 localLineEnd = Vec3::Transform(lineEnd - box.Center, invBoxRotation);
 
-    // ¼±ºĞÀÇ ¹æÇâ º¤ÅÍ
+    // ì„ ë¶„ì˜ ë°©í–¥ ë²¡í„°
     Vec3 lineDir = localLineEnd - localLineStart;
 
-    // ¹Ú½ºÀÇ extents
+    // ë°•ìŠ¤ì˜ extents
     float minX = -box.Extents.x;
     float maxX = box.Extents.x;
     float minY = -box.Extents.y;
@@ -219,10 +219,10 @@ Vec3 CapsuleCollider::ClosestPointOnLineSegmentToBox(const Vec3& lineStart, cons
     float minZ = -box.Extents.z;
     float maxZ = box.Extents.z;
 
-    // °¢ Ãàº°·Î ÃÖÁ¾ Å¬·ÎÁî½ºÆ® Æ÷ÀÎÆ® °è»ê
+    // ê° ì¶•ë³„ë¡œ ìµœì¢… í´ë¡œì¦ˆìŠ¤íŠ¸ í¬ì¸íŠ¸ ê³„ì‚°
     float closestX, closestY, closestZ;
 
-    // XÃà¿¡ ´ëÇÑ Å¬·¥ÇÎ
+    // Xì¶•ì— ëŒ€í•œ í´ë¨í•‘
     if (lineDir.x != 0.0f) {
         float tMinX = (minX - localLineStart.x) / lineDir.x;
         float tMaxX = (maxX - localLineStart.x) / lineDir.x;
@@ -234,7 +234,7 @@ Vec3 CapsuleCollider::ClosestPointOnLineSegmentToBox(const Vec3& lineStart, cons
         closestX = (localLineStart.x < minX) ? minX : ((localLineStart.x > maxX) ? maxX : localLineStart.x);
     }
 
-    // YÃà¿¡ ´ëÇÑ Å¬·¥ÇÎ
+    // Yì¶•ì— ëŒ€í•œ í´ë¨í•‘
     if (lineDir.y != 0.0f) {
         float tMinY = (minY - localLineStart.y) / lineDir.y;
         float tMaxY = (maxY - localLineStart.y) / lineDir.y;
@@ -246,7 +246,7 @@ Vec3 CapsuleCollider::ClosestPointOnLineSegmentToBox(const Vec3& lineStart, cons
         closestY = (localLineStart.y < minY) ? minY : ((localLineStart.y > maxY) ? maxY : localLineStart.y);
     }
 
-    // ZÃà¿¡ ´ëÇÑ Å¬·¥ÇÎ
+    // Zì¶•ì— ëŒ€í•œ í´ë¨í•‘
     if (lineDir.z != 0.0f) {
         float tMinZ = (minZ - localLineStart.z) / lineDir.z;
         float tMaxZ = (maxZ - localLineStart.z) / lineDir.z;
@@ -258,10 +258,10 @@ Vec3 CapsuleCollider::ClosestPointOnLineSegmentToBox(const Vec3& lineStart, cons
         closestZ = (localLineStart.z < minZ) ? minZ : ((localLineStart.z > maxZ) ? maxZ : localLineStart.z);
     }
 
-    // ÃÖÁ¾ Å¬·ÎÁî½ºÆ® Æ÷ÀÎÆ®
+    // ìµœì¢… í´ë¡œì¦ˆìŠ¤íŠ¸ í¬ì¸íŠ¸
     Vec3 closestPoint(closestX, closestY, closestZ);
 
-    // ¿ùµå ÁÂÇ¥°è·Î º¯È¯
+    // ì›”ë“œ ì¢Œí‘œê³„ë¡œ ë³€í™˜
     return Vec3::Transform(closestPoint, Matrix::CreateFromQuaternion(Quaternion(box.Orientation))) + box.Center;
 }
 
@@ -298,9 +298,9 @@ void CapsuleCollider::ClosestPointsBetweenLines(const Vec3& line1Start, const Ve
 #ifdef _DEBUG
 void CapsuleCollider::CreateMesh() {
 
-    // Ä¸½¶ ¸Ş½Ã »ı¼º ·ÎÁ÷
-    // ½Ç¸°´õ¿Í µÎ °³ÀÇ ¹İ±¸¸¦ Á¶ÇÕÇÏ¿© Ä¸½¶ ¸ğ¾ç »ı¼º
-    _mesh = GET_SINGLETON(Resources)->LoadSphereMesh();  // ÀÓ½Ã·Î ±¸ ¸Ş½Ã »ç¿ë
+    _mesh = GResources->LoadSphereMesh();  // Ó½Ã·  Ş½ 
+    _material = GResources->Get<Material>(L"Collider")->Clone();
+#endif
     _material = GET_SINGLETON(Resources)->Get<Material>(L"Collider")->Clone();
     _DebugObject = make_shared<GameObject>();
     _DebugObject->AddComponent(make_shared<Transform>());

@@ -38,7 +38,7 @@ void Engine::Init(const WindowInfo& info) {
 
     GET_SINGLETON(Input)->Init(info);
     GET_SINGLETON(Timer)->Init();
-    GET_SINGLETON(Resources)->Init();
+    GResources->Init();
     GET_SINGLETON(SceneManager)->Init();
     GET_SINGLETON(ImguiManager)->Init(info.hwnd, _device->GetDevice(), *_imguiDescriptorHeap);
 }
@@ -109,7 +109,7 @@ void Engine::CreateConstantBuffer(CBV_REGISTER reg, uint32 bufferSize, uint32 co
 void Engine::CreateRenderTargetGroups() {
 
     // DepthStencil
-    shared_ptr<Texture> dsTexture = GET_SINGLETON(Resources)->CreateTexture(L"DepthStencil",
+    shared_ptr<Texture> dsTexture = GResources->CreateTexture(L"DepthStencil",
                                                                             DXGI_FORMAT_D32_FLOAT, _window.clientWidth, _window.clientHeight,
                                                                             CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                             D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
@@ -123,7 +123,7 @@ void Engine::CreateRenderTargetGroups() {
 
             ComPtr<ID3D12Resource> resource;
             _swapChain->GetSwapChain()->GetBuffer(i, IID_PPV_ARGS(&resource));
-            rtVec[i].target = GET_SINGLETON(Resources)->CreateTextureFromResource(name, resource);
+            rtVec[i].target = GResources->CreateTextureFromResource(name, resource);
         }
 
         _renderTargetGroups[static_cast<uint8>(RENDER_TARGET_GROUP_TYPE::SWAP_CHAIN)] = make_shared<RenderTargetGroup>();
@@ -134,12 +134,12 @@ void Engine::CreateRenderTargetGroups() {
     {
         vector<RenderTarget> rtVec(RENDER_TARGET_SHADOW_GROUP_MEMBER_COUNT);
 
-        rtVec[0].target = GET_SINGLETON(Resources)->CreateTexture(L"ShadowTarget",
+        rtVec[0].target = GResources->CreateTexture(L"ShadowTarget",
                                                                   DXGI_FORMAT_R32_FLOAT, 4096, 4096,
                                                                   CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                   D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
-        shared_ptr<Texture> shadowDepthTexture = GET_SINGLETON(Resources)->CreateTexture(L"ShadowDepthStencil",
+        shared_ptr<Texture> shadowDepthTexture = GResources->CreateTexture(L"ShadowDepthStencil",
                                                                                          DXGI_FORMAT_D32_FLOAT, 4096, 4096,
                                                                                          CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                                          D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
@@ -152,17 +152,17 @@ void Engine::CreateRenderTargetGroups() {
     {
         vector<RenderTarget> rtVec(RENDER_TARGET_G_BUFFER_GROUP_MEMBER_COUNT);
 
-        rtVec[0].target = GET_SINGLETON(Resources)->CreateTexture(L"PositionTarget",
+        rtVec[0].target = GResources->CreateTexture(L"PositionTarget",
                                                                   DXGI_FORMAT_R32G32B32A32_FLOAT, _window.clientWidth, _window.clientHeight,
                                                                   CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                   D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
-        rtVec[1].target = GET_SINGLETON(Resources)->CreateTexture(L"NormalTarget",
+        rtVec[1].target = GResources->CreateTexture(L"NormalTarget",
                                                                   DXGI_FORMAT_R32G32B32A32_FLOAT, _window.clientWidth, _window.clientHeight,
                                                                   CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                   D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
-        rtVec[2].target = GET_SINGLETON(Resources)->CreateTexture(L"DiffuseTarget",
+        rtVec[2].target = GResources->CreateTexture(L"DiffuseTarget",
                                                                   DXGI_FORMAT_R8G8B8A8_UNORM, _window.clientWidth, _window.clientHeight,
                                                                   CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                   D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
@@ -175,12 +175,12 @@ void Engine::CreateRenderTargetGroups() {
     {
         vector<RenderTarget> rtVec(RENDER_TARGET_LIGHTING_GROUP_MEMBER_COUNT);
 
-        rtVec[0].target = GET_SINGLETON(Resources)->CreateTexture(L"DiffuseLightTarget",
+        rtVec[0].target = GResources->CreateTexture(L"DiffuseLightTarget",
                                                                   DXGI_FORMAT_R8G8B8A8_UNORM, _window.clientWidth, _window.clientHeight,
                                                                   CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                   D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
-        rtVec[1].target = GET_SINGLETON(Resources)->CreateTexture(L"SpecularLightTarget",
+        rtVec[1].target = GResources->CreateTexture(L"SpecularLightTarget",
                                                                   DXGI_FORMAT_R8G8B8A8_UNORM, _window.clientWidth, _window.clientHeight,
                                                                   CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                   D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
@@ -191,23 +191,23 @@ void Engine::CreateRenderTargetGroups() {
 
     // Reflection Group
     {
-        shared_ptr<Texture> reflectionDepthTexture = GET_SINGLETON(Resources)->CreateTexture(L"ReflectionDepthStencil",
+        shared_ptr<Texture> reflectionDepthTexture = GResources->CreateTexture(L"ReflectionDepthStencil",
                                                                                              DXGI_FORMAT_D32_FLOAT, 4096, 4096,
                                                                                              CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                                              D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
         vector<RenderTarget> rtVec(RENDER_TARGET_REFLECTION_GROUP_MEMBER_COUNT);
 
-        rtVec[0].target = GET_SINGLETON(Resources)->CreateTexture(L"ReflectionPositionTarget",
+        rtVec[0].target = GResources->CreateTexture(L"ReflectionPositionTarget",
                                                                   DXGI_FORMAT_R32G32B32A32_FLOAT, _window.clientWidth, _window.clientHeight,
                                                                   CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                   D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
-        rtVec[1].target = GET_SINGLETON(Resources)->CreateTexture(L"ReflectionNormalTarget",
+        rtVec[1].target = GResources->CreateTexture(L"ReflectionNormalTarget",
                                                                   DXGI_FORMAT_R32G32B32A32_FLOAT, _window.clientWidth, _window.clientHeight,
                                                                   CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                   D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
-        rtVec[2].target = GET_SINGLETON(Resources)->CreateTexture(L"ReflectionDiffuseTarget",
+        rtVec[2].target = GResources->CreateTexture(L"ReflectionDiffuseTarget",
                                                                   DXGI_FORMAT_R8G8B8A8_UNORM, _window.clientWidth, _window.clientHeight,
                                                                   CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                   D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
@@ -217,23 +217,23 @@ void Engine::CreateRenderTargetGroups() {
     }
     // Reflection Group
     {
-        shared_ptr<Texture> reflectionDepthTexture = GET_SINGLETON(Resources)->CreateTexture(L"ReflectionDepthStencil",
+        shared_ptr<Texture> reflectionDepthTexture = GResources->CreateTexture(L"ReflectionDepthStencil",
                                                                                              DXGI_FORMAT_D32_FLOAT, 4096, 4096,
                                                                                              CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                                              D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
         vector<RenderTarget> rtVec(RENDER_TARGET_REFLECTION_GROUP_MEMBER_COUNT);
 
-        rtVec[0].target = GET_SINGLETON(Resources)->CreateTexture(L"ReflectionPositionTarget",
+        rtVec[0].target = GResources->CreateTexture(L"ReflectionPositionTarget",
                                                                   DXGI_FORMAT_R32G32B32A32_FLOAT, _window.clientWidth, _window.clientHeight,
                                                                   CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                   D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
-        rtVec[1].target = GET_SINGLETON(Resources)->CreateTexture(L"ReflectionNormalTarget",
+        rtVec[1].target = GResources->CreateTexture(L"ReflectionNormalTarget",
                                                                   DXGI_FORMAT_R32G32B32A32_FLOAT, _window.clientWidth, _window.clientHeight,
                                                                   CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                   D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 
-        rtVec[2].target = GET_SINGLETON(Resources)->CreateTexture(L"ReflectionDiffuseTarget",
+        rtVec[2].target = GResources->CreateTexture(L"ReflectionDiffuseTarget",
                                                                   DXGI_FORMAT_R8G8B8A8_UNORM, _window.clientWidth, _window.clientHeight,
                                                                   CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                   D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
@@ -243,14 +243,14 @@ void Engine::CreateRenderTargetGroups() {
     }
     // ImGui Render Target Group
     {
-        shared_ptr<Texture> imguiDepthTexture = GET_SINGLETON(Resources)->CreateTexture(L"ImGuiDepthStencil",
+        shared_ptr<Texture> imguiDepthTexture = GResources->CreateTexture(L"ImGuiDepthStencil",
                                                                                         DXGI_FORMAT_D32_FLOAT, _window.clientWidth, _window.clientHeight,
                                                                                         CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                                         D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL);
 
         vector<RenderTarget> rtVec(1);  // ImGui는 단일 렌더 타겟만 필요
 
-        rtVec[0].target = GET_SINGLETON(Resources)->CreateTexture(L"ImGuiRenderTarget",
+        rtVec[0].target = GResources->CreateTexture(L"ImGuiRenderTarget",
                                                                   DXGI_FORMAT_R8G8B8A8_UNORM, _window.clientWidth, _window.clientHeight,
                                                                   CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
                                                                   D3D12_HEAP_FLAG_NONE, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);

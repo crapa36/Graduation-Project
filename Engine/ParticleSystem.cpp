@@ -13,20 +13,20 @@ ParticleSystem::ParticleSystem() : Component(COMPONENT_TYPE::PARTICLE_SYSTEM) {
     _computeSharedBuffer = make_shared<StructuredBuffer>();
     _computeSharedBuffer->Init(sizeof(ComputeSharedInfo), 1);
 
-    _mesh = GET_SINGLETON(Resources)->LoadPointMesh();
-    _material = GET_SINGLETON(Resources)->Get<Material>(L"Particle");
-    shared_ptr<Texture> tex = GET_SINGLETON(Resources)->Load<Texture>(
+    _mesh = GResources->LoadPointMesh();
+    _material = GResources->Get<Material>(L"Particle");
+    shared_ptr<Texture> tex = GResources->Load<Texture>(
         L"Bubbles", L"..\\Resources\\Texture\\Particle\\spark.png");
 
     _material->SetTexture(0, tex);
 
-    _computeMaterial = GET_SINGLETON(Resources)->Get<Material>(L"ComputeParticle");
+    _computeMaterial = GResources->Get<Material>(L"ComputeParticle");
 }
 
 ParticleSystem::~ParticleSystem() {
 }
 void ParticleSystem::SetTexture(const wstring& texturePath) {
-    shared_ptr<Texture> texture = GET_SINGLETON(Resources)->Load<Texture>(L"ParticleTexture", texturePath);
+    shared_ptr<Texture> texture = GResources->Load<Texture>(L"ParticleTexture", texturePath);
     _material->SetTexture(0, texture);
 }
 

@@ -21,7 +21,7 @@ void DebugLineManager::Clear() {
 // Render Debug Lines
 void DebugLineManager::Render() {
     if (_lineVertices.empty()) return;
-    _shader = GET_SINGLETON(Resources)->Get<Shader>(L"DebugLine");
+    _shader = GResources->Get<Shader>(L"DebugLine");
 
     // Initialize Graphics Descriptor Heap for Debug Line Data
     GEngine->GetGraphicsDescriptorHeap()->Clear();

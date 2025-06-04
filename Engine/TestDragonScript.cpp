@@ -18,21 +18,21 @@
 #include "BulletScript.h"
 
 void TestDragonScript::Update() {
-    //// 1¹ø Å° ÀÔ·Â ½Ã ¾Ö´Ï¸ÞÀÌ¼Ç ¼øÂ÷ Àç»ý
+    //// 1ë²ˆ í‚¤ ìž…ë ¥ ì‹œ ì• ë‹ˆë©”ì´ì…˜ ìˆœì°¨ ìž¬ìƒ
     //if (INPUT->IsKeyJustPressed(DIK_1)) {
     //    int32 count = GetAnimator()->GetAnimCount();
     //    int32 currentIndex = GetAnimator()->GetCurrentClipIndex();
 
-    //    int32 index = (currentIndex + 1) % count;  // ´ÙÀ½ ¾Ö´Ï¸ÞÀÌ¼Ç
+    //    int32 index = (currentIndex + 1) % count;  // ë‹¤ìŒ ì• ë‹ˆë©”ì´ì…˜
     //    GetAnimator()->Play(index);
     //}
 
-    //// 2¹ø Å° ÀÔ·Â ½Ã ¾Ö´Ï¸ÞÀÌ¼Ç ¿ª¼ø Àç»ý
+    //// 2ë²ˆ í‚¤ ìž…ë ¥ ì‹œ ì• ë‹ˆë©”ì´ì…˜ ì—­ìˆœ ìž¬ìƒ
     //if (INPUT->IsKeyJustPressed(DIK_2)) {
     //    int32 count = GetAnimator()->GetAnimCount();
     //    int32 currentIndex = GetAnimator()->GetCurrentClipIndex();
 
-    //    int32 index = (currentIndex - 1 + count) % count;  // ÀÌÀü ¾Ö´Ï¸ÞÀÌ¼Ç
+    //    int32 index = (currentIndex - 1 + count) % count;  // ì´ì „ ì• ë‹ˆë©”ì´ì…˜
     //    GetAnimator()->Play(index);
     //}
 
@@ -56,7 +56,7 @@ void TestDragonScript::LateUpdate() {
     if (GetForegroundWindow() == GEngine->GetWindow().hwnd) {
         auto gameObjects = GET_SINGLETON(SceneManager)->GetActiveScene()->GetGameObjects();
 
-        // ESC Å°·Î ¸Þ´º Åä±Û
+        // ESC í‚¤ë¡œ ë©”ë‰´ í† ê¸€
         if (INPUT->IsKeyJustPressed(DIK_ESCAPE)) {
             PostQuitMessage(0);
         }
@@ -69,12 +69,12 @@ void TestDragonScript::LateUpdate() {
             }
         }
 
-        // DEL Å°·Î µð¹ö±× ¸ðµå ÀüÈ¯
+        // DEL í‚¤ë¡œ ë””ë²„ê·¸ ëª¨ë“œ ì „í™˜
         if (INPUT->IsKeyJustPressed(DIK_DELETE)) {
             GEngine->SetDebugMode(!GEngine->GetDebugMode());
         }
 
-        // END Å°·Î ImGui ¸ðµå ÀüÈ¯
+        // END í‚¤ë¡œ ImGui ëª¨ë“œ ì „í™˜
         if (INPUT->IsKeyJustPressed(DIK_END)) {
             GEngine->SetImguiMode(!GEngine->GetImguiMode());
         }
@@ -106,11 +106,11 @@ void TestDragonScript::ShotBullet() {
 
         shared_ptr<MeshRenderer> bulletRenderer = make_shared<MeshRenderer>();
         {
-            shared_ptr<Mesh> sphereMesh = GET_SINGLETON(Resources)->LoadSphereMesh();
+            shared_ptr<Mesh> sphereMesh = GResources->LoadSphereMesh();
             bulletRenderer->SetMesh(sphereMesh);
         }
         {
-            shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Pebbles");
+            shared_ptr<Material> material = GResources->Get<Material>(L"Pebbles");
             bulletRenderer->SetMaterial(material);
         }
         bullet->AddComponent(bulletRenderer);
@@ -118,7 +118,7 @@ void TestDragonScript::ShotBullet() {
         dynamic_pointer_cast<SphereCollider>(bullet->GetCollider())->SetRadius(10.f);
         dynamic_pointer_cast<SphereCollider>(bullet->GetCollider())->SetCenter(Vec3(0.f, 0.f, 0.f));
 
-        //Ä³¸¯ÅÍÀÇ Ãæµ¹¹Ú½º¿Í °ãÄ¡Áö ¾Ê°Ô À§Ä¡¸¦ ¼³Á¤.
+}
 
         bullet->GetTransform()->SetLocalPosition(_bulletStartPos);
         bullet->GetTransform()->SetLocalScale(Vec3(10.f, 10.f, 10.f));

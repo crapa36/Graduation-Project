@@ -33,7 +33,7 @@
 TestScene::TestScene() {
 #pragma region FBX
     {
-        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadFBX(L"..\\Resources\\FBX\\Dragon.fbx");
+        shared_ptr<MeshData> meshData = GResources->LoadFBX(L"..\\Resources\\FBX\\Dragon.fbx");
 
         vector<shared_ptr<GameObject>> gameObjects = meshData->Instantiate();
 
@@ -59,7 +59,7 @@ TestScene::TestScene() {
 #pragma region BIN
     {
         wstring path = L"../Resources/BIN/Gunship.bin";
-        shared_ptr<MeshData> meshData = GET_SINGLETON(Resources)->LoadBIN(path);
+        shared_ptr<MeshData> meshData = GResources->LoadBIN(path);
 
         shared_ptr<GameObject> mainObject = make_shared<GameObject>();
 
@@ -69,11 +69,11 @@ TestScene::TestScene() {
         mainObject->AddComponent(make_shared<Transform>());
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
-            shared_ptr<Mesh> sphereMesh = GET_SINGLETON(Resources)->LoadPointMesh();
+            shared_ptr<Mesh> sphereMesh = GResources->LoadPointMesh();
             meshRenderer->SetMesh(sphereMesh);
         }
         {
-            shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Pebbles");
+            shared_ptr<Material> material = GResources->Get<Material>(L"Pebbles");
             meshRenderer->SetMaterial(material->Clone());
         }
         mainObject->AddComponent(meshRenderer);
@@ -149,12 +149,12 @@ TestScene::TestScene() {
         skybox->SetCheckFrustum(false);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
-            shared_ptr<Mesh> sphereMesh = GET_SINGLETON(Resources)->LoadCubeMesh();
+            shared_ptr<Mesh> sphereMesh = GResources->LoadCubeMesh();
             meshRenderer->SetMesh(sphereMesh);
         }
         {
-            shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Skybox");
-            shared_ptr<CubeMapTexture> texture = GET_SINGLETON(Resources)->Load<CubeMapTexture>(L"Sky01", L"..\\Resources\\Texture\\SkyBox_0.dds");
+            shared_ptr<Shader> shader = GResources->Get<Shader>(L"Skybox");
+            shared_ptr<CubeMapTexture> texture = GResources->Load<CubeMapTexture>(L"Sky01", L"..\\Resources\\Texture\\SkyBox_0.dds");
 
             shared_ptr<Material> material = make_shared<Material>();
             material->SetShader(shader);
@@ -179,11 +179,11 @@ TestScene::TestScene() {
         obj->SetStatic(false);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
-            shared_ptr<Mesh> sphereMesh = GET_SINGLETON(Resources)->LoadSphereMesh();
+            shared_ptr<Mesh> sphereMesh = GResources->LoadSphereMesh();
             meshRenderer->SetMesh(sphereMesh);
         }
         {
-            shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Pebbles");
+            shared_ptr<Material> material = GResources->Get<Material>(L"Pebbles");
             meshRenderer->SetMaterial(material->Clone());
         }
         obj->AddComponent(meshRenderer);
@@ -209,11 +209,11 @@ TestScene::TestScene() {
         obj->SetStatic(false);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
-            shared_ptr<Mesh> sphereMesh = GET_SINGLETON(Resources)->LoadCubeMesh();
+            shared_ptr<Mesh> sphereMesh = GResources->LoadCubeMesh();
             meshRenderer->SetMesh(sphereMesh);
         }
         {
-            shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Wood");
+            shared_ptr<Material> material = GResources->Get<Material>(L"Wood");
             meshRenderer->SetMaterial(material->Clone());
         }
         obj->AddComponent(meshRenderer);
@@ -265,11 +265,11 @@ TestScene::TestScene() {
 
             shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
             {
-                shared_ptr<Mesh> mesh = GET_SINGLETON(Resources)->LoadRectangleMesh();
+                shared_ptr<Mesh> mesh = GResources->LoadRectangleMesh();
                 meshRenderer->SetMesh(mesh);
             }
             {
-                shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Texture");
+                shared_ptr<Shader> shader = GResources->Get<Shader>(L"Texture");
 
                 shared_ptr<Texture> texture;
                 if (i < 3)
@@ -306,13 +306,13 @@ TestScene::TestScene() {
 
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
-            shared_ptr<Mesh> mesh = GET_SINGLETON(Resources)->LoadRectangleMesh();
+            shared_ptr<Mesh> mesh = GResources->LoadRectangleMesh();
             meshRenderer->SetMesh(mesh);
         }
         {
-            shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Texture");
+            shared_ptr<Shader> shader = GResources->Get<Shader>(L"Texture");
 
-            shared_ptr<Texture> texture = GET_SINGLETON(Resources)->Load<Texture>(L"Menu", L"..\\Resources\\Texture\\Menu.png");
+            shared_ptr<Texture> texture = GResources->Load<Texture>(L"Menu", L"..\\Resources\\Texture\\Menu.png");
 
             shared_ptr<Material> material = make_shared<Material>();
             material->SetShader(shader);
@@ -345,13 +345,13 @@ TestScene::TestScene() {
 
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
-            shared_ptr<Mesh> mesh = GET_SINGLETON(Resources)->LoadRectangleMesh();
+            shared_ptr<Mesh> mesh = GResources->LoadRectangleMesh();
             meshRenderer->SetMesh(mesh);
         }
         {
-            shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Texture");
+            shared_ptr<Shader> shader = GResources->Get<Shader>(L"Texture");
 
-            shared_ptr<Texture> texture = GET_SINGLETON(Resources)->Load<Texture>(L"MenuExitButton", L"..\\Resources\\Texture\\X.png");
+            shared_ptr<Texture> texture = GResources->Load<Texture>(L"MenuExitButton", L"..\\Resources\\Texture\\X.png");
 
             shared_ptr<Material> material = make_shared<Material>();
             material->SetShader(shader);
@@ -378,11 +378,11 @@ TestScene::TestScene() {
         light->GetLight()->SetSpecular(Vec3(0.2f, 0.2f, 0.2f));
         /*shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
-            shared_ptr<Mesh> frustumMesh = GET_SINGLETON(Resources)->LoadCameraFrustumMesh(light->GetLight()->GetShadowCamera()->GetCamera());
+            shared_ptr<Mesh> frustumMesh = GResources->LoadCameraFrustumMesh(light->GetLight()->GetShadowCamera()->GetCamera());
             meshRenderer->SetMesh(frustumMesh);
         }
         {
-            shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Frustum");
+            shared_ptr<Material> material = GResources->Get<Material>(L"Frustum");
             meshRenderer->SetMaterial(material->Clone());
         }
         light->AddComponent(meshRenderer);*/
@@ -463,11 +463,11 @@ TestScene::TestScene() {
         obj->SetStatic(true);
         shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
         {
-            shared_ptr<Mesh> waterMesh = GET_SINGLETON(Resources)->LoadPlaneMesh();
+            shared_ptr<Mesh> waterMesh = GResources->LoadPlaneMesh();
             meshRenderer->SetMesh(waterMesh);
         }
         {
-            shared_ptr<Material> material = GET_SINGLETON(Resources)->Get<Material>(L"Water");
+            shared_ptr<Material> material = GResources->Get<Material>(L"Water");
             meshRenderer->SetMaterial(material);
         }
         obj->AddComponent(meshRenderer);
