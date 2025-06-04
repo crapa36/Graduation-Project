@@ -440,7 +440,7 @@ void CMeshLoader::CreateTextures() {
 
                     string filename(_meshes[i].materials[j].diffuseTexName);
                     string fullPath(pstrFilePath);
-                    GET_SINGLETON(Resources)->Load<Texture>(s2ws(filename), s2ws(fullPath));
+                    GResources->Load<Texture>(s2ws(filename), s2ws(fullPath));
                 }
             }
 
@@ -461,7 +461,7 @@ void CMeshLoader::CreateTextures() {
 
                     string filename(_meshes[i].materials[j].normalTexName);
                     string fullPath(pstrFilePath);
-                    GET_SINGLETON(Resources)->Load<Texture>(s2ws(filename), s2ws(fullPath));
+                    GResources->Load<Texture>(s2ws(filename), s2ws(fullPath));
                 }
             }
 
@@ -482,7 +482,7 @@ void CMeshLoader::CreateTextures() {
 
                     string filename(_meshes[i].materials[j].specularTexName);
                     string fullPath(pstrFilePath);
-                    GET_SINGLETON(Resources)->Load<Texture>(s2ws(filename), s2ws(fullPath));
+                    GResources->Load<Texture>(s2ws(filename), s2ws(fullPath));
                 }
             }
         }
@@ -495,12 +495,12 @@ void CMeshLoader::CreateMaterials() {
             shared_ptr<Material> material = make_shared<Material>();
             wstring key = _meshes[i].materials[j].name;
             material->SetName(key);
-            material->SetShader(GET_SINGLETON(Resources)->Get<Shader>(L"Deferred"));
+            material->SetShader(GResources->Get<Shader>(L"Deferred"));
 
             {
                 string filename(_meshes[i].materials[j].diffuseTexName);
                 wstring key = s2ws(filename);
-                shared_ptr<Texture> diffuseTexture = GET_SINGLETON(Resources)->Get<Texture>(key);
+                shared_ptr<Texture> diffuseTexture = GResources->Get<Texture>(key);
                 if (diffuseTexture)
                     material->SetTexture(0, diffuseTexture);
             }
@@ -508,7 +508,7 @@ void CMeshLoader::CreateMaterials() {
             {
                 string filename(_meshes[i].materials[j].normalTexName);
                 wstring key = s2ws(filename);
-                shared_ptr<Texture> normalTexture = GET_SINGLETON(Resources)->Get<Texture>(key);
+                shared_ptr<Texture> normalTexture = GResources->Get<Texture>(key);
                 if (normalTexture)
                     material->SetTexture(1, normalTexture);
             }
@@ -516,12 +516,12 @@ void CMeshLoader::CreateMaterials() {
             {
                 string filename(_meshes[i].materials[j].specularTexName);
                 wstring key = s2ws(filename);
-                shared_ptr<Texture> specularTexture = GET_SINGLETON(Resources)->Get<Texture>(key);
+                shared_ptr<Texture> specularTexture = GResources->Get<Texture>(key);
                 if (specularTexture)
                     material->SetTexture(2, specularTexture);
             }
 
-            GET_SINGLETON(Resources)->Add<Material>(material->GetName(), material);
+            GResources->Add<Material>(material->GetName(), material);
         }
     }
 }

@@ -5,9 +5,9 @@
 
 BillboardRenderer::BillboardRenderer()
     : Component(COMPONENT_TYPE::BILLBOARD_RENDERER) {
-    _mesh = GET_SINGLETON(Resources)->LoadPointMesh();
-    _material = GET_SINGLETON(Resources)->Get<Material>(L"Billboard");
-        shared_ptr<Texture> tex = GET_SINGLETON(Resources)->Load<Texture>(L"BillboardTexture", L"..\\Resources\\Texture\\TreeBillboard.png");
+    _mesh = GResources->LoadPointMesh();
+    _material = GResources->Get<Material>(L"Billboard");
+        shared_ptr<Texture> tex = GResources->Load<Texture>(L"BillboardTexture", L"..\\Resources\\Texture\\TreeBillboard.png");
         _material->SetTexture(0, tex);
 
 }
@@ -15,7 +15,7 @@ BillboardRenderer::BillboardRenderer()
 BillboardRenderer::~BillboardRenderer() {}
 
 void BillboardRenderer::SetTexture(const wstring& texturePath) {
-    shared_ptr<Texture> texture = GET_SINGLETON(Resources)->Load<Texture>(L"BillboardTexture", texturePath);
+    shared_ptr<Texture> texture = GResources->Load<Texture>(L"BillboardTexture", texturePath);
     _material->SetTexture(0, texture);
 }
 
@@ -25,24 +25,24 @@ void BillboardRenderer::SetAxisConstraint(const Vec3& axis) {
 }
 
 void BillboardRenderer::FinalUpdate() {
-    // Transform µ¥ÀÌÅÍ¸¦ ¾÷µ¥ÀÌÆ®
+    // Transform ë°ì´í„°ë¥¼ ì—…ë°ì´íŠ¸
     shared_ptr<Transform> transform = GetTransform();
     transform->FinalUpdate();
 }
 
 void BillboardRenderer::Render() {
 
-    // Transform µ¥ÀÌÅÍ¸¦ ¼ÎÀÌ´õ·Î Çª½Ã
+    // Transform ë°ì´í„°ë¥¼ ì…°ì´ë”ë¡œ í‘¸ì‹œ
     GetTransform() ->PushData();
 
-    // Ãß°¡ÀûÀÎ µ¥ÀÌÅÍ (Ãà Á¦ÇÑ) Àü´Ş
+    // ì¶”ê°€ì ì¸ ë°ì´í„° (ì¶• ì œí•œ) ì „ë‹¬
     Vec4 axisConstraint = { _axisConstraint.x, _axisConstraint.y, _axisConstraint.z, 0.0f };
-    _material->SetVec4(0, axisConstraint); // Ãà Á¦ÇÑ Àü´Ş
+    _material->SetVec4(0, axisConstraint); // ì¶• ì œí•œ ì „ë‹¬
 
     Vec4 scale = Vec4(GetTransform()->GetLocalScale().x, GetTransform()->GetLocalScale().y, GetTransform()->GetLocalScale().z,0.0f);
-    _material->SetVec4(1, scale); // ÅØ½ºÃÄ ÁÂÇ¥
+    _material->SetVec4(1, scale); // í…ìŠ¤ì³ ì¢Œí‘œ
     _material->PushGraphicsData();
 
-    // ¸Ş½¬ ·»´õ¸µ
+    // ë©”ì‰¬ ë Œë”ë§
     _mesh->Render();
 }

@@ -2,6 +2,8 @@
 #include "EnginePch.h"
 #include "Engine.h"
 
+#include "Resources.h"
+unique_ptr<Resources> GResources = make_unique<Resources>();
 unique_ptr<Engine> GEngine = make_unique<Engine>();
 
 wstring s2ws(const string& s) {
@@ -26,7 +28,7 @@ string ws2s(const wstring& s) {
 
 bool IsMatrixValid(const XMFLOAT4X4& matrix)
 {
-    // XMFLOAT4X4ÀÇ ¸ğµç ¿ä¼Ò°¡ 0ÀÌ ¾Æ´Ò °æ¿ì À¯È¿ÇÏ´Ù°í °£ÁÖ
+    // XMFLOAT4X4ì˜ ëª¨ë“  ìš”ì†Œê°€ 0ì´ ì•„ë‹ ê²½ìš° ìœ íš¨í•˜ë‹¤ê³  ê°„ì£¼
     return matrix._11 != 0 || matrix._12 != 0 || matrix._13 != 0 || matrix._14 != 0 ||
         matrix._21 != 0 || matrix._22 != 0 || matrix._23 != 0 || matrix._24 != 0 ||
         matrix._31 != 0 || matrix._32 != 0 || matrix._33 != 0 || matrix._34 != 0 ||
@@ -35,16 +37,16 @@ bool IsMatrixValid(const XMFLOAT4X4& matrix)
 
 void DecomposeMatrix(const XMFLOAT4X4& matrix, Vec3& position, Quaternion& rotation, Vec3& scale)
 {
-    // 4x4 Çà·ÄÀ» XMMATRIX·Î º¯È¯
+    // 4x4 í–‰ë ¬ì„ XMMATRIXë¡œ ë³€í™˜
     XMMATRIX mat = XMLoadFloat4x4(&matrix);
 
-    // À§Ä¡, È¸Àü, ½ºÄÉÀÏ º¤ÅÍ¸¦ ÃÊ±âÈ­
+    // ìœ„ì¹˜, íšŒì „, ìŠ¤ì¼€ì¼ ë²¡í„°ë¥¼ ì´ˆê¸°í™”
     XMVECTOR posVec, rotQuat, sclVec;
 
-    // Çà·ÄÀ» À§Ä¡, È¸Àü(Quaternion), ½ºÄÉÀÏ·Î ºĞ¸®
+    // í–‰ë ¬ì„ ìœ„ì¹˜, íšŒì „(Quaternion), ìŠ¤ì¼€ì¼ë¡œ ë¶„ë¦¬
     XMMatrixDecompose(&sclVec, &rotQuat, &posVec, mat);
 
-    // ºĞ¸®µÈ °ªµéÀ» SimpleMathÀÇ Vector3¿Í Quaternion Çü½ÄÀ¸·Î º¯È¯
+    // ë¶„ë¦¬ëœ ê°’ë“¤ì„ SimpleMathì˜ Vector3ì™€ Quaternion í˜•ì‹ìœ¼ë¡œ ë³€í™˜
     position = Vector3(posVec);
     rotation = Quaternion(rotQuat);
     scale = Vector3(sclVec);
@@ -52,18 +54,18 @@ void DecomposeMatrix(const XMFLOAT4X4& matrix, Vec3& position, Quaternion& rotat
 
 Vec3 QuaternionToEuler(const Quaternion& q)
 {
-    // ÄõÅÍ´Ï¾ğÀ» Çà·Ä·Î º¯È¯
+}
     XMMATRIX rotationMatrix = XMMatrixRotationQuaternion(q);
 
-    // Çà·ÄÀÇ ¿ä¼Ò ÃßÃâ
+    // í–‰ë ¬ì˜ ìš”ì†Œ ì¶”ì¶œ
     float pitch, yaw, roll;
 
-    // Çà·ÄÀÇ ¿ä¼Ò¸¦ »ç¿ëÇÏ¿© ¿ÀÀÏ·¯ °¢ °è»ê
+    // í–‰ë ¬ì˜ ìš”ì†Œë¥¼ ì‚¬ìš©í•˜ì—¬ ì˜¤ì¼ëŸ¬ ê° ê³„ì‚°
     // Pitch (X-axis rotation)
     pitch = std::asin(-rotationMatrix.r[2].m128_f32[1]);
 
     // Roll (Z-axis rotation)
-    if (std::cos(pitch) > 0.0001f) { // ¾ÈÁ¤¼ºÀ» À§ÇÑ ÀÛÀº ¼ö ºñ±³
+    if (std::cos(pitch) > 0.0001f) { // ì•ˆì •ì„±ì„ ìœ„í•œ ì‘ì€ ìˆ˜ ë¹„êµ
         roll = std::atan2(rotationMatrix.r[2].m128_f32[0], rotationMatrix.r[2].m128_f32[2]);
         yaw = std::atan2(rotationMatrix.r[0].m128_f32[1], rotationMatrix.r[1].m128_f32[1]);
     }
@@ -72,6 +74,6 @@ Vec3 QuaternionToEuler(const Quaternion& q)
         yaw = 0.0f;
     }
 
-    // ¿ÀÀÏ·¯ °¢À» Vector3·Î ¹İÈ¯ (Yaw, Pitch, Roll)
-    return Vector3(pitch, yaw, roll); // ÇÇÄ¡, ¿ä, ·Ñ ¼øÀ¸·Î ¹İÈ¯
+    // ì˜¤ì¼ëŸ¬ ê°ì„ Vector3ë¡œ ë°˜í™˜ (Yaw, Pitch, Roll)
+    return Vector3(pitch, yaw, roll); // í”¼ì¹˜, ìš”, ë¡¤ ìˆœìœ¼ë¡œ ë°˜í™˜
 }

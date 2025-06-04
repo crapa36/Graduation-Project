@@ -1,11 +1,11 @@
 #pragma once
 
-// byte »ç¿ëÇÏÁö ¾ÊÀ½
+// byte ì‚¬ìš©í•˜ì§€ ì•ŠìŒ
 #define _HAS_STD_BYTE 0
 
 #define PIE 3.1415
 
-// °¢Á¾ include
+// ê°ì¢… include
 #define WIN32_LEAN_AND_MEAN
 #include <WinSock2.h>
 #include <ws2tcpip.h>
@@ -47,7 +47,7 @@ using namespace Microsoft::WRL;
 
 #include "FBX/fbxsdk.h"
 
-// °¢Á¾ lib
+// ê°ì¢… lib
 #pragma comment(lib, "d3d12")
 #pragma comment(lib, "dxgi")
 #pragma comment(lib, "dxguid")
@@ -70,7 +70,7 @@ using namespace Microsoft::WRL;
 #pragma comment(lib, "FBX\\release\\zlib-md.lib")
 #endif
 
-// °¢Á¾ typedef
+// ê°ì¢… typedef
 using int8 = __int8;
 using int16 = __int16;
 using int32 = __int32;
@@ -129,13 +129,13 @@ enum {
 };
 
 struct WindowInfo {
-    HWND	hwnd; // Ãâ·Â À©µµ¿ì
-    int32	width; // ³Êºñ
-    int32	height; // ³ôÀÌ
-    int32   clientWidth; // Å¬¶óÀÌ¾ğÆ® ¿µ¿ª ³Êºñ
-    int32   clientHeight; // Å¬¶óÀÌ¾ğÆ® ¿µ¿ª ³ôÀÌ
-    bool	windowed; // Ã¢¸ğµå or ÀüÃ¼È­¸é
-    HINSTANCE hInstance; // ÀÎ½ºÅÏ½º
+    HWND	hwnd; // ì¶œë ¥ ìœˆë„ìš°
+    int32	width; // ë„ˆë¹„
+    int32	height; // ë†’ì´
+    int32   clientWidth; // í´ë¼ì´ì–¸íŠ¸ ì˜ì—­ ë„ˆë¹„
+    int32   clientHeight; // í´ë¼ì´ì–¸íŠ¸ ì˜ì—­ ë†’ì´
+    bool	windowed; // ì°½ëª¨ë“œ or ì „ì²´í™”ë©´
+    HINSTANCE hInstance; // ì¸ìŠ¤í„´ìŠ¤
 };
 
 struct Vertex {
@@ -186,9 +186,10 @@ struct TransformParams {
 };
 
 struct TimeParams {
-    float totalTime;  // ÀüÃ¼ ½Ã°£ (´©Àû ½Ã°£)
-    float deltaTime;  // ÇÁ·¹ÀÓ ½Ã°£ (µ¨Å¸ ½Ã°£)
-    float padding[2]; // ÆĞµùÀ¸·Î 16¹ÙÀÌÆ® Á¤·Ä ¸ÂÃß±â
+extern unique_ptr<class Resources> GResources;
+Vec3 QuaternionToEuler(const Quaternion& q);
+    float deltaTime;  // í”„ë ˆì„ ì‹œê°„ (ë¸íƒ€ ì‹œê°„)
+    float padding[2]; // íŒ¨ë”©ìœ¼ë¡œ 16ë°”ì´íŠ¸ ì •ë ¬ ë§ì¶”ê¸°
 };
 
 struct AnimFrameParams {

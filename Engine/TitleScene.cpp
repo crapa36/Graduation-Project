@@ -46,15 +46,15 @@ TitleScene::TitleScene() {
     obj->GetTransform()->SetLocalPosition(Vec3(0.f, 0.f, 1.f));
     shared_ptr<MeshRenderer> meshRenderer = make_shared<MeshRenderer>();
     {
-        shared_ptr<Mesh> mesh = GET_SINGLETON(Resources)->LoadRectangleMesh();
+        shared_ptr<Mesh> mesh = GResources->LoadRectangleMesh();
         meshRenderer->SetMesh(mesh);
     }
     {
-        shared_ptr<Shader> shader = GET_SINGLETON(Resources)->Get<Shader>(L"Texture");
+        shared_ptr<Shader> shader = GResources->Get<Shader>(L"Texture");
 
         shared_ptr<Texture> texture;
 
-        texture = GET_SINGLETON(Resources)->Load<Texture>(L"Title", L"..\\Resources\\Texture\\Title.png");
+        texture = GResources->Load<Texture>(L"Title", L"..\\Resources\\Texture\\Title.png");
 
         shared_ptr<Material> material = make_shared<Material>();
         material->SetShader(shader);

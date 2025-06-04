@@ -8,7 +8,7 @@
 #include "StructuredBuffer.h"
 
 Animator::Animator() : Component(COMPONENT_TYPE::ANIMATOR) {
-    _computeMaterial = GET_SINGLETON(Resources)->Get<Material>(L"ComputeAnimation");
+    _computeMaterial = GResources->Get<Material>(L"ComputeAnimation");
     _boneFinalMatrix = make_shared<StructuredBuffer>();
 }
 

@@ -9,25 +9,25 @@
 #include "Resources.h"
 #include <algorithm>
 
-// SphereCollider »ı¼ºÀÚ ¹× ¼Ò¸êÀÚ
+// SphereCollider ìƒì„±ì ë° ì†Œë©¸ì
 SphereCollider::SphereCollider() : BaseCollider(ColliderType::Sphere) {
 }
 
 SphereCollider::~SphereCollider() {
 }
 
-// ÃÖÁ¾ ¾÷µ¥ÀÌÆ®: ½ºÇÇ¾î Äİ¶óÀÌ´õÀÇ Áß½É°ú ¹İ°æ ¾÷µ¥ÀÌÆ®
+// ìµœì¢… ì—…ë°ì´íŠ¸: ìŠ¤í”¼ì–´ ì½œë¼ì´ë”ì˜ ì¤‘ì‹¬ê³¼ ë°˜ê²½ ì—…ë°ì´íŠ¸
 void SphereCollider::FinalUpdate() {
     _boundingSphere.Center = GetGameObject()->GetTransform()->GetWorldPosition() + _center;
     _boundingSphere.Radius = _radius / 2;
 }
 
-// ·¹ÀÌ¿ÍÀÇ ±³Â÷ °Ë»ç
+// ë ˆì´ì™€ì˜ êµì°¨ ê²€ì‚¬
 bool SphereCollider::Intersects(Vec4 rayOrigin, Vec4 rayDir, OUT float& distance) {
     return _boundingSphere.Intersects(rayOrigin, rayDir, distance);
 }
 
-// ´Ù¸¥ Äİ¶óÀÌ´õ¿ÍÀÇ ±³Â÷ °Ë»ç
+// ë‹¤ë¥¸ ì½œë¼ì´ë”ì™€ì˜ êµì°¨ ê²€ì‚¬
 bool SphereCollider::Intersects(const shared_ptr<BaseCollider>& other) {
     if (!other) return false;
 
@@ -37,13 +37,13 @@ bool SphereCollider::Intersects(const shared_ptr<BaseCollider>& other) {
     case ColliderType::Sphere:
     {
         auto otherSphere = dynamic_pointer_cast<SphereCollider>(other);
-        if (!otherSphere) return false; // ¾ÈÀü¼º °­È­
+        if (!otherSphere) return false; // ì•ˆì „ì„± ê°•í™”
         return _boundingSphere.Intersects(otherSphere->GetBoundingSphere());
     }
     case ColliderType::Box:
     {
         auto otherBox = dynamic_pointer_cast<BoxCollider>(other);
-        if (!otherBox) return false; // ¾ÈÀü¼º °­È­
+        if (!otherBox) return false; // ì•ˆì „ì„± ê°•í™”
         return _boundingSphere.Intersects(otherBox->GetBoundingBox());
     }
     default:
@@ -51,13 +51,13 @@ bool SphereCollider::Intersects(const shared_ptr<BaseCollider>& other) {
     }
 }
 
-// ·¹ÀÌ°úÀÇ Ãæµ¹ ¹ı¼± °è»ê
+// ë ˆì´ê³¼ì˜ ì¶©ëŒ ë²•ì„  ê³„ì‚°
 Vec3 SphereCollider::GetCollisionNormal(const Vec4& rayOrigin, const Vec4& rayDir) {
     Vec3 normal(0, 0, 0);
     float distance;
 
     if (!Intersects(rayOrigin, rayDir, distance)) {
-        return normal; // Ãæµ¹ÀÌ ¾øÀ¸¸é ºó º¤ÅÍ ¹İÈ¯
+        return normal; // ì¶©ëŒì´ ì—†ìœ¼ë©´ ë¹ˆ ë²¡í„° ë°˜í™˜
     }
 
     Vec4 hitPoint = rayOrigin + rayDir * distance;
@@ -70,7 +70,7 @@ Vec3 SphereCollider::GetCollisionNormal(const Vec4& rayOrigin, const Vec4& rayDi
     return normal;
 }
 
-// ´Ù¸¥ Äİ¶óÀÌ´õ¿ÍÀÇ Ãæµ¹ ¹ı¼± °è»ê
+// ë‹¤ë¥¸ ì½œë¼ì´ë”ì™€ì˜ ì¶©ëŒ ë²•ì„  ê³„ì‚°
 Vec3 SphereCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
     Vec3 normal;
 
@@ -79,11 +79,11 @@ Vec3 SphereCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
     ColliderType otherType = other->GetColliderType();
     if (otherType == ColliderType::Sphere) {
 
-        // Sphere-Sphere Ãæµ¹
+        // Sphere-Sphere ì¶©ëŒ
         auto otherSphere = dynamic_pointer_cast<SphereCollider>(other);
         if (!otherSphere) {
 
-            // ¿¡·¯ Ã³¸®: µ¿Àû Ä³½ºÆ® ½ÇÆĞ
+            // ì—ëŸ¬ ì²˜ë¦¬: ë™ì  ìºìŠ¤íŠ¸ ì‹¤íŒ¨
             return normal;
         }
         Vec3 otherCenter = otherSphere->GetBoundingSphere().Center;
@@ -94,11 +94,11 @@ Vec3 SphereCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
     }
     else if (otherType == ColliderType::Box) {
 
-        // Sphere-Box Ãæµ¹
+        // Sphere-Box ì¶©ëŒ
         auto otherBox = dynamic_pointer_cast<BoxCollider>(other);
         if (!otherBox) {
 
-            // ¿¡·¯ Ã³¸®: µ¿Àû Ä³½ºÆ® ½ÇÆĞ
+            // ì—ëŸ¬ ì²˜ë¦¬: ë™ì  ìºìŠ¤íŠ¸ ì‹¤íŒ¨
             return normal;
         }
         auto otherBoundingBox = otherBox->GetBoundingBox();
@@ -106,21 +106,21 @@ Vec3 SphereCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
         Vec3 boxExtents = otherBoundingBox.Extents;
         Matrix boxRotation = otherBox->GetRotationMatrix();
 
-        // ¹Ú½º ·ÎÄÃ ÁÂÇ¥°è·Î ½ºÇÇ¾î Áß½É º¯È¯
+        // ë°•ìŠ¤ ë¡œì»¬ ì¢Œí‘œê³„ë¡œ ìŠ¤í”¼ì–´ ì¤‘ì‹¬ ë³€í™˜
         Vec3 sphereCenter = _boundingSphere.Center;
         Matrix invBoxRotation = boxRotation.Invert();
         Vec3 localSphereCenter = Vector3::Transform(sphereCenter - boxCenter, invBoxRotation);
 
-        // ¹Ú½ºÀÇ °¡Àå °¡±î¿î Á¡À» °è»ê
+        // ë°•ìŠ¤ì˜ ê°€ì¥ ê°€ê¹Œìš´ ì ì„ ê³„ì‚°
         Vec3 closestPoint;
         closestPoint.x = std::clamp(localSphereCenter.x, -boxExtents.x, boxExtents.x);
         closestPoint.y = std::clamp(localSphereCenter.y, -boxExtents.y, boxExtents.y);
         closestPoint.z = std::clamp(localSphereCenter.z, -boxExtents.z, boxExtents.z);
 
-        // ·ÎÄÃ ÁÂÇ¥°è¿¡¼­ ¹ı¼± º¤ÅÍ °è»ê
+        // ë¡œì»¬ ì¢Œí‘œê³„ì—ì„œ ë²•ì„  ë²¡í„° ê³„ì‚°
         Vec3 localNormal = localSphereCenter - closestPoint;
 
-        // ¹ı¼± º¤ÅÍ°¡ 0ÀÎ °æ¿ì Ã³¸® (¹Ú½º Ç¥¸é¿¡ À§Ä¡)
+        // ë²•ì„  ë²¡í„°ê°€ 0ì¸ ê²½ìš° ì²˜ë¦¬ (ë°•ìŠ¤ í‘œë©´ì— ìœ„ì¹˜)
         if (localNormal.Length() < FLT_EPSILON) {
             if (abs(closestPoint.x - boxExtents.x) < FLT_EPSILON) localNormal = Vec3(1, 0, 0);
             else if (abs(closestPoint.x + boxExtents.x) < FLT_EPSILON) localNormal = Vec3(-1, 0, 0);
@@ -133,14 +133,14 @@ Vec3 SphereCollider::GetCollisionNormal(const shared_ptr<BaseCollider>& other) {
             localNormal.Normalize();
         }
 
-        // ¿ùµå ÁÂÇ¥°è·Î º¯È¯ (¹ı¼± º¤ÅÍ´Â ¹æÇâ¸¸ º¯È¯)
+        // ì›”ë“œ ì¢Œí‘œê³„ë¡œ ë³€í™˜ (ë²•ì„  ë²¡í„°ëŠ” ë°©í–¥ë§Œ ë³€í™˜)
         normal = -Vector3::TransformNormal(localNormal, boxRotation);
     }
 
     return normal;
 }
 
-// ´Ù¸¥ Äİ¶óÀÌ´õ¿ÍÀÇ Ãæµ¹ ±íÀÌ °è»ê
+// ë‹¤ë¥¸ ì½œë¼ì´ë”ì™€ì˜ ì¶©ëŒ ê¹Šì´ ê³„ì‚°
 float SphereCollider::GetCollisionDepth(const shared_ptr<BaseCollider>& other) {
     float depth = 0.0f;
     if (!other) return depth;
@@ -149,11 +149,11 @@ float SphereCollider::GetCollisionDepth(const shared_ptr<BaseCollider>& other) {
 
     if (otherType == ColliderType::Sphere) {
 
-        // Sphere-Sphere Ãæµ¹ ±íÀÌ
+        // Sphere-Sphere ì¶©ëŒ ê¹Šì´
         auto otherSphere = dynamic_pointer_cast<SphereCollider>(other);
         if (!otherSphere) {
 
-            // ¿¡·¯ Ã³¸®: µ¿Àû Ä³½ºÆ® ½ÇÆĞ
+            // ì—ëŸ¬ ì²˜ë¦¬: ë™ì  ìºìŠ¤íŠ¸ ì‹¤íŒ¨
             return depth;
         }
         Vec3 otherCenter = otherSphere->GetBoundingSphere().Center;
@@ -163,11 +163,11 @@ float SphereCollider::GetCollisionDepth(const shared_ptr<BaseCollider>& other) {
     }
     else if (otherType == ColliderType::Box) {
 
-        // Sphere-Box Ãæµ¹ ±íÀÌ
+        // Sphere-Box ì¶©ëŒ ê¹Šì´
         auto otherBox = dynamic_pointer_cast<BoxCollider>(other);
         if (!otherBox) {
 
-            // ¿¡·¯ Ã³¸®: µ¿Àû Ä³½ºÆ® ½ÇÆĞ
+            // ì—ëŸ¬ ì²˜ë¦¬: ë™ì  ìºìŠ¤íŠ¸ ì‹¤íŒ¨
             return depth;
         }
         auto otherBoundingBox = otherBox->GetBoundingBox();
@@ -175,18 +175,18 @@ float SphereCollider::GetCollisionDepth(const shared_ptr<BaseCollider>& other) {
         Vec3 boxExtents = otherBoundingBox.Extents;
         Matrix boxRotation = otherBox->GetRotationMatrix();
 
-        // ¹Ú½º ·ÎÄÃ ÁÂÇ¥°è·Î ½ºÇÇ¾î Áß½É º¯È¯
-        Vec3 sphereCenter = _boundingSphere.Center;
-        Matrix invBoxRotation = boxRotation.Invert();
+    _mesh = GResources->LoadSphereMesh();
+    _material = GResources->Get<Material>(L"Collider")->Clone();
+#endif
         Vec3 localSphereCenter = Vector3::Transform(sphereCenter - boxCenter, invBoxRotation);
 
-        // ¹Ú½ºÀÇ °¡Àå °¡±î¿î Á¡ Ã£±â
+        // ë°•ìŠ¤ì˜ ê°€ì¥ ê°€ê¹Œìš´ ì  ì°¾ê¸°
         Vec3 closestPoint;
         closestPoint.x = std::clamp(localSphereCenter.x, -boxExtents.x, boxExtents.x);
         closestPoint.y = std::clamp(localSphereCenter.y, -boxExtents.y, boxExtents.y);
         closestPoint.z = std::clamp(localSphereCenter.z, -boxExtents.z, boxExtents.z);
 
-        // °¡Àå °¡±î¿î Á¡°ú ½ºÇÇ¾î Áß½É °£ °Å¸® °è»ê
+        // ê°€ì¥ ê°€ê¹Œìš´ ì ê³¼ ìŠ¤í”¼ì–´ ì¤‘ì‹¬ ê°„ ê±°ë¦¬ ê³„ì‚°
         float distance = (closestPoint - localSphereCenter).Length();
         depth = _boundingSphere.Radius - distance;
     }
@@ -197,7 +197,7 @@ float SphereCollider::GetCollisionDepth(const shared_ptr<BaseCollider>& other) {
 
 #ifdef _DEBUG
 
-// µğ¹ö±×¿ë ¸Ş½¬ »ı¼º
+// ë””ë²„ê·¸ìš© ë©”ì‰¬ ìƒì„±
 void SphereCollider::CreateMesh() {
     _mesh = GET_SINGLETON(Resources)->LoadSphereMesh();
     _material = GET_SINGLETON(Resources)->Get<Material>(L"Collider")->Clone();
@@ -213,7 +213,7 @@ void SphereCollider::CreateMesh() {
     _DebugObject->AddComponent(meshRenderer);
 }
 
-// µğ¹ö±×¿ë ·»´õ¸µ
+// ë””ë²„ê·¸ìš© ë Œë”ë§
 void SphereCollider::Render() {
     if (_DebugObject == nullptr)
         CreateMesh();
